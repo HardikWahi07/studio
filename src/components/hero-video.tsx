@@ -1,64 +1,60 @@
 
 'use client';
 
-import React, { useEffect, useRef, useState } from 'react';
-import { LoadingScreen } from './ui/loading-screen';
+import React, { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { LoadingScreen } from './ui/loading-screen';
 
 const API_KEY = "R1hsiiOY8ZHYJ9eIH6UaE4HFaHgaAFkdz3aUXvMpsvQA7XTdFx3wJ1uK";
 const query = "green valley river drone 4k";
 
 export function HeroVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const progressRef = useRef<HTMLDivElement>(null);
+  const loadingScreenRef = useRef<HTMLDivElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const isHomePage = pathname === '/';
-  
-  const [isLoading, setIsLoading] = useState(isHomePage);
 
   useEffect(() => {
     if (!isHomePage) {
-        setIsLoading(false);
+        if(loadingScreenRef.current) {
+            loadingScreenRef.current.style.display = 'none';
+        }
         return;
     }
 
     const videoEl = videoRef.current;
-    const progressEl = progressRef.current;
-    if (!videoEl || !progressEl) return;
+    const loadingScreenEl = loadingScreenRef.current;
+    const progressBarEl = progressBarRef.current;
+    if (!videoEl || !loadingScreenEl || !progressBarEl) return;
 
     let progressInterval: NodeJS.Timeout;
-    
+
     const updateProgress = () => {
-      progressEl.style.width = `${Math.min(95, parseFloat(progressEl.style.width || '0') + Math.random() * 5)}%`;
-    }
+      progressBarEl.style.width = `${Math.min(95, parseFloat(progressBarEl.style.width || '0') + Math.random() * 5)}%`;
+    };
 
     const startProgress = () => {
-        progressEl.style.width = '0%';
-        progressInterval = setInterval(updateProgress, 200);
-    }
-    
-    const completeProgress = () => {
-        clearInterval(progressInterval);
-        if (progressEl) {
-            progressEl.style.width = '100%';
-        }
-        setTimeout(() => {
-            setIsLoading(false);
-            if (videoEl) {
-                videoEl.classList.add('opacity-100');
-            }
-        }, 500);
-    }
+      progressBarEl.style.width = '0%';
+      progressInterval = setInterval(updateProgress, 200);
+    };
 
+    const completeProgress = () => {
+      clearInterval(progressInterval);
+      progressBarEl.style.width = '100%';
+      setTimeout(() => {
+        loadingScreenEl.classList.add('opacity-0', 'pointer-events-none');
+        videoEl.classList.add('opacity-100');
+      }, 500);
+    };
+    
     const loadFastFallback = () => {
-      const fallbacks = [
-        "https://cdn.coverr.co/videos/coverr-river-valley-8879/1080p.mp4",
-        "https://cdn.coverr.co/videos/coverr-aerial-view-of-forest-and-river-1568/1080p.mp4",
-        "https://cdn.coverr.co/videos/coverr-green-forest-from-above-5508/1080p.mp4"
-      ];
-      if (videoEl) {
+        const fallbacks = [
+          "https://cdn.coverr.co/videos/coverr-river-valley-8879/1080p.mp4",
+          "https://cdn.coverr.co/videos/coverr-aerial-view-of-forest-and-river-1568/1080p.mp4",
+          "https://cdn.coverr.co/videos/coverr-green-forest-from-above-5508/1080p.mp4"
+        ];
         videoEl.src = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-      }
     };
 
     const loadRandomVideoFast = async () => {
@@ -76,7 +72,10 @@ export function HeroVideo() {
         if (data.videos?.length > 0) {
           const randomVideo = data.videos[Math.floor(Math.random() * data.videos.length)];
           const files = randomVideo.video_files;
-          const bestFile = files.find(v => v.quality === 'hd') || files[0];
+          
+          const bestFile = files.find(v => v.quality === 'uhd') || 
+                           files.find(v => v.quality === 'hd') || 
+                           files[0];
     
           if (videoEl) {
             videoEl.src = bestFile.link;
@@ -88,16 +87,16 @@ export function HeroVideo() {
         console.error("Video load error:", err);
         loadFastFallback();
       }
-    }
+    };
 
     const handleVideoLoaded = () => {
         completeProgress();
         videoEl.play().catch(e => console.log("Autoplay is waiting for user interaction."));
     };
-
+    
     videoEl.addEventListener('loadeddata', handleVideoLoaded);
     loadRandomVideoFast();
-
+    
     const handleDocumentClick = () => {
         if(videoEl && videoEl.paused) {
             videoEl.play().catch(e => console.log("Playback still blocked"));
@@ -105,20 +104,19 @@ export function HeroVideo() {
     }
     document.addEventListener('click', handleDocumentClick);
 
-
     return () => {
-        clearInterval(progressInterval);
-        if (videoEl) {
-            videoEl.removeEventListener('loadeddata', handleVideoLoaded);
-        }
-        document.removeEventListener('click', handleDocumentClick);
-    }
+      clearInterval(progressInterval);
+      if (videoEl) {
+        videoEl.removeEventListener('loadeddata', handleVideoLoaded);
+      }
+      document.removeEventListener('click', handleDocumentClick);
+    };
   }, [isHomePage]);
 
 
   return (
     <>
-      {isLoading && isHomePage && <LoadingScreen ref={progressRef} />}
+      <LoadingScreen ref={loadingScreenRef} progressBarRef={progressBarRef} />
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-0 transition-opacity duration-1000"
