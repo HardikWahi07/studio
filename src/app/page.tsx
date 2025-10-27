@@ -190,7 +190,7 @@ export default function DashboardPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
               {destinations.map((dest, index) => {
-                const imageUrl = `https://source.unsplash.com/random/400x500?${dest.imageHint.replace(' ', ',')}&sig=${Math.random()}`;
+                const imageUrl = `https://source.unsplash.com/400x500/?${dest.imageHint.replace(' ', ',')}`;
                 return (
                   <Card key={dest.id} className="overflow-hidden group">
                     <div className='relative aspect-[4/5] w-full'>
@@ -274,3 +274,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    
