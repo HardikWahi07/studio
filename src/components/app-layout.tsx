@@ -112,33 +112,25 @@ function useScrollState() {
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
-  const [isLoading, setIsLoading] = React.useState(isHomePage);
   const pathname = usePathname();
-
-  React.useEffect(() => {
-    if (pathname !== '/') {
-      setIsLoading(false);
-    } else {
-       setIsLoading(true);
-    }
-  }, [pathname]);
+  const [isLoading, setIsLoading] = React.useState(pathname === '/');
 
   const handleVideoLoad = React.useCallback(() => {
     setIsLoading(false);
   }, []);
 
-  const childrenWithProps = React.Children.map(children, child => {
-    if (React.isValidElement(child) && isHomePage) {
-      // @ts-ignore
-      return React.cloneElement(child, { onVideoLoad: handleVideoLoad });
-    }
-    return child;
-  });
-
+  const childrenWithProps = React.useMemo(() => 
+    React.Children.map(children, child => {
+      if (React.isValidElement(child) && isHomePage) {
+        // @ts-ignore
+        return React.cloneElement(child, { onVideoLoad: handleVideoLoad });
+      }
+      return child;
+    }), [children, isHomePage, handleVideoLoad]);
 
   return (
     <div className="flex min-h-screen flex-col">
-       {isLoading && <LoadingScreen />}
+       {isLoading && isHomePage && <LoadingScreen />}
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
@@ -182,7 +174,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="flex-1">{isHomePage ? childrenWithProps : children}</main>
+      <main className="flex-1">{childrenWithProps}</main>
        <footer className="bg-gray-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">

@@ -11,37 +11,21 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
   
   useEffect(() => {
     let progressInterval: NodeJS.Timeout;
-    let progress = 0;
     
-    const progressBar = document.getElementById("progressBar");
-
-    function updateProgress() {
-      if (!progressBar) return;
-      progress += Math.random() * 5;
-      if (progress > 95) progress = 95; // Don't reach 100% until video is loaded
-      progressBar.style.width = `${progress}%`;
-    }
-
-    function startProgress() {
-      progressInterval = setInterval(updateProgress, 200);
-    }
-
-    function completeProgress() {
-      clearInterval(progressInterval);
-      if (progressBar) {
-        progressBar.style.width = '100%';
+    const videoEl = videoRef.current;
+    if (!videoEl) return;
+    
+    // Straight from your JS - this is the reliable way
+    const handleVideoLoaded = () => {
+      if (onVideoLoad) {
+        onVideoLoad();
       }
-      
-      // Hide loading screen via callback
-      setTimeout(() => {
-        if (onVideoLoad) {
-            onVideoLoad();
-        }
-        if (videoRef.current) {
-            videoRef.current.classList.add('opacity-100');
-        }
-      }, 500);
-    }
+      // Ensure video is visible after loading
+      if (videoRef.current) {
+        videoRef.current.classList.add('opacity-100');
+        videoRef.current.play().catch(e => console.log("Autoplay is waiting for user interaction."));
+      }
+    };
 
     const loadFastFallback = () => {
       const fallbacks = [
@@ -58,8 +42,6 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
     
     async function loadRandomVideoFast() {
       try {
-        startProgress();
-        
         const res = await fetch(
           `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=10&page=${Math.floor(Math.random() * 10) + 1}`,
           { 
@@ -76,13 +58,11 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
         if (data.videos?.length > 0) {
           const randomVideo = data.videos[Math.floor(Math.random() * data.videos.length)];
           const files = randomVideo.video_files;
-    
           const bestFile = files.find(v => v.quality === 'hd') || files[0];
     
           if (videoRef.current) {
             videoRef.current.src = bestFile.link;
           }
-          
         } else {
           throw new Error("No videos found");
         }
@@ -92,29 +72,17 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
       }
     }
 
+    // Attach the event listener that will trigger the end of the loading screen
+    videoEl.addEventListener('loadeddata', handleVideoLoaded);
+
+    // Start loading the video
     loadRandomVideoFast();
 
-    const videoEl = videoRef.current;
-    if (videoEl) {
-        videoEl.onloadeddata = () => {
-            completeProgress();
-            videoEl.play().catch(e => console.log("Autoplay waiting for interaction"));
-        };
-    }
-
-    const handleClick = () => {
-      if (videoEl?.paused) {
-        videoEl.play().catch(e => console.log("Still blocked"));
-      }
-    }
-    
-    document.addEventListener('click', handleClick);
-
+    // Cleanup function to remove event listener
     return () => {
         clearInterval(progressInterval);
-        document.removeEventListener('click', handleClick);
         if (videoEl) {
-            videoEl.onloadeddata = null;
+            videoEl.removeEventListener('loadeddata', handleVideoLoaded);
         }
     }
   }, [onVideoLoad]);
