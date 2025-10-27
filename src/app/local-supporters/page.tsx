@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Clock, Languages, MapPin, Users, Search } from 'lucide-react';
+import { MessageSquare, Clock, Languages, MapPin, Users, Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 type LocalSupporter = {
@@ -22,14 +22,50 @@ type LocalSupporter = {
     response_time: string;
 };
 
+type GeoState = 'idle' | 'getting_location' | 'fetching_supporters' | 'error' | 'success';
+
 export default function LocalSupportersPage() {
     const firestore = useFirestore();
     const [searchLocation, setSearchLocation] = useState('');
     const [searchedCity, setSearchedCity] = useState('');
+    const [geoState, setGeoState] = useState<GeoState>('idle');
+    const [errorMessage, setErrorMessage] = useState('');
+
+    useEffect(() => {
+        if ('geolocation' in navigator) {
+            setGeoState('getting_location');
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const { latitude, longitude } = position.coords;
+                    try {
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                        const data = await response.json();
+                        const city = data.address.city || data.address.town || data.address.village;
+                        if (city) {
+                            setSearchedCity(city);
+                            setSearchLocation(city);
+                            setGeoState('fetching_supporters');
+                        } else {
+                            throw new Error("Could not determine city from your location.");
+                        }
+                    } catch (error) {
+                        setErrorMessage('Could not find your city. Please search manually.');
+                        setGeoState('error');
+                    }
+                },
+                (error) => {
+                    setErrorMessage('Location access was denied. Please enable it in your browser settings or search for a city manually.');
+                    setGeoState('error');
+                }
+            );
+        } else {
+             setErrorMessage('Geolocation is not supported by your browser. Please search for a city manually.');
+             setGeoState('error');
+        }
+    }, []);
 
     const supportersQuery = useMemoFirebase(() => {
         if (!firestore || !searchedCity) return null;
-        // Query for supporters in the specified location, ordered by name.
         return query(
             collection(firestore, 'supporters'), 
             where('location', '>=', searchedCity),
@@ -41,43 +77,23 @@ export default function LocalSupportersPage() {
 
     const { data: supporters, isLoading: isLoadingSupporters } = useCollection<LocalSupporter>(supportersQuery);
     
-    const isLoading = isLoadingSupporters;
+    useEffect(() => {
+        if (!isLoadingSupporters && searchedCity) {
+            setGeoState('success');
+        }
+    }, [isLoadingSupporters, searchedCity]);
+
+    const isLoading = geoState === 'getting_location' || geoState === 'fetching_supporters' || (searchedCity && isLoadingSupporters);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
         setSearchedCity(searchLocation);
+        setGeoState('fetching_supporters');
     }
 
-    return (
-        <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
-            <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Supporters</h1>
-                <p className="text-muted-foreground max-w-2xl">
-                    Connect with friendly locals who are happy to help. Get advice, ask questions, or just get a friendly tip when you're feeling lost.
-                </p>
-            </div>
-
-             <Card>
-                <CardHeader>
-                    <CardTitle>Find a Supporter</CardTitle>
-                    <CardDescription>Enter a city to find locals who can help.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSearch} className="flex gap-2">
-                        <Input 
-                            placeholder="e.g., Madrid, Spain"
-                            value={searchLocation}
-                            onChange={(e) => setSearchLocation(e.target.value)}
-                        />
-                        <Button type="submit">
-                            <Search className="mr-2 h-4 w-4" />
-                            Search
-                        </Button>
-                    </form>
-                </CardContent>
-            </Card>
-
-            {isLoading && (
+    const renderContent = () => {
+        if (isLoading) {
+             return (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {[...Array(3)].map((_, i) => (
                         <Card key={i}>
@@ -103,9 +119,23 @@ export default function LocalSupportersPage() {
                         </Card>
                     ))}
                 </div>
-            )}
-            
-            {!isLoading && searchedCity && !supporters?.length && (
+            );
+        }
+
+        if (geoState === 'error' && !searchedCity) {
+            return (
+                 <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
+                    <MapPin className="h-16 w-16 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-bold text-lg">Location Error</h3>
+                    <p className="mt-2 text-muted-foreground max-w-sm">
+                       {errorMessage}
+                    </p>
+                </Card>
+            );
+        }
+
+        if (searchedCity && !supporters?.length) {
+            return (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Users className="h-16 w-16 text-muted-foreground/50" />
                     <h3 className="mt-4 font-bold text-lg">No Supporters Found in {searchedCity}</h3>
@@ -113,19 +143,11 @@ export default function LocalSupportersPage() {
                        We're still building our network. Try searching for another city or check back soon!
                     </p>
                 </Card>
-            )}
+            );
+        }
 
-            {!isLoading && !searchedCity && (
-                 <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
-                    <MapPin className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">Search for a City</h3>
-                    <p className="mt-2 text-muted-foreground max-w-sm">
-                       Enter a location above to find local supporters in that area.
-                    </p>
-                </Card>
-            )}
-
-            {!isLoading && supporters && supporters.length > 0 && (
+        if (supporters && supporters.length > 0) {
+            return (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {supporters.map(supporter => (
                         <Card key={supporter.id} className="flex flex-col">
@@ -159,7 +181,50 @@ export default function LocalSupportersPage() {
                         </Card>
                     ))}
                 </div>
-            )}
+            );
+        }
+
+        return (
+            <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
+                <MapPin className="h-16 w-16 text-muted-foreground/50" />
+                <h3 className="mt-4 font-bold text-lg">Find Local Supporters</h3>
+                <p className="mt-2 text-muted-foreground max-w-sm">
+                   Enter a location above to find local supporters in that area.
+                </p>
+            </Card>
+        );
+    };
+
+    return (
+        <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
+            <div className="space-y-2">
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Supporters</h1>
+                <p className="text-muted-foreground max-w-2xl">
+                    Connect with friendly locals who are happy to help. Get advice, ask questions, or just get a friendly tip when you're feeling lost.
+                </p>
+            </div>
+
+             <Card>
+                <CardHeader>
+                    <CardTitle>Find a Supporter</CardTitle>
+                    <CardDescription>Enter a city to find locals who can help. We'll try to detect your location automatically.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSearch} className="flex gap-2">
+                        <Input 
+                            placeholder="e.g., Madrid, Spain"
+                            value={searchLocation}
+                            onChange={(e) => setSearchLocation(e.target.value)}
+                        />
+                        <Button type="submit">
+                            <Search className="mr-2 h-4 w-4" />
+                            Search
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
+
+            {renderContent()}
         </main>
     );
 }
