@@ -1,0 +1,118 @@
+
+'use client';
+
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, orderBy } from 'firebase/firestore';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { PexelsImage } from '@/components/pexels-image';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Plane, Hotel, Calendar, Users, Briefcase } from 'lucide-react';
+import { format } from 'date-fns';
+
+type Trip = {
+    id: string;
+    destination: string;
+    origin: string;
+    startDate: string;
+    travelers: number;
+    hotel?: { name: string; location: string; pricePerNight: string };
+    transport?: { mode: string; cost: string; duration: string };
+};
+
+export default function MyTripsPage() {
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+
+    const tripsQuery = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return query(
+            collection(firestore, 'users', user.uid, 'trips'),
+            orderBy('createdAt', 'desc')
+        );
+    }, [user, firestore]);
+
+    const { data: trips, isLoading: isLoadingTrips } = useCollection<Trip>(tripsQuery);
+    
+    const isLoading = isUserLoading || isLoadingTrips;
+
+    return (
+        <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
+            <div className="space-y-2">
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">My Trips</h1>
+                <p className="text-muted-foreground max-w-2xl">
+                    Here are all the amazing journeys you've planned with TripMind.
+                </p>
+            </div>
+
+            {isLoading && (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {[...Array(3)].map((_, i) => (
+                        <Card key={i}>
+                            <CardHeader>
+                                <Skeleton className="h-40 w-full" />
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-4 w-full" />
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+            
+            {!isLoading && !trips?.length && (
+                 <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
+                    <Briefcase className="h-16 w-16 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-bold text-lg">No Trips Planned Yet</h3>
+                    <p className="mt-2 text-muted-foreground max-w-sm">
+                        Use the AI Trip Planner to start your next adventure!
+                    </p>
+                </Card>
+            )}
+
+            {!isLoading && trips && trips.length > 0 && (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {trips.map(trip => (
+                        <Card key={trip.id} className="flex flex-col">
+                            <CardHeader className="p-0">
+                                <div className="aspect-video w-full relative">
+                                    <PexelsImage query={trip.destination} alt={trip.destination} fill className="rounded-t-lg object-cover"/>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <CardTitle className="font-headline text-xl">{trip.destination}</CardTitle>
+                                    <CardDescription>From {trip.origin}</CardDescription>
+                                    <div className="space-y-3 text-sm text-muted-foreground mt-4">
+                                        <div className="flex items-center gap-2">
+                                            <Calendar className="w-4 h-4" />
+                                            <span>{format(new Date(trip.startDate), 'PPP')}</span>
+                                        </div>
+                                         <div className="flex items-center gap-2">
+                                            <Users className="w-4 h-4" />
+                                            <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
+                                        </div>
+                                        {trip.transport && (
+                                             <div className="flex items-center gap-2">
+                                                <Plane className="w-4 h-4" />
+                                                <span>{trip.transport.mode} - {trip.transport.cost} ({trip.transport.duration})</span>
+                                            </div>
+                                        )}
+                                        {trip.hotel && (
+                                            <div className="flex items-center gap-2">
+                                                <Hotel className="w-4 h-4" />
+                                                <span>{trip.hotel.name} - {trip.hotel.pricePerNight}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </div>
+            )}
+        </main>
+    );
+}

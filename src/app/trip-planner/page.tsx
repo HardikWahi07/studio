@@ -9,14 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search } from "lucide-react";
+import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search, CheckCircle } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
-import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
+import type { PlanTripOutput, Hotel } from '@/ai/flows/plan-trip.types';
 import { CityCombobox } from '@/components/city-combobox';
 import { useSettings } from '@/context/settings-context';
+import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -45,8 +47,12 @@ const CarbonFootprint = ({ value }: { value: number }) => (
 export default function TripPlannerPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
+    const [tripId, setTripId] = useState<string | null>(null);
+    const [selectedItems, setSelectedItems] = useState<{ transport: string | null, hotel: string | null }>({ transport: null, hotel: null });
     const { toast } = useToast();
     const { currency } = useSettings();
+    const { user } = useUser();
+    const firestore = useFirestore();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -61,7 +67,18 @@ export default function TripPlannerPage() {
     async function handleSearch(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setResults(null);
+        setTripId(null);
+        setSelectedItems({ transport: null, hotel: null });
+        if (!user || !firestore) {
+            toast({ title: "Please log in", description: "You need to be logged in to plan a trip.", variant: "destructive" });
+            setIsLoading(false);
+            return;
+        }
+
         try {
+            const newTripId = doc(doc(firestore, 'users', user.uid), 'trips', 'temp').id;
+            setTripId(newTripId);
+
             const response = await planTrip({
                 origin: values.from,
                 destination: values.to,
@@ -69,6 +86,23 @@ export default function TripPlannerPage() {
                 travelers: values.travelers,
                 currency: currency,
             });
+
+            const tripData = {
+                id: newTripId,
+                userId: user.uid,
+                destination: values.to,
+                origin: values.from,
+                startDate: values.departure,
+                endDate: values.departure, // Placeholder
+                travelers: values.travelers,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+                transport: null,
+                hotel: null,
+            };
+            const tripRef = doc(firestore, 'users', user.uid, 'trips', newTripId);
+            await setDoc(tripRef, tripData);
+
             setResults(response);
         } catch (error) {
             console.error('Failed to plan trip:', error);
@@ -81,12 +115,36 @@ export default function TripPlannerPage() {
             setIsLoading(false);
         }
     };
+    
+    async function handleSelectItem(itemType: 'transport' | 'hotel', item: any) {
+        if (!user || !firestore || !tripId) return;
+
+        const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
+        const key = itemType === 'transport' ? 'transport' : 'hotel';
+        
+        try {
+            await setDoc(tripRef, { [key]: item, updatedAt: serverTimestamp() }, { merge: true });
+            setSelectedItems(prev => ({ ...prev, [itemType]: item.mode || item.name }));
+            toast({
+                title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Selected!`,
+                description: `${item.mode || item.name} has been saved to your trip.`,
+            });
+        } catch (error) {
+            console.error(`Failed to save ${itemType}:`, error);
+            toast({
+                title: "Save Error",
+                description: `Could not save your ${itemType} selection.`,
+                variant: "destructive",
+            });
+        }
+    }
+
 
     const recommendedStays = results ? [
         results.recommendedStayLuxury,
         results.recommendedStayBudget,
         results.recommendedStayValue
-    ].filter(stay => !!stay) : [];
+    ].filter((stay): stay is Hotel => !!stay) : [];
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
@@ -160,11 +218,12 @@ export default function TripPlannerPage() {
                                         )}
                                     />
                                 </div>
-                                <Button type="submit" disabled={isLoading} className="w-full lg:w-auto">
+                                <Button type="submit" disabled={isLoading || !user} className="w-full lg:w-auto">
                                     {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
                                     <span className="ml-2">{isLoading ? 'Searching...' : 'Search'}</span>
                                 </Button>
                             </div>
+                             {!user && <p className="text-sm text-destructive mt-2">Please log in to plan a trip.</p>}
                         </form>
                     </Form>
                 </CardContent>
@@ -225,7 +284,9 @@ export default function TripPlannerPage() {
                                             <p className="text-muted-foreground">Carbon</p>
                                         </div>
                                     </div>
-                                    <Button variant="outline">Select</Button>
+                                    <Button variant="outline" onClick={() => handleSelectItem('transport', option)} disabled={selectedItems.transport === option.mode}>
+                                        {selectedItems.transport === option.mode ? <CheckCircle className="text-green-500" /> : 'Select'}
+                                    </Button>
                                 </CardContent>
                             </Card>
                         ))}
@@ -233,10 +294,10 @@ export default function TripPlannerPage() {
 
                     <div className="lg:col-span-1 space-y-6">
                         <h2 className="font-headline text-2xl font-bold">Recommended Stays</h2>
-                        {recommendedStays.map((stay, index) => stay && (
+                        {recommendedStays.map((stay, index) => (
                             <Card key={index}>
                                 <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                                    <PexelsImage query={stay.name} alt={stay.name} className="w-full h-full object-cover" width={400} height={225} />
+                                    <PexelsImage query={`${stay.name}, ${stay.location}`} alt={stay.name} className="w-full h-full object-cover" width={400} height={225} />
                                 </div>
                                 <CardContent className="p-4">
                                     <h3 className="font-bold">{stay.name}</h3>
@@ -246,7 +307,9 @@ export default function TripPlannerPage() {
                                         <span>{stay.rating} ({stay.reviews} reviews)</span>
                                     </div>
                                     <p className="text-lg font-semibold mt-2">{stay.pricePerNight} / night</p>
-                                    <Button className="w-full mt-4">View Hotel</Button>
+                                    <Button className="w-full mt-4" onClick={() => handleSelectItem('hotel', stay)} disabled={selectedItems.hotel === stay.name}>
+                                        {selectedItems.hotel === stay.name ? <><CheckCircle className="mr-2"/> Selected</> : 'Select Hotel'}
+                                    </Button>
                                 </CardContent>
                             </Card>
                         ))}

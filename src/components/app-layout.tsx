@@ -15,6 +15,7 @@ import {
   Wand2,
   Globe,
   CircleDollarSign,
+  Heart,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -30,6 +31,7 @@ import { AuthButton } from "./auth-button"
 
 const navItems = [
   { href: "/", label: "Home" },
+  { href: "/my-trips", label: "My Trips" },
   { href: "/about", label: "About" },
   { href: "/trip-planner", label: "AI Trip Planner" },
   { href: "/transport", label: "Booking" },
