@@ -2,81 +2,69 @@
   "placeholderImages": [
     {
       "id": "hero-dashboard",
-      "description": "A breathtaking view of mountains and a lake at sunrise, representing the start of a new journey.",
-      "imageUrl": "https://images.unsplash.com/photo-1615500230875-b913bafe6738?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxsYW5kc2NhcGUlMjBqb3VybmV5fGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "landscape journey"
+      "description": "A breathtaking view of a serene bay with turquoise water and green hills.",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxtJTIwbGFuZHNjYXBlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "calm landscape"
     },
     {
-      "id": "feature-itinerary",
-      "description": "A person looking at a map, planning a route.",
-      "imageUrl": "https://images.unsplash.com/photo-1759802524049-2421ddaee0fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxtYXAlMjBwbGFubmluZ3xlbnwwfHx8fDE3NjE1MzYwMzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "map planning"
+      "id": "dest-bali",
+      "description": "A traditional Balinese market stall with colorful offerings.",
+      "imageUrl": "https://images.unsplash.com/photo-1573399054966-86d1a63c483a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxiYWxpbmVzZSUyMG1hcmtldHxlbnwwfHx8fDE3NjE1NTYzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "balinese market"
     },
     {
-      "id": "feature-gems",
-      "description": "A hidden waterfall in a lush forest.",
-      "imageUrl": "https://images.unsplash.com/photo-1625115246283-85b367f31b48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxoaWRkZW4lMjB3YXRlcmZhbGx8ZW58MHx8fHwxNzYxNTU2MzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "hidden waterfall"
+      "id": "dest-osaka",
+      "description": "The bustling streets of Osaka at night with neon lights.",
+      "imageUrl": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxvcmllbnRhbCUyMGNpdHklMjBzdHJlZXR8ZW58MHx8fHwxNzYxNTU2MzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "osaka street"
     },
     {
-      "id": "feature-transport",
-      "description": "A high-speed train moving through a scenic landscape.",
-      "imageUrl": "https://images.unsplash.com/photo-1602529298469-7831a37b21dd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cmFpbiUyMGxhbmRzY2FwZXxlbnwwfHx8fDE3NjE1NTYzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "train landscape"
+      "id": "dest-hallstatt",
+      "description": "A picturesque view of Hallstatt village by the lake.",
+      "imageUrl": "https://images.unsplash.com/photo-1526129318478-62ed807ebdf9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoYWxsc3RhdHQlMjB2aWxsYWdlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "hallstatt village"
     },
     {
-      "id": "feature-local",
-      "description": "A potter's hands shaping clay on a wheel.",
-      "imageUrl": "https://images.unsplash.com/photo-1699371829060-98663499e437?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwb3R0ZXJ5JTIwYXJ0aXNhbnxlbnwwfHx8fDE3NjE1NDA3MjF8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pottery artisan"
+      "id": "dest-seoul",
+      "description": "Gyeongbokgung Palace in Seoul with cherry blossoms.",
+      "imageUrl": "https://images.unsplash.com/photo-1543832923-c4658592653a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzZW91bCUyMGNoZXJyeSUyMGJsb3Nzb218ZW58MHx8fHwxNzYxNTU2MzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "seoul palace"
     },
     {
-      "id": "feature-expenses",
-      "description": "A group of friends laughing and sharing a meal.",
-      "imageUrl": "https://images.unsplash.com/photo-1565979612809-d90c6ca38df9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZnJpZW5kcyUyMGRpbmluZ3xlbnwwfHx8fDE3NjE1NTYzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "friends dining"
+      "id": "ai-alps",
+      "description": "A scenic view of the Swiss Alps with a lake.",
+      "imageUrl": "https://images.unsplash.com/photo-1534417739506-d24e04f03939?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzd2lzcyUyMGFscHMlMjBsYWtlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "swiss alps"
     },
     {
-      "id": "feature-safety",
-      "description": "A first-aid kit on a clean background.",
-      "imageUrl": "https://images.unsplash.com/flagged/photo-1565025998428-20c660a9862a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxmaXJzdC1haWR8ZW58MHx8fHwxNzYxNTU2MzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "first-aid"
+      "id": "ai-tropical",
+      "description": "A beautiful tropical beach with palm trees and clear water.",
+      "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723a996f329?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMGJlYWNofGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tropical beach"
     },
     {
-      "id": "artisan-pottery",
-      "description": "A woman selling handmade pottery at a local market.",
-      "imageUrl": "https://images.unsplash.com/photo-1753982862264-c4cd78f9e8b3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwb3R0ZXJ5JTIwbWFya2V0fGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pottery market"
+      "id": "ai-cultural",
+      "description": "Ancient ruins of a historic temple.",
+      "imageUrl": "https://images.unsplash.com/photo-1588435889635-d7b6b15a6b32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbmNpZW50JTIwdGVtcGxlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ancient temple"
     },
     {
-      "id": "artisan-textiles",
-      "description": "Colorful handwoven textiles hanging in a shop.",
-      "imageUrl": "https://images.unsplash.com/photo-1758264839086-2bdecc06d9a3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d292ZW4lMjB0ZXh0aWxlc3xlbnwwfHx8fDE3NjE0NzQ1MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "woven textiles"
+      "id": "story-solo",
+      "description": "A solo traveler with a backpack looking at a mountain range.",
+      "imageUrl": "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzb2xvJTIwdHJhdmVsZXJ8ZW58MHx8fHwxNzYxNTU2MzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "solo traveler"
     },
     {
-      "id": "artisan-food",
-      "description": "A chef preparing a local dish at a street food stall.",
-      "imageUrl": "https://images.unsplash.com/photo-1619683815335-2b5b130a1baf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxzdHJlZXQlMjBmb29kfGVufDB8fHx8MTc2MTQ1NzAzNHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "street food"
+      "id": "story-budget",
+      "description": "Colorful market in Southeast Asia.",
+      "imageUrl": "https://images.unsplash.com/photo-1528271537-64686a915707?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxzb3V0aGVhc3QlMjBhc2lhJTIwbWFya2V0fGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "asia market"
     },
     {
-      "id": "artisan-woodwork",
-      "description": "An artisan carving intricate designs into a piece of wood.",
-      "imageUrl": "https://images.unsplash.com/photo-1511267567645-7802b3b79f3c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8d29vZCUyMGNhcnZpbmd8ZW58MHx8fHwxNzYxNDQyNjc1fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "wood carving"
-    },
-    {
-      "id": "artisan-jewelry",
-      "description": "Handmade silver jewelry displayed on a rustic table.",
-      "imageUrl": "https://images.unsplash.com/photo-1722510825242-0d8f2064c2e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxoYW5kbWFkZSUyMGpld2Vscnl8ZW58MHx8fHwxNzYxNTU2MzMyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "handmade jewelry"
-    },
-    {
-      "id": "artisan-painting",
-      "description": "An artist painting a landscape on a canvas outdoors.",
-      "imageUrl": "https://images.unsplash.com/photo-1500628550463-c8881a54d4d4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxhcnRpc3QlMjBwYWludGluZ3xlbnwwfHx8fDE3NjE1NTYzMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "artist painting"
+      "id": "story-cafes",
+      "description": "A cozy and hidden cafe in a European alley.",
+      "imageUrl": "https://images.unsplash.com/photo-1564079544-775b48b99354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlbnwwfHx8fDE3NjE1NTYzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "european cafe"
     }
   ]
 }

@@ -12,7 +12,7 @@ export function Logo({ className }: { className?: string }) {
       <div className="flex items-center justify-center rounded-md bg-primary p-1.5 text-primary-foreground">
         <Leaf className="h-5 w-5" />
       </div>
-      <span className="font-headline text-2xl font-bold text-foreground group-data-[collapsible=icon]:hidden">
+      <span className="font-headline text-2xl font-bold text-current">
         TripMind
       </span>
     </div>
