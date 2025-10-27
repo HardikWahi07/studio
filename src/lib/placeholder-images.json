@@ -3,37 +3,37 @@
     {
       "id": "hero-dashboard",
       "description": "A breathtaking view of a serene bay with turquoise water and green hills.",
-      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjYWxtJTIwbGFuZHNjYXBlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "calm landscape"
     },
     {
       "id": "dest-bali",
       "description": "A traditional Balinese market stall with colorful offerings.",
-      "imageUrl": "https://images.unsplash.com/photo-1653717814308-b7be8bbd1f36?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxiYWxpbmVzZSUyMG1hcmtldHxlbnwwfHx8fDE3NjE1NjQ4NDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1938&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "balinese market"
     },
     {
       "id": "dest-osaka",
       "description": "The bustling streets of Osaka at night with neon lights.",
-      "imageUrl": "https://images.unsplash.com/photo-1746542921207-cf595e110621?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxvc2FrYSUyMHN0cmVldHxlbnwwfHx8fDE3NjE1NjQ4NDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "osaka street"
     },
     {
       "id": "dest-hallstatt",
       "description": "A picturesque view of Hallstatt village by the lake.",
-      "imageUrl": "https://images.unsplash.com/photo-1549700918-2a25a3a7219a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGFsbHN0YXR0JTIwdmlsbGFnZXxlbnwwfHx8fDE3NjE1NjQ4NDN8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "hallstatt village"
     },
     {
       "id": "dest-seoul",
       "description": "Gyeongbokgung Palace in Seoul with cherry blossoms.",
-      "imageUrl": "https://images.unsplash.com/photo-1723976710497-7eca60bf0835?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzZW91bCUyMHBhbGFjZXxlbnwwfHx8fDE3NjE1NjQ4NDR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "seoul palace"
     },
     {
       "id": "dest-valsad",
       "description": "Sunset at Tithal Beach in Valsad.",
-      "imageUrl": "https://images.unsplash.com/photo-1752167813303-43897ad7d03e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2YWxzYWQlMjBiZWFjaHxlbnwwfHx8fDE3NjE1NjUzMTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1678020824540-1422eaf03f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx2YWxzYWQlMjBiZWFjaHxlbnwwfHx8fDE3NjE1NjUzMTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "valsad beach"
     },
     {

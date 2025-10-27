@@ -162,12 +162,11 @@ export default function DashboardPage() {
               {destinations.map((dest) => {
                 const image = PlaceHolderImages.find(p => p.id === dest.id);
                 if (!image) return null;
-                 const imageUrl = `${image.imageUrl}?random=${Math.random()}`;
                 return (
                   <Link href={`/destinations/${dest.id}`} key={dest.id} className="block">
                     <Card className="overflow-hidden group h-full">
                       <div className='relative aspect-[4/5] w-full'>
-                         <Image src={`https://source.unsplash.com/800x600/?${dest.imageHint}&sig=${Math.random()}`} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
+                         <Image src={image.imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
                          <Badge className="absolute top-2 right-2">Trending</Badge>
                       </div>
                       <CardContent className="p-4">
