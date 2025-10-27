@@ -7,5 +7,5 @@ export const ai = genkit({
   ],
   // A model is required for the 'generate' function.
   // Set a default model for all generate calls.
-  model: 'gemini-flash-latest',
+  model: 'googleai/gemini-pro',
 });
