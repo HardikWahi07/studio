@@ -218,6 +218,31 @@
         "startTime",
         "endTime"
       ]
+    },
+    "AppStats": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AppStats",
+      "type": "object",
+      "description": "Represents live application statistics.",
+      "properties": {
+        "routesPlanned": {
+          "type": "number",
+          "description": "Total number of routes planned."
+        },
+        "happyTravelers": {
+          "type": "number",
+          "description": "Total number of happy travelers."
+        },
+        "destinations": {
+          "type": "number",
+          "description": "Total number of destinations available."
+        }
+      },
+      "required": [
+        "routesPlanned",
+        "happyTravelers",
+        "destinations"
+      ]
     }
   },
   "auth": {
@@ -327,9 +352,25 @@
             }
           ]
         }
+      },
+      {
+        "path": "/app-stats/{statId}",
+        "definition": {
+          "entityName": "AppStats",
+          "schema": {
+            "$ref": "#/backend/entities/AppStats"
+          },
+          "description": "Stores global application statistics. Publicly readable.",
+          "params": [
+            {
+              "name": "statId",
+              "description": "The unique identifier for the statistics document (e.g., 'live-stats')."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation for homogeneous security postures.\n\n**Authorization Independence:**\nAuthorization independence is achieved through path-based ownership for `User`, `Trip`, and `Expense` data. This eliminates the need for `get()` calls in security rules, enabling atomic operations. All data related to a user is stored under their `userId`, making ownership clear and enforceable directly in the path.\n\n**QAPs Support:**\nThe structure supports secure `list` operations (QAPs) by ensuring that each collection has a consistent security posture. Data with different access requirements is stored in separate collections. For instance, user-specific trips and expenses are under `/users/{userId}`, enabling straightforward rules for owner-based access.\n\n**DBAC (Database-Based Access Control):**\nThis design uses the database to store roles. Since there are no roles defined, this design focuses on the 'request.auth.uid' for authorization, and ownership is determined based on the path. No custom claims are used.\n\n**Structure Overview:**\n- `/users/{userId}`: User profiles and related data (trips, expenses, itinerary items). This path enforces ownership.\n- `/local_businesses/{localBusinessId}`: Information about local businesses is stored globally. A separate collection could be created if business-owners need to update their entries, but this is not specified in the prompt. A separate service (not firestore rules) would handle authorization for that.\n"
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation for homogeneous security postures.\n\n**Authorization Independence:**\nAuthorization independence is achieved through path-based ownership for `User`, `Trip`, and `Expense` data. This eliminates the need for `get()` calls in security rules, enabling atomic operations. All data related to a user is stored under their `userId`, making ownership clear and enforceable directly in the path.\n\n**QAPs Support:**\nThe structure supports secure `list` operations (QAPs) by ensuring that each collection has a consistent security posture. Data with different access requirements is stored in separate collections. For instance, user-specific trips and expenses are under `/users/{userId}`, enabling straightforward rules for owner-based access. The new `app-stats` collection is global and can be made publicly readable.\n\n**DBAC (Database-Based Access Control):**\nThis design uses the database to store roles. Since there are no roles defined, this design focuses on the 'request.auth.uid' for authorization, and ownership is determined based on the path. No custom claims are used.\n\n**Structure Overview:**\n- `/users/{userId}`: User profiles and related data (trips, expenses, itinerary items). This path enforces ownership.\n- `/local_businesses/{localBusinessId}`: Information about local businesses is stored globally. A separate collection could be created if business-owners need to update their entries, but this is not specified in the prompt. A separate service (not firestore rules) would handle authorization for that.\n- `/app-stats/{statId}`: A new collection to hold global, publicly readable application statistics like traveler counts.\n"
   }
 }
 

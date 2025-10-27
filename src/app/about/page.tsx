@@ -6,6 +6,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Cpu, Leaf, Heart } from 'lucide-react';
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { AnimatedStat } from '@/components/animated-stat';
+import { doc } from 'firebase/firestore';
+import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const values = [
   {
@@ -25,15 +28,24 @@ const values = [
   },
 ];
 
-const stats = [
-  { value: 1200, label: 'Routes Planned', format: '1.2K+' },
-  { value: 500, label: 'Happy Travelers', format: '500+' },
-  { value: 25, label: 'Destinations', format: '25+' },
-];
+const statLabels: { [key: string]: { label: string, format: (val: number) => string } } = {
+  routesPlanned: { label: 'Routes Planned', format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
+  happyTravelers: { label: 'Happy Travelers', format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
+  destinations: { label: 'Destinations', format: (val) => `${val}+` },
+};
+
 
 export default function AboutPage() {
   const statsRef = useRef<HTMLDivElement>(null);
   const isVisible = useOnVisible(statsRef);
+  const firestore = useFirestore();
+
+  const statsDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'app-stats', 'live-stats');
+  }, [firestore]);
+  
+  const { data: appStats, isLoading } = useDoc<{ routesPlanned: number, happyTravelers: number, destinations: number }>(statsDocRef);
 
   return (
     <main className="flex-1 bg-background text-foreground">
@@ -116,20 +128,26 @@ export default function AboutPage() {
                 ref={statsRef}
                 className="mt-10 grid grid-cols-3 gap-8 max-w-3xl mx-auto"
               >
-                {stats.map((stat) => (
-                  <div key={stat.label}>
+                {isLoading && Object.keys(statLabels).map((key) => (
+                    <div key={key}>
+                        <Skeleton className="h-12 w-24 mx-auto mb-2" />
+                        <Skeleton className="h-5 w-32 mx-auto" />
+                    </div>
+                ))}
+                {!isLoading && appStats && Object.entries(appStats).filter(([key]) => key !== 'id').map(([key, value]) => (
+                  <div key={key}>
                     <p className="text-4xl md:text-5xl font-bold">
                       {isVisible ? (
                         <AnimatedStat
-                          finalValue={stat.value}
-                          label={stat.format}
+                          finalValue={value}
+                          label={statLabels[key].format(value)}
                         />
                       ) : (
                         0
                       )}
                     </p>
                     <p className="text-sm md:text-base font-medium text-gray-400 mt-1">
-                      {stat.label}
+                      {statLabels[key].label}
                     </p>
                   </div>
                 ))}
@@ -141,3 +159,5 @@ export default function AboutPage() {
     </main>
   );
 }
+
+    
