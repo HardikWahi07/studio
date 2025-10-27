@@ -23,7 +23,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
-import { LoadingScreen } from "@/components/ui/loading-screen"
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -112,41 +111,9 @@ function useScrollState() {
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
-  const pathname = usePathname();
-  const [isLoading, setIsLoading] = React.useState(pathname === '/');
-
-  const handleVideoLoad = React.useCallback(() => {
-    let progress = 0;
-    const progressBar = document.getElementById('progressBar');
-    
-    const progressInterval = setInterval(() => {
-        progress += Math.random() * 10;
-        if (progress > 80) { // simulate fast loading
-             clearInterval(progressInterval);
-        }
-        if(progressBar) progressBar.style.width = `${Math.min(progress, 100)}%`;
-    }, 100);
-    
-    if (progressBar) progressBar.style.width = '100%';
-    
-    setTimeout(() => {
-        setIsLoading(false);
-        clearInterval(progressInterval);
-    }, 800); // give it a moment to complete animation
-  }, []);
-
-  const childrenWithProps = React.useMemo(() => 
-    React.Children.map(children, child => {
-      if (React.isValidElement(child) && isHomePage) {
-        // @ts-ignore
-        return React.cloneElement(child, { onVideoLoad: handleVideoLoad });
-      }
-      return child;
-    }), [children, isHomePage, handleVideoLoad]);
 
   return (
     <div className="flex min-h-screen flex-col">
-       {isLoading && isHomePage && <LoadingScreen />}
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
@@ -190,7 +157,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="flex-1">{childrenWithProps}</main>
+      <main className="flex-1">{children}</main>
        <footer className="bg-gray-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">

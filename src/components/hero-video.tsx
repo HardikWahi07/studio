@@ -1,28 +1,54 @@
 
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { LoadingScreen } from './ui/loading-screen';
+import { usePathname } from 'next/navigation';
 
 const API_KEY = "R1hsiiOY8ZHYJ9eIH6UaE4HFaHgaAFkdz3aUXvMpsvQA7XTdFx3wJ1uK";
 const query = "green valley river drone 4k";
 
-export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
+export function HeroVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
   
+  const [isLoading, setIsLoading] = useState(isHomePage);
+
   useEffect(() => {
+    if (!isHomePage) {
+        setIsLoading(false);
+        return;
+    }
+
     const videoEl = videoRef.current;
-    if (!videoEl) return;
+    const progressEl = progressRef.current;
+    if (!videoEl || !progressEl) return;
+
+    let progressInterval: NodeJS.Timeout;
     
-    const handleVideoLoaded = () => {
-      if (onVideoLoad) {
-        onVideoLoad();
-      }
-      // Ensure video is visible after loading
-      if (videoRef.current) {
-        videoRef.current.classList.add('opacity-100');
-        videoRef.current.play().catch(e => console.log("Autoplay is waiting for user interaction."));
-      }
-    };
+    const updateProgress = () => {
+      progressEl.style.width = `${Math.min(95, parseFloat(progressEl.style.width || '0') + Math.random() * 5)}%`;
+    }
+
+    const startProgress = () => {
+        progressEl.style.width = '0%';
+        progressInterval = setInterval(updateProgress, 200);
+    }
+    
+    const completeProgress = () => {
+        clearInterval(progressInterval);
+        if (progressEl) {
+            progressEl.style.width = '100%';
+        }
+        setTimeout(() => {
+            setIsLoading(false);
+            if (videoEl) {
+                videoEl.classList.add('opacity-100');
+            }
+        }, 500);
+    }
 
     const loadFastFallback = () => {
       const fallbacks = [
@@ -30,25 +56,20 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
         "https://cdn.coverr.co/videos/coverr-aerial-view-of-forest-and-river-1568/1080p.mp4",
         "https://cdn.coverr.co/videos/coverr-green-forest-from-above-5508/1080p.mp4"
       ];
-      
-      const randomFallback = fallbacks[Math.floor(Math.random() * fallbacks.length)];
-      if (videoRef.current) {
-        videoRef.current.src = randomFallback;
+      if (videoEl) {
+        videoEl.src = fallbacks[Math.floor(Math.random() * fallbacks.length)];
       }
     };
-    
-    async function loadRandomVideoFast() {
+
+    const loadRandomVideoFast = async () => {
       try {
+        startProgress();
         const res = await fetch(
           `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=10&page=${Math.floor(Math.random() * 10) + 1}`,
-          { 
-            headers: { Authorization: API_KEY }
-          }
+          { headers: { Authorization: API_KEY } }
         );
 
-        if (!res.ok) {
-            throw new Error(`Pexels API error: ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`Pexels API error: ${res.status}`);
         
         const data = await res.json();
     
@@ -57,8 +78,8 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
           const files = randomVideo.video_files;
           const bestFile = files.find(v => v.quality === 'hd') || files[0];
     
-          if (videoRef.current) {
-            videoRef.current.src = bestFile.link;
+          if (videoEl) {
+            videoEl.src = bestFile.link;
           }
         } else {
           throw new Error("No videos found");
@@ -69,19 +90,35 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
       }
     }
 
+    const handleVideoLoaded = () => {
+        completeProgress();
+        videoEl.play().catch(e => console.log("Autoplay is waiting for user interaction."));
+    };
+
     videoEl.addEventListener('loadeddata', handleVideoLoaded);
     loadRandomVideoFast();
 
+    const handleDocumentClick = () => {
+        if(videoEl && videoEl.paused) {
+            videoEl.play().catch(e => console.log("Playback still blocked"));
+        }
+    }
+    document.addEventListener('click', handleDocumentClick);
+
+
     return () => {
+        clearInterval(progressInterval);
         if (videoEl) {
             videoEl.removeEventListener('loadeddata', handleVideoLoaded);
         }
+        document.removeEventListener('click', handleDocumentClick);
     }
-  }, [onVideoLoad]);
+  }, [isHomePage]);
 
 
   return (
     <>
+      {isLoading && isHomePage && <LoadingScreen ref={progressRef} />}
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-0 transition-opacity duration-1000"

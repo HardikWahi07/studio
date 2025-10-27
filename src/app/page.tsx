@@ -17,6 +17,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
+import { Badge } from '@/components/ui/badge';
 
 const features = [
   {
@@ -111,13 +112,13 @@ const moreFeatures = [
   },
 ];
 
-export default function DashboardPage({ onVideoLoad }: { onVideoLoad?: () => void }) {
+export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="flex-1">
         <section className="relative w-full min-h-screen text-white flex items-center justify-center">
-          <HeroVideo onVideoLoad={onVideoLoad} />
+          <HeroVideo />
           <div className="relative z-20 flex flex-col items-center justify-center text-center px-4">
             <div className='flex items-center gap-2 mb-4'>
                 <Sparkles className='w-5 h-5 text-white' />
@@ -190,7 +191,7 @@ export default function DashboardPage({ onVideoLoad }: { onVideoLoad?: () => voi
                   <Card key={dest.id} className="overflow-hidden group">
                     <div className='relative aspect-[4/5] w-full'>
                       {image && <Image src={image.imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />}
-                       <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded-full">Trending</div>
+                       <Badge className="absolute top-2 right-2">Trending</Badge>
                     </div>
                     <CardContent className="p-4">
                       <h3 className="font-bold">{dest.name}</h3>

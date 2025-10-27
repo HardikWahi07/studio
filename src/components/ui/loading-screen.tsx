@@ -1,8 +1,9 @@
 "use client";
 
 import { Leaf } from 'lucide-react';
+import React from 'react';
 
-export function LoadingScreen() {
+export const LoadingScreen = React.forwardRef<HTMLDivElement, {}>((props, ref) => {
   return (
     <div id="loadingScreen" className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-[#001a14] to-[#00382e] flex flex-col items-center justify-center z-[100] transition-opacity duration-1000 ease-out">
       <div className="flex items-center gap-3 mb-8 loading-logo">
@@ -20,8 +21,10 @@ export function LoadingScreen() {
         LOADING YOUR NEXT ADVENTURE
       </div>
       <div className="w-52 h-1 overflow-hidden rounded-full bg-primary/20 loading-progress">
-        <div id="progressBar" className="w-0 h-full transition-all duration-300 ease-out rounded-full bg-primary loading-progress-bar"></div>
+        <div id="progressBar" ref={ref} className="w-0 h-full transition-all duration-300 ease-out rounded-full bg-primary loading-progress-bar"></div>
       </div>
     </div>
   );
-}
+});
+
+LoadingScreen.displayName = "LoadingScreen";
