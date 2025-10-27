@@ -26,9 +26,9 @@ const values = [
 ];
 
 const stats = [
-  { value: 1000000, label: 'Routes Planned', format: '1M+' },
-  { value: 50000, label: 'Happy Travelers', format: '50K+' },
-  { value: 100, label: 'Destinations', format: '100+' },
+  { value: 1200, label: 'Routes Planned', format: '1.2K+' },
+  { value: 500, label: 'Happy Travelers', format: '500+' },
+  { value: 25, label: 'Destinations', format: '25+' },
 ];
 
 export default function AboutPage() {
