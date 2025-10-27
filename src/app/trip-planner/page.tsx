@@ -16,6 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormMessage } from '@/component
 import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
 import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
+import { CityCombobox } from '@/components/city-combobox';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -49,8 +50,8 @@ export default function TripPlannerPage() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            from: 'New York, NY',
-            to: 'Chicago, IL',
+            from: '',
+            to: '',
             departure: new Date().toISOString().split('T')[0],
             travelers: '1-economy',
         },
@@ -99,11 +100,13 @@ export default function TripPlannerPage() {
                                     control={form.control}
                                     name="from"
                                     render={({ field }) => (
-                                        <FormItem>
+                                        <FormItem className="flex flex-col">
                                             <Label>From</Label>
-                                            <FormControl>
-                                                <Input placeholder="New York, NY" {...field} />
-                                            </FormControl>
+                                            <CityCombobox
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Select origin..."
+                                            />
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -112,11 +115,13 @@ export default function TripPlannerPage() {
                                     control={form.control}
                                     name="to"
                                     render={({ field }) => (
-                                        <FormItem>
+                                        <FormItem className="flex flex-col">
                                             <Label>To</Label>
-                                            <FormControl>
-                                                <Input placeholder="Chicago, IL" {...field} />
-                                            </FormControl>
+                                            <CityCombobox
+                                                value={field.value}
+                                                onChange={field.onChange}
+                                                placeholder="Select destination..."
+                                            />
                                             <FormMessage />
                                         </FormItem>
                                     )}
@@ -194,7 +199,7 @@ export default function TripPlannerPage() {
                                         {results.ecoMix.description}
                                     </p>
                                     <div className="font-semibold">{results.ecoMix.duration}</div>
-                                    <div className="font-semibold">${results.ecoMix.cost}</div>
+                                    <div className="font-semibold">₹{results.ecoMix.cost.toLocaleString('en-IN')}</div>
                                     <div className="flex justify-center"><CarbonFootprint value={results.ecoMix.carbonValue} /></div>
                                 </CardContent>
                             </Card>
@@ -207,7 +212,7 @@ export default function TripPlannerPage() {
                                         {transportIcons[option.mode] || <Plane className="h-6 w-6 text-primary" />}
                                         <div>
                                             <h3 className="font-bold">{option.mode}</h3>
-                                            {option.recommendation && <p className="text-sm text-muted-foreground">{option.recommendation}</p>}
+                                            {option.recommendation && <p className="text-sm text-muted-foreground max-w-xs">{option.recommendation}</p>}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-6 text-sm text-center">
@@ -216,7 +221,7 @@ export default function TripPlannerPage() {
                                             <p className="text-muted-foreground">Duration</p>
                                         </div>
                                         <div>
-                                            <p className="font-bold">${option.cost}</p>
+                                            <p className="font-bold">₹{option.cost.toLocaleString('en-IN')}</p>
                                             <p className="text-muted-foreground">Cost</p>
                                         </div>
                                         <div className="hidden sm:block">
@@ -243,7 +248,7 @@ export default function TripPlannerPage() {
                                         <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
                                         <span>{results.recommendedStay.rating} ({results.recommendedStay.reviews} reviews)</span>
                                     </div>
-                                    <p className="text-lg font-semibold mt-2">${results.recommendedStay.pricePerNight} / night</p>
+                                    <p className="text-lg font-semibold mt-2">₹{results.recommendedStay.pricePerNight.toLocaleString('en-IN')} / night</p>
                                     <Button className="w-full mt-4">View Hotel</Button>
                                 </CardContent>
                             </Card>
