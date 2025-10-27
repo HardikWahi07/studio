@@ -1,6 +1,9 @@
-import { notFound } from 'next/navigation';
-
-// All pages are now under [locale]
-export default function RootLayout() {
-  notFound();
+// This is the root layout that Next.js requires.
+// It delegates all rendering to the [locale] layout.
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return children;
 }

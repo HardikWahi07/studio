@@ -256,11 +256,12 @@ function TravelToolsDropdown() {
 
 function useScrollState() {
   const pathname = usePathname();
-  const isHomePage = pathname === '/' || (languages.some(lang => pathname === `/${lang.code}`));
+  const locale = useLocale();
+  const isHomePage = pathname === `/${locale}`;
   const [isScrolled, setIsScrolled] = React.useState(!isHomePage);
 
   React.useEffect(() => {
-     const isHome = pathname === '/' || (languages.some(lang => pathname === `/${lang.code}`));
+     const isHome = pathname === `/${locale}`;
     if (!isHome) {
       setIsScrolled(true);
       return;
@@ -274,7 +275,7 @@ function useScrollState() {
     handleScroll();
     
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [pathname]);
+  }, [pathname, locale]);
 
   return { isScrolled, isHomePage };
 }

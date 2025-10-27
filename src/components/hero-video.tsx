@@ -4,6 +4,7 @@
 import React, { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { LoadingScreen } from './ui/loading-screen';
+import { useLocale } from 'next-intl';
 
 const API_KEY = "R1hsiiOY8ZHYJ9eIH6UaE4HFaHgaAFkdz3aUXvMpsvQA7XTdFx3wJ1uK";
 const query = "green valley river drone 4k";
@@ -13,7 +14,8 @@ export function HeroVideo() {
   const loadingScreenRef = useRef<HTMLDivElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
-  const isHomePage = pathname === '/';
+  const locale = useLocale();
+  const isHomePage = pathname === `/${locale}`;
 
   useEffect(() => {
     if (!isHomePage) {
