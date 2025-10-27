@@ -222,5 +222,3 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
     </Dialog>
   );
 }
-
-    
