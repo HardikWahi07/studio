@@ -31,6 +31,12 @@
       "imageHint": "seoul palace"
     },
     {
+      "id": "dest-valsad",
+      "description": "Sunset at Tithal Beach in Valsad.",
+      "imageUrl": "https://images.unsplash.com/photo-1752167813303-43897ad7d03e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx2YWxzYWQlMjBiZWFjaHxlbnwwfHx8fDE3NjE1NjUzMTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "valsad beach"
+    },
+    {
       "id": "ai-alps",
       "description": "A scenic view of the Swiss Alps with a lake.",
       "imageUrl": "https://images.unsplash.com/photo-1534417739506-d24e04f03939?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzd2lzcyUyMGFscHMlMjBsYWtlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
@@ -93,7 +99,7 @@
     {
       "id": "artisan-jewelry",
       "description": "A close-up of a jeweler setting a stone in a silver ring.",
-      "imageUrl": "https://images.unsplash.com/photo-1608112169461-48616144c894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqZXdlbHJ5JTIwbWFraW5nfGVufDB8fHx8MTc2MTUzNzgyNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1608112169461-48616144c894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqZXdlbHJ5JTIwbWFraW5nfGVufDB8fHx8MTc2MTUzNzgyNXww&ixlibrb-4.1.0&q=80&w=1080",
       "imageHint": "jewelry making"
     },
     {

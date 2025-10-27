@@ -31,5 +31,13 @@ export const destinations = [
     reviewers: "2.2k",
     imageHint: "seoul palace",
     description: "Seoul, the capital of South Korea, is a huge metropolis where modern skyscrapers, high-tech subways and pop culture meet Buddhist temples, palaces and street markets. Notable attractions include futuristic Dongdaemun Design Plaza, a convention hall with curving architecture and a rooftop park; Gyeongbokgung Palace, which once had more than 7,000 rooms; and Jogyesa Temple, site of ancient locust and pine trees."
+  },
+  {
+    id: "dest-valsad",
+    name: "Valsad, India",
+    rating: 4.5,
+    reviewers: "1.2k",
+    imageHint: "valsad beach",
+    description: "Valsad, historically known as Bulsar, is a city and a municipality in the Valsad district of the Indian state of Gujarat. It is famous for its handloom textile industry and its serene Tithal Beach."
   }
 ];
