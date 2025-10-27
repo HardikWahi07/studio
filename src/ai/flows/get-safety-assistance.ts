@@ -19,7 +19,7 @@ const GetSafetyAssistanceInputSchema = z.object({
   emergencyType: z
     .string()
     .describe(
-      'The type of emergency the user is experiencing (e.g., medical, crime, natural disaster).'
+      'The type of emergency the user is experiencing (e.g., medical, crime, natural disaster, feeling lost).'
     )
     .optional(),
   details: z
@@ -39,7 +39,7 @@ const GetSafetyAssistanceOutputSchema = z.object({
   assistanceMessage: z
     .string()
     .describe(
-      'A message providing guidance and assistance based on the user situation.'
+      'A helpful, reassuring message providing guidance and assistance based on the user situation, as if you are a knowledgeable local friend.'
     ),
 });
 export type GetSafetyAssistanceOutput = z.infer<typeof GetSafetyAssistanceOutputSchema>;
@@ -54,13 +54,20 @@ const prompt = ai.definePrompt({
   name: 'getSafetyAssistancePrompt',
   input: {schema: GetSafetyAssistanceInputSchema},
   output: {schema: GetSafetyAssistanceOutputSchema},
-  prompt: `You are a safety chatbot providing assistance to travelers.
+  prompt: `You are a helpful and reassuring AI safety assistant, acting as a knowledgeable local supporter for a traveler.
 
-  Based on the user's location ({{{location}}}), emergency type ({{{emergencyType}}}), and any additional details ({{{details}}}), provide the following information:
+  The user is in: {{{location}}}.
+  Their situation is: {{{emergencyType}}}.
+  Details: {{{details}}}
 
-  1.  Safety Alert:  Provide any relevant safety alerts for the user's current location.
-  2.  Nearby Hospitals:  List nearby hospitals and their contact information.
-  3.  Assistance Message:  Provide guidance and assistance based on the user's situation. This could include steps to take, contact information for local authorities, or other helpful information.
+  Your role is to provide clear, calm, and actionable advice.
+
+  1.  **Safety Alert:** Provide any critical safety alerts for the location (e.g., transport strikes, weather warnings, areas to avoid). If there are no specific alerts, say so.
+  2.  **Nearby Hospitals:** List at least two nearby hospitals with their full addresses and contact numbers.
+  3.  **Assistance Message:** Write a message as if you are a local friend helping them.
+      - If they are lost, provide specific, simple steps to get oriented. Suggest finding a major landmark, asking for directions to a specific square or station, or using a well-known public transport line.
+      - Give practical safety tips relevant to their situation (e.g., "In Madrid, keep your bag in front of you," or "Look for official taxi stands.").
+      - Be reassuring and supportive in your tone.
   `,
 });
 

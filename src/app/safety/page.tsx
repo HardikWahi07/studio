@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Loader2, ShieldCheck, Siren, Hospital, Map } from "lucide-react";
+import { Loader2, ShieldCheck, Siren, Hospital, Compass, LifeBuoy } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
@@ -29,7 +29,7 @@ export default function SafetyPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       location: "",
-      emergencyType: "",
+      emergencyType: "I'm lost and need directions",
       details: "",
     },
   });
@@ -55,18 +55,18 @@ export default function SafetyPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Location & Safety Companion</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Supporter</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Your safety is our priority. Get real-time alerts, find nearby help, and use our AI assistant in emergencies.
+          Feeling lost or need help? Our AI companion, trained by locals, is here to assist you. Get real-time alerts and find your way safely.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <div className="lg:col-span-1 space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Emergency Assistance</CardTitle>
-              <CardDescription>Describe your situation for AI-powered help.</CardDescription>
+              <CardTitle>Request Help</CardTitle>
+              <CardDescription>Describe your situation for AI-powered support.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -76,9 +76,9 @@ export default function SafetyPage() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Current Location</FormLabel>
+                        <FormLabel>Your Current City</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Paris, France" {...field} />
+                          <Input placeholder="e.g., Madrid, Spain" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -89,9 +89,9 @@ export default function SafetyPage() {
                     name="emergencyType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Type of Emergency (Optional)</FormLabel>
+                        <FormLabel>What's the situation?</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Medical, Lost, Natural Disaster" {...field} />
+                          <Input placeholder="e.g., I'm lost, Medical question" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -102,9 +102,9 @@ export default function SafetyPage() {
                     name="details"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Additional Details (Optional)</FormLabel>
+                        <FormLabel>More Details (Optional)</FormLabel>
                         <FormControl>
-                          <Textarea placeholder="Describe your situation..." className="resize-none" {...field} />
+                          <Textarea placeholder="e.g., I'm near a big park with a statue." className="resize-none" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -114,9 +114,9 @@ export default function SafetyPage() {
                     {isLoading ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : (
-                      <ShieldCheck className="mr-2 h-4 w-4" />
+                      <LifeBuoy className="mr-2 h-4 w-4" />
                     )}
-                    Get Assistance
+                    Get Help
                   </Button>
                 </form>
               </Form>
@@ -127,60 +127,79 @@ export default function SafetyPage() {
         <div className="lg:col-span-2 space-y-8">
           {(isLoading || assistance) ? (
             <>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Siren className="text-destructive"/> Safety Alert</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                  ) : (
-                    <Alert variant="destructive">
-                      <Siren className="h-4 w-4" />
-                      <AlertTitle>Heads Up!</AlertTitle>
-                      <AlertDescription>{assistance?.safetyAlert}</AlertDescription>
-                    </Alert>
-                  )}
-                </CardContent>
-              </Card>
+              {isLoading && (
+                <div className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/3" />
+                    </CardHeader>
+                     <CardContent>
+                      <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/3" />
+                    </CardHeader>
+                     <CardContent className="space-y-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                    </CardContent>
+                  </Card>
+                   <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/3" />
+                    </CardHeader>
+                     <CardContent>
+                      <Skeleton className="h-12 w-full" />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><Hospital /> Nearby Hospitals</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="h-12 w-full bg-muted animate-pulse rounded-md" />
-                  ) : (
-                     <pre className="whitespace-pre-wrap bg-secondary/50 p-4 rounded-md font-sans text-sm">
-                        {assistance?.nearbyHospitals}
-                     </pre>
-                  )}
-                </CardContent>
-              </Card>
+              {assistance && (
+                <>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-destructive"><Siren /> Safety Alerts</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Alert variant="destructive">
+                          <Siren className="h-4 w-4" />
+                          <AlertTitle>Heads Up!</AlertTitle>
+                          <AlertDescription>{assistance.safetyAlert}</AlertDescription>
+                        </Alert>
+                    </CardContent>
+                  </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle>Assistance & Guidance</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {isLoading ? (
-                    <div className="space-y-2">
-                        <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                        <div className="h-4 w-5/6 bg-muted animate-pulse rounded-md" />
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground">{assistance?.assistanceMessage}</p>
-                  )}
-                </CardContent>
-              </Card>
+                   <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2"><Compass /> Guidance from a Local</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-muted-foreground whitespace-pre-wrap">{assistance.assistanceMessage}</p>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2"><Hospital /> Nearby Hospitals</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <pre className="whitespace-pre-wrap bg-secondary/50 p-4 rounded-md font-sans text-sm">
+                          {assistance.nearbyHospitals}
+                      </pre>
+                    </CardContent>
+                  </Card>
+                </>
+              )}
             </>
           ) : (
             <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
-                <ShieldCheck className="h-16 w-16 text-muted-foreground/50" />
-                <h3 className="mt-4 font-bold text-lg">Awaiting Your Report</h3>
+                <LifeBuoy className="h-16 w-16 text-muted-foreground/50" />
+                <h3 className="mt-4 font-bold text-lg">Your Local Supporter is Standing By</h3>
                 <p className="mt-2 text-muted-foreground max-w-sm">
-                    Enter your location and situation to receive real-time safety information and AI-powered guidance.
+                    Enter your location and situation to get real-time safety information and AI-powered guidance from a virtual local.
                 </p>
             </Card>
           )}
