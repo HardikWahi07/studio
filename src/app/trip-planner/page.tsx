@@ -104,7 +104,7 @@ export default function TripPlannerPage() {
                                             <Label>From</Label>
                                             <CityCombobox
                                                 value={field.value}
-                                                onChange={field.onChange}
+                                                onValueChange={field.onChange}
                                                 placeholder="Select origin..."
                                             />
                                             <FormMessage />
@@ -119,7 +119,7 @@ export default function TripPlannerPage() {
                                             <Label>To</Label>
                                             <CityCombobox
                                                 value={field.value}
-                                                onChange={field.onChange}
+                                                onValueChange={field.onChange}
                                                 placeholder="Select destination..."
                                             />
                                             <FormMessage />
