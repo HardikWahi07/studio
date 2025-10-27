@@ -190,7 +190,9 @@ export default function DashboardPage() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
               {destinations.map((dest, index) => {
-                const imageUrl = `https://source.unsplash.com/400x500/?${dest.imageHint.replace(' ', ',')}`;
+                const image = PlaceHolderImages.find(p => p.id === dest.id);
+                if (!image) return null;
+                const imageUrl = `${image.imageUrl}?random=${Math.random()}`;
                 return (
                   <Card key={dest.id} className="overflow-hidden group">
                     <div className='relative aspect-[4/5] w-full'>
