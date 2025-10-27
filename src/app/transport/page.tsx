@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plane, Train, Bus, Clock, DollarSign, Leaf } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -47,7 +47,7 @@ const CarbonFootprint = ({ value }: { value: number }) => {
 
 export default function TransportPage() {
   return (
-    <main className="flex-1 p-4 md:p-8 space-y-8">
+    <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
         <h1 className="font-headline text-3xl md:text-4xl font-bold">Smart Transport Recommender</h1>
         <p className="text-muted-foreground max-w-2xl">

@@ -45,7 +45,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
   const isActive = pathname === href
 
   const { isScrolled, isHomePage } = useScrollState();
-  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-gray-700";
+  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-foreground";
 
   return (
     <Link
@@ -61,7 +61,7 @@ function TravelToolsDropdown() {
   const pathname = usePathname();
   const isActive = travelTools.some(tool => tool.href === pathname);
   const { isScrolled, isHomePage } = useScrollState();
-  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-gray-700";
+  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-foreground";
   
   return (
     <DropdownMenu>
@@ -116,7 +116,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col">
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
-          isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
+          isScrolled ? "bg-card/80 shadow-md backdrop-blur-sm" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href="/" className="mr-6 flex items-center gap-2">
@@ -129,7 +129,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <TravelToolsDropdown />
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" className={cn("hidden sm:inline-flex items-center gap-2 hover:bg-black/5", isHomePage && !isScrolled ? 'text-white hover:text-white' : 'text-gray-700 hover:text-primary')}>
+            <Button variant="ghost" className={cn("hidden sm:inline-flex items-center gap-2 hover:bg-black/5", isHomePage && !isScrolled ? 'text-white hover:text-white' : 'text-foreground hover:text-primary')}>
                 <User className="w-4 h-4" /> Login
             </Button>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full">Sign Up</Button>

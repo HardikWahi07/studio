@@ -44,7 +44,7 @@ export default function ExpensesPage() {
   }
 
   const totalSpent = expenses.reduce((acc, expense) => acc + expense.amount, 0);
-  const sharePerPerson = totalSpent / participants.length;
+  const sharePerPerson = totalSpent > 0 ? totalSpent / participants.length : 0;
 
   const balances = participants.map(participant => {
     const paid = expenses
@@ -57,7 +57,7 @@ export default function ExpensesPage() {
   });
 
   return (
-    <main className="flex-1 p-4 md:p-8 space-y-8">
+    <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
         <h1 className="font-headline text-3xl md:text-4xl font-bold">Group Expense Splitter</h1>
         <p className="text-muted-foreground max-w-2xl">
