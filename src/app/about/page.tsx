@@ -87,24 +87,24 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="relative py-16 md:py-24 text-white">
-        <div className="absolute inset-0">
-            <PexelsImage query="beautiful landscape" alt="Our mission background" fill className="object-cover" />
-            <div className="absolute inset-0 bg-black/60"></div>
-        </div>
-        <div className="container mx-auto px-4 text-center relative">
-            <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">Our Mission</h2>
-            <p className="text-lg md:text-2xl max-w-3xl mx-auto italic">
-                "To empower travelers with AI-driven insights that make every journey smarter, greener, and more enriching—while supporting local communities and protecting our planet."
-            </p>
-            <div className="mt-10 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
-                {stats.map(stat => (
-                    <div key={stat.label}>
-                        <p className="text-4xl md:text-5xl font-bold">{stat.value}</p>
-                        <p className="text-sm md:text-base font-medium opacity-80 mt-1">{stat.label}</p>
-                    </div>
-                ))}
-            </div>
+      <section className="pb-16 md:pb-24">
+        <div className="container mx-auto px-4">
+          <Card className="max-w-4xl mx-auto bg-gray-900 text-white text-center p-8 md:p-12 shadow-lg">
+            <CardContent className="p-0">
+              <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">Our Mission</h2>
+              <p className="text-lg md:text-2xl max-w-3xl mx-auto italic text-gray-300">
+                  "To empower travelers with AI-driven insights that make every journey smarter, greener, and more enriching—while supporting local communities and protecting our planet."
+              </p>
+              <div className="mt-10 grid grid-cols-3 gap-8 max-w-3xl mx-auto">
+                  {stats.map(stat => (
+                      <div key={stat.label}>
+                          <p className="text-4xl md:text-5xl font-bold">{stat.value}</p>
+                          <p className="text-sm md:text-base font-medium text-gray-400 mt-1">{stat.label}</p>
+                      </div>
+                  ))}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
     </main>
