@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Wand2, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "next-intl";
 
 const formSchema = z.object({
   destination: z.string().min(2, "Destination must be at least 2 characters."),
@@ -20,6 +21,7 @@ const formSchema = z.object({
 });
 
 export default function ItineraryGeneratorPage() {
+  const t = useTranslations('ItineraryPlannerPage');
   const [itinerary, setItinerary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -42,8 +44,8 @@ export default function ItineraryGeneratorPage() {
     } catch (error) {
       console.error("Failed to generate itinerary:", error);
       toast({
-        title: "Error",
-        description: "Failed to generate itinerary. Please try again.",
+        title: t('toastErrorTitle'),
+        description: t('toastErrorDescription'),
         variant: "destructive",
       });
     } finally {
@@ -54,17 +56,17 @@ export default function ItineraryGeneratorPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">AI Itinerary Generator</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Let our AI craft the perfect, personalized travel plan for you. Just enter your preferences below and watch the magic happen.
+          {t('description')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Your Trip Details</CardTitle>
-            <CardDescription>Fill in the form to get started.</CardDescription>
+            <CardTitle>{t('formTitle')}</CardTitle>
+            <CardDescription>{t('formDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -74,9 +76,9 @@ export default function ItineraryGeneratorPage() {
                   name="destination"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Destination</FormLabel>
+                      <FormLabel>{t('destinationLabel')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Kyoto, Japan" {...field} />
+                        <Input placeholder={t('destinationPlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -87,9 +89,9 @@ export default function ItineraryGeneratorPage() {
                   name="budget"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Budget</FormLabel>
+                      <FormLabel>{t('budgetLabel')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Moderate" {...field} />
+                        <Input placeholder={t('budgetPlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -100,10 +102,10 @@ export default function ItineraryGeneratorPage() {
                   name="interests"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Interests & Preferences</FormLabel>
+                      <FormLabel>{t('interestsLabel')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="e.g., Interested in historic temples, local cuisine, nature walks, and minimal travel between locations."
+                          placeholder={t('interestsPlaceholder')}
                           className="resize-none"
                           rows={4}
                           {...field}
@@ -117,12 +119,12 @@ export default function ItineraryGeneratorPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Generating...
+                      {t('generatingButton')}
                     </>
                   ) : (
                     <>
                       <Wand2 className="mr-2 h-4 w-4" />
-                      Generate Itinerary
+                      {t('generateButton')}
                     </>
                   )}
                 </Button>
@@ -133,8 +135,8 @@ export default function ItineraryGeneratorPage() {
 
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardTitle>Your Personalized Itinerary</CardTitle>
-            <CardDescription>Your AI-generated travel plan will appear here.</CardDescription>
+            <CardTitle>{t('resultTitle')}</CardTitle>
+            <CardDescription>{t('resultDescription')}</CardDescription>
           </CardHeader>
           <CardContent>
             {isLoading && (
@@ -160,7 +162,7 @@ export default function ItineraryGeneratorPage() {
             {!isLoading && !itinerary && (
               <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[300px]">
                 <Map className="h-12 w-12 text-muted-foreground" />
-                <p className="mt-4 text-muted-foreground">Your itinerary is waiting to be created.</p>
+                <p className="mt-4 text-muted-foreground">{t('waitingMessage')}</p>
               </div>
             )}
             {itinerary && (

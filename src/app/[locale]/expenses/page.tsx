@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PlusCircle, Trash2, Scale } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 const expenseSchema = z.object({
   description: z.string().min(1, "Description is required."),
@@ -23,6 +24,7 @@ type Expense = z.infer<typeof expenseSchema> & { id: number };
 const participants = ["You", "Alex", "Mia", "Sam"];
 
 export default function ExpensesPage() {
+  const t = useTranslations('ExpensesPage');
   const [expenses, setExpenses] = useState<Expense[]>([]);
 
   const form = useForm<z.infer<typeof expenseSchema>>({
@@ -59,16 +61,16 @@ export default function ExpensesPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Group Expense Splitter</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Keep track of who paid for what. Add expenses below to automatically calculate the balance.
+          {t('description')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Add New Expense</CardTitle>
+            <CardTitle>{t('addExpenseTitle')}</CardTitle>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -78,9 +80,9 @@ export default function ExpensesPage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t('descriptionLabel')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Dinner at pizzeria" {...field} />
+                        <Input placeholder={t('descriptionPlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -91,9 +93,9 @@ export default function ExpensesPage() {
                   name="amount"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Amount</FormLabel>
+                      <FormLabel>{t('amountLabel')}</FormLabel>
                       <FormControl>
-                        <Input type="number" step="0.01" placeholder="e.g., 80.00" {...field} />
+                        <Input type="number" step="0.01" placeholder={t('amountPlaceholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -104,11 +106,11 @@ export default function ExpensesPage() {
                   name="paidBy"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Paid By</FormLabel>
+                      <FormLabel>{t('paidByLabel')}</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select who paid" />
+                            <SelectValue placeholder={t('paidByPlaceholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -123,7 +125,7 @@ export default function ExpensesPage() {
                 />
                 <Button type="submit" className="w-full">
                   <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Expense
+                  {t('addExpenseButton')}
                 </Button>
               </form>
             </Form>
@@ -133,16 +135,16 @@ export default function ExpensesPage() {
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>Expense Log</CardTitle>
-              <CardDescription>A list of all shared expenses for this trip.</CardDescription>
+              <CardTitle>{t('expenseLogTitle')}</CardTitle>
+              <CardDescription>{t('expenseLogDescription')}</CardDescription>
             </CardHeader>
             <CardContent>
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Paid By</TableHead>
-                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>{t('tableHeaderDescription')}</TableHead>
+                    <TableHead>{t('tableHeaderPaidBy')}</TableHead>
+                    <TableHead className="text-right">{t('tableHeaderAmount')}</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -163,7 +165,7 @@ export default function ExpensesPage() {
                   ) : (
                     <TableRow>
                       <TableCell colSpan={4} className="h-24 text-center">
-                        No expenses added yet.
+                        {t('noExpenses')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -172,7 +174,7 @@ export default function ExpensesPage() {
             </CardContent>
              <CardFooter className="font-bold text-lg">
                 <div className="flex justify-between w-full">
-                    <span>Total Spent:</span>
+                    <span>{t('totalSpent')}</span>
                     <span>${totalSpent.toFixed(2)}</span>
                 </div>
             </CardFooter>
@@ -180,9 +182,9 @@ export default function ExpensesPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Scale className="h-5 w-5"/> Balance Summary</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Scale className="h-5 w-5"/> {t('balanceSummaryTitle')}</CardTitle>
               <CardDescription>
-                Calculations based on equal splitting. Positive means they are owed money, negative means they owe money.
+                {t('balanceSummaryDescription')}
               </CardDescription>
             </CardHeader>
             <CardContent>

@@ -4,11 +4,8 @@ config();
 import { exec } from 'child_process';
 
 
-import '@/ai/flows/explore-hidden-gems.ts';
-import '@/ai/flows/generate-personalized-itineraries.ts';
-import '@/ai/flows/get-safety-assistance.ts';
-import '@/ai/flows/plan-trip.ts';
-import '@/ai/flows/find-cities.ts';
+// The Genkit server automatically discovers flows.
+// Importing them here creates a dependency conflict with the Next.js environment.
 
 
 // Seed the database

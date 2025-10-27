@@ -2,6 +2,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
+import { useTranslations } from "next-intl";
 
 const artisans = [
   {
@@ -49,12 +50,13 @@ const artisans = [
 ];
 
 export default function LocalArtisansPage() {
+  const t = useTranslations('LocalArtisansPage');
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Business Connector</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Support local communities by connecting with talented artisans and authentic experiences. Every interaction tells a story.
+          {t('description')}
         </p>
       </div>
 
@@ -80,7 +82,7 @@ export default function LocalArtisansPage() {
               </CardContent>
               <CardFooter>
                  <Button variant="outline" className="w-full bg-transparent border-accent text-accent hover:bg-accent/10">
-                    Connect <ArrowRight className="ml-2 h-4 w-4" />
+                    {t('connectButton')} <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </CardFooter>
             </Card>

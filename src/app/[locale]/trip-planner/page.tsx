@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -17,8 +16,9 @@ import { planTrip } from '@/ai/flows/plan-trip';
 import type { PlanTripOutput, Hotel } from '@/ai/flows/plan-trip.types';
 import { CityCombobox } from '@/components/city-combobox';
 import { useSettings } from '@/context/settings-context';
-import { useUser, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore } from '@/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -45,6 +45,7 @@ const CarbonFootprint = ({ value }: { value: number }) => (
 );
 
 export default function TripPlannerPage() {
+    const t = useTranslations('TripPlannerPage');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
     const [tripId, setTripId] = useState<string | null>(null);
@@ -70,7 +71,7 @@ export default function TripPlannerPage() {
         setTripId(null);
         setSelectedItems({ transport: null, hotel: null });
         if (!user || !firestore) {
-            toast({ title: "Please log in", description: "You need to be logged in to plan a trip.", variant: "destructive" });
+            toast({ title: t('toastLoginTitle'), description: t('toastLoginDescription'), variant: "destructive" });
             setIsLoading(false);
             return;
         }
@@ -107,8 +108,8 @@ export default function TripPlannerPage() {
         } catch (error) {
             console.error('Failed to plan trip:', error);
             toast({
-                title: 'Error',
-                description: 'Failed to generate trip plan. Please try again.',
+                title: t('toastErrorTitle'),
+                description: t('toastErrorDescription'),
                 variant: 'destructive',
             });
         } finally {
@@ -126,14 +127,14 @@ export default function TripPlannerPage() {
             await setDoc(tripRef, { [key]: item, updatedAt: serverTimestamp() }, { merge: true });
             setSelectedItems(prev => ({ ...prev, [itemType]: item.mode || item.name }));
             toast({
-                title: `${itemType.charAt(0).toUpperCase() + itemType.slice(1)} Selected!`,
-                description: `${item.mode || item.name} has been saved to your trip.`,
+                title: t('toastItemSelected', { itemType: itemType.charAt(0).toUpperCase() + itemType.slice(1) }),
+                description: t('toastItemSaved', { itemName: item.mode || item.name }),
             });
         } catch (error) {
             console.error(`Failed to save ${itemType}:`, error);
             toast({
-                title: "Save Error",
-                description: `Could not save your ${itemType} selection.`,
+                title: t('toastSaveError'),
+                description: t('toastSaveErrorDescription', { itemType }),
                 variant: "destructive",
             });
         }
@@ -149,9 +150,9 @@ export default function TripPlannerPage() {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">AI Trip Planner</h1>
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground max-w-2xl">
-                    Find the best combination of transport and accommodation for your next adventure.
+                    {t('description')}
                 </p>
             </div>
 
@@ -165,11 +166,11 @@ export default function TripPlannerPage() {
                                     name="from"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <Label>From</Label>
+                                            <Label>{t('fromLabel')}</Label>
                                             <CityCombobox
                                                 value={field.value}
                                                 onValueChange={field.onChange}
-                                                placeholder="Select origin..."
+                                                placeholder={t('fromPlaceholder')}
                                             />
                                             <FormMessage />
                                         </FormItem>
@@ -180,11 +181,11 @@ export default function TripPlannerPage() {
                                     name="to"
                                     render={({ field }) => (
                                         <FormItem className="flex flex-col">
-                                            <Label>To</Label>
+                                            <Label>{t('toLabel')}</Label>
                                             <CityCombobox
                                                 value={field.value}
                                                 onValueChange={field.onChange}
-                                                placeholder="Select destination..."
+                                                placeholder={t('toPlaceholder')}
                                             />
                                             <FormMessage />
                                         </FormItem>
@@ -196,7 +197,7 @@ export default function TripPlannerPage() {
                                         name="departure"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Label>Departure</Label>
+                                                <Label>{t('departureLabel')}</Label>
                                                 <FormControl>
                                                     <Input type="date" {...field} />
                                                 </FormControl>
@@ -209,7 +210,7 @@ export default function TripPlannerPage() {
                                         name="travelers"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Label>Travelers</Label>
+                                                <Label>{t('travelersLabel')}</Label>
                                                  <FormControl>
                                                     <Input type="number" min="1" {...field} />
                                                 </FormControl>
@@ -220,10 +221,10 @@ export default function TripPlannerPage() {
                                 </div>
                                 <Button type="submit" disabled={isLoading || !user} className="w-full lg:w-auto">
                                     {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                                    <span className="ml-2">{isLoading ? 'Searching...' : 'Search'}</span>
+                                    <span className="ml-2">{isLoading ? t('searchingButton') : t('searchButton')}</span>
                                 </Button>
                             </div>
-                             {!user && <p className="text-sm text-destructive mt-2">Please log in to plan a trip.</p>}
+                             {!user && <p className="text-sm text-destructive mt-2">{t('loginToPlan')}</p>}
                         </form>
                     </Form>
                 </CardContent>
@@ -232,14 +233,14 @@ export default function TripPlannerPage() {
             {isLoading && (
                 <div className="flex items-center justify-center pt-10">
                     <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <p className="ml-4 text-muted-foreground">Finding the best options for you...</p>
+                    <p className="ml-4 text-muted-foreground">{t('loadingMessage')}</p>
                 </div>
             )}
 
             {results && !isLoading && (
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6">
                     <div className="lg:col-span-2 space-y-6">
-                        <h2 className="font-headline text-2xl font-bold">Transport Options</h2>
+                        <h2 className="font-headline text-2xl font-bold">{t('transportOptionsTitle')}</h2>
                         
                         {results.ecoMix && (
                             <Card className="bg-primary/10 border-primary">
@@ -285,7 +286,7 @@ export default function TripPlannerPage() {
                                         </div>
                                     </div>
                                     <Button variant="outline" onClick={() => handleSelectItem('transport', option)} disabled={selectedItems.transport === option.mode}>
-                                        {selectedItems.transport === option.mode ? <CheckCircle className="text-green-500" /> : 'Select'}
+                                        {selectedItems.transport === option.mode ? <CheckCircle className="text-green-500" /> : t('selectButton')}
                                     </Button>
                                 </CardContent>
                             </Card>
@@ -293,7 +294,7 @@ export default function TripPlannerPage() {
                     </div>
 
                     <div className="lg:col-span-1 space-y-6">
-                        <h2 className="font-headline text-2xl font-bold">Recommended Stays</h2>
+                        <h2 className="font-headline text-2xl font-bold">{t('recommendedStaysTitle')}</h2>
                         {recommendedStays.map((stay, index) => (
                             <Card key={index}>
                                 <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
@@ -304,11 +305,11 @@ export default function TripPlannerPage() {
                                     <p className='text-xs font-semibold uppercase text-primary'>{stay.recommendationType}</p>
                                     <div className="flex items-center text-sm text-muted-foreground mt-1">
                                         <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                                        <span>{stay.rating} ({stay.reviews} reviews)</span>
+                                        <span>{stay.rating} ({stay.reviews} {t('reviews')})</span>
                                     </div>
-                                    <p className="text-lg font-semibold mt-2">{stay.pricePerNight} / night</p>
+                                    <p className="text-lg font-semibold mt-2">{stay.pricePerNight} {t('pricePerNight')}</p>
                                     <Button className="w-full mt-4" onClick={() => handleSelectItem('hotel', stay)} disabled={selectedItems.hotel === stay.name}>
-                                        {selectedItems.hotel === stay.name ? <><CheckCircle className="mr-2"/> Selected</> : 'Select Hotel'}
+                                        {selectedItems.hotel === stay.name ? <><CheckCircle className="mr-2"/> {t('selectedButton')}</> : t('selectHotelButton')}
                                     </Button>
                                 </CardContent>
                             </Card>

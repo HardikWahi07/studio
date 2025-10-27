@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plane, Train, Bus, Clock, DollarSign, Leaf } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslations } from "next-intl";
 
 const transportOptions = [
   {
@@ -46,26 +47,28 @@ const CarbonFootprint = ({ value }: { value: number }) => {
 };
 
 export default function TransportPage() {
+  const t = useTranslations('TransportPage');
+
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Smart Transport Recommender</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Compare your travel options by cost, time, and environmental impact. Choose the smarter, greener way to get there.
+          {t('description')}
           <br />
-          <span className="text-xs">(This is a concept demonstration with mock data)</span>
+          <span className="text-xs">{t('mockDataNotice')}</span>
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <Card className="md:col-span-1">
           <CardHeader>
-            <CardTitle>Your Route</CardTitle>
+            <CardTitle>{t('routeTitle')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4 text-center">
-            <div className="text-lg font-bold">New York City</div>
-            <div className="text-muted-foreground">to</div>
-            <div className="text-lg font-bold">Chicago</div>
+            <div className="text-lg font-bold">{t('fromLocation')}</div>
+            <div className="text-muted-foreground">{t('to')}</div>
+            <div className="text-lg font-bold">{t('toLocation')}</div>
           </CardContent>
         </Card>
 
@@ -84,19 +87,19 @@ export default function TransportPage() {
                   <div className="flex flex-col items-center gap-1">
                     <Clock className="h-5 w-5 text-muted-foreground" />
                     <span className="font-semibold">{option.duration}</span>
-                    <span className="text-xs text-muted-foreground">Duration</span>
+                    <span className="text-xs text-muted-foreground">{t('duration')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1">
                     <DollarSign className="h-5 w-5 text-muted-foreground" />
                     <span className="font-semibold">{option.cost}</span>
-                    <span className="text-xs text-muted-foreground">Est. Cost</span>
+                    <span className="text-xs text-muted-foreground">{t('cost')}</span>
                   </div>
                   <div className="flex flex-col items-center gap-1">
                     <div className="h-5 flex items-center">
                       <CarbonFootprint value={option.carbonValue} />
                     </div>
                     <span className="font-semibold">{option.carbon}</span>
-                    <span className="text-xs text-muted-foreground">Carbon</span>
+                    <span className="text-xs text-muted-foreground">{t('carbon')}</span>
                   </div>
                 </div>
               </CardContent>

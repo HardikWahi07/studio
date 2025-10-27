@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -8,6 +7,7 @@ import { PexelsImage } from '@/components/pexels-image';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plane, Hotel, Calendar, Users, Briefcase } from 'lucide-react';
 import { format } from 'date-fns';
+import { useTranslations } from 'next-intl';
 
 type Trip = {
     id: string;
@@ -20,6 +20,7 @@ type Trip = {
 };
 
 export default function MyTripsPage() {
+    const t = useTranslations('MyTripsPage');
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
 
@@ -38,9 +39,9 @@ export default function MyTripsPage() {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">My Trips</h1>
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground max-w-2xl">
-                    Here are all the amazing journeys you've planned with TripMind.
+                    {t('description')}
                 </p>
             </div>
 
@@ -65,9 +66,9 @@ export default function MyTripsPage() {
             {!isLoading && !trips?.length && (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Briefcase className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">No Trips Planned Yet</h3>
+                    <h3 className="mt-4 font-bold text-lg">{t('noTripsTitle')}</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
-                        Use the AI Trip Planner to start your next adventure!
+                        {t('noTripsDescription')}
                     </p>
                 </Card>
             )}
@@ -84,7 +85,7 @@ export default function MyTripsPage() {
                             <CardContent className="p-6 flex-grow flex flex-col justify-between">
                                 <div>
                                     <CardTitle className="font-headline text-xl">{trip.destination}</CardTitle>
-                                    <CardDescription>From {trip.origin}</CardDescription>
+                                    <CardDescription>{t('from', { origin: trip.origin })}</CardDescription>
                                     <div className="space-y-3 text-sm text-muted-foreground mt-4">
                                         <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4" />
@@ -92,7 +93,7 @@ export default function MyTripsPage() {
                                         </div>
                                          <div className="flex items-center gap-2">
                                             <Users className="w-4 h-4" />
-                                            <span>{trip.travelers} traveler{trip.travelers > 1 ? 's' : ''}</span>
+                                            <span>{t('travelers', { count: trip.travelers })}</span>
                                         </div>
                                         {trip.transport && (
                                              <div className="flex items-center gap-2">

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -9,8 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Clock, Languages, MapPin, Users, Search, Loader2 } from 'lucide-react';
+import { MessageSquare, Clock, MapPin, Users, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useTranslations } from 'next-intl';
 
 type LocalSupporter = {
     id: string;
@@ -25,6 +25,7 @@ type LocalSupporter = {
 type GeoState = 'idle' | 'getting_location' | 'fetching_supporters' | 'error' | 'success';
 
 export default function LocalSupportersPage() {
+    const t = useTranslations('LocalSupportersPage');
     const firestore = useFirestore();
     const [searchLocation, setSearchLocation] = useState('');
     const [searchedCity, setSearchedCity] = useState('');
@@ -126,7 +127,7 @@ export default function LocalSupportersPage() {
             return (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <MapPin className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">Location Error</h3>
+                    <h3 className="mt-4 font-bold text-lg">{t('locationErrorTitle')}</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
                        {errorMessage}
                     </p>
@@ -138,9 +139,9 @@ export default function LocalSupportersPage() {
             return (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Users className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">No Supporters Found in {searchedCity}</h3>
+                    <h3 className="mt-4 font-bold text-lg">{t('noSupportersTitle', {city: searchedCity})}</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
-                       We're still building our network. Try searching for another city or check back soon!
+                       {t('noSupportersDescription')}
                     </p>
                 </Card>
             );
@@ -171,11 +172,11 @@ export default function LocalSupportersPage() {
                             </CardContent>
                             <CardFooter className="flex-col gap-2">
                                 <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                    <Clock className="w-3 h-3"/> Responds: {supporter.response_time}
+                                    <Clock className="w-3 h-3"/> {t('responds')} {supporter.response_time}
                                 </div>
                                 <Button className="w-full">
                                     <MessageSquare className="mr-2 h-4 w-4" />
-                                    Message
+                                    {t('messageButton')}
                                 </Button>
                             </CardFooter>
                         </Card>
@@ -187,9 +188,9 @@ export default function LocalSupportersPage() {
         return (
             <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                 <MapPin className="h-16 w-16 text-muted-foreground/50" />
-                <h3 className="mt-4 font-bold text-lg">Find Local Supporters</h3>
+                <h3 className="mt-4 font-bold text-lg">{t('findSupportersPromptTitle')}</h3>
                 <p className="mt-2 text-muted-foreground max-w-sm">
-                   Enter a location above to find local supporters in that area.
+                   {t('findSupportersPromptDescription')}
                 </p>
             </Card>
         );
@@ -198,27 +199,27 @@ export default function LocalSupportersPage() {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Supporters</h1>
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground max-w-2xl">
-                    Connect with friendly locals who are happy to help. Get advice, ask questions, or just get a friendly tip when you're feeling lost.
+                    {t('description')}
                 </p>
             </div>
 
              <Card>
                 <CardHeader>
-                    <CardTitle>Find a Supporter</CardTitle>
-                    <CardDescription>Enter a city to find locals who can help. We'll try to detect your location automatically.</CardDescription>
+                    <CardTitle>{t('findSupporterTitle')}</CardTitle>
+                    <CardDescription>{t('findSupporterDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSearch} className="flex gap-2">
                         <Input 
-                            placeholder="e.g., Madrid, Spain"
+                            placeholder={t('searchPlaceholder')}
                             value={searchLocation}
                             onChange={(e) => setSearchLocation(e.target.value)}
                         />
                         <Button type="submit">
                             <Search className="mr-2 h-4 w-4" />
-                            Search
+                            {t('searchButton')}
                         </Button>
                     </form>
                 </CardContent>

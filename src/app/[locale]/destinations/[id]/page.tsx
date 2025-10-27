@@ -1,4 +1,3 @@
-
 import { destinations } from '@/lib/destinations';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -6,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Star, Plane } from 'lucide-react';
 import Link from 'next/link';
 import { PexelsImage } from '@/components/pexels-image';
-
+import { useTranslations } from 'next-intl';
 
 export default function DestinationPage({ params }: { params: { id: string } }) {
+  const t = useTranslations('DestinationPage');
   const destination = destinations.find((d) => d.id === params.id);
 
   if (!destination) {
@@ -31,7 +31,7 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
                 <Star className="w-5 h-5 mr-2 text-yellow-400 fill-yellow-400" />
                 <span>{destination.rating}</span>
                 <span className="mx-2">·</span>
-                <span>{destination.reviewers} reviews</span>
+                <span>{destination.reviewers} {t('reviews')}</span>
             </div>
             </div>
         </div>
@@ -42,7 +42,7 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
             <div className='lg:col-span-2 space-y-8'>
                 <Card>
                   <CardHeader>
-                    <CardTitle>About {destination.name}</CardTitle>
+                    <CardTitle>{t('about', { destinationName: destination.name })}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">{destination.description}</p>
@@ -50,13 +50,13 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
                 </Card>
 
                 <div className="mt-12">
-                    <h2 className="text-3xl font-bold font-headline mb-6">Photo Gallery</h2>
+                    <h2 className="text-3xl font-bold font-headline mb-6">{t('photoGallery')}</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {[...Array(6)].map((_, index) => (
                            <div key={index} className="relative aspect-video w-full overflow-hidden rounded-lg group">
                              <PexelsImage
                                 query={`${destination.imageHint} ${index}`}
-                                alt={`${destination.imageHint} photo ${index + 1}`}
+                                alt={t('photoAlt', { photoHint: destination.imageHint, index: index + 1 })}
                                 fill
                                 className="object-cover group-hover:scale-105 transition-transform duration-300"
                               />
@@ -68,14 +68,14 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
             <div className='lg:col-span-1'>
                  <Card>
                     <CardHeader>
-                        <CardTitle className='font-headline'>Plan Your Visit</CardTitle>
+                        <CardTitle className='font-headline'>{t('planYourVisit')}</CardTitle>
                     </CardHeader>
                     <CardContent className='space-y-4'>
-                        <p className='text-muted-foreground'>Ready to explore {destination.name}? Find the best transport options to make your trip happen.</p>
+                        <p className='text-muted-foreground'>{t('planDescription', { destinationName: destination.name })}</p>
                         <Button asChild className="w-full" size="lg">
                             <Link href="/transport">
                                 <Plane className="mr-2 h-4 w-4" />
-                                Book Your Trip
+                                {t('bookYourTrip')}
                             </Link>
                         </Button>
                     </CardContent>
