@@ -31,20 +31,32 @@ export function HeroVideo() {
     let progressInterval: NodeJS.Timeout;
 
     const updateProgress = () => {
-      progressBarEl.style.width = `${Math.min(95, parseFloat(progressBarEl.style.width || '0') + Math.random() * 5)}%`;
+      if (progressBarEl) {
+        const currentWidth = parseFloat(progressBarEl.style.width || '0');
+        const newWidth = Math.min(95, currentWidth + Math.random() * 5);
+        progressBarEl.style.width = `${newWidth}%`;
+      }
     };
 
     const startProgress = () => {
-      progressBarEl.style.width = '0%';
-      progressInterval = setInterval(updateProgress, 200);
+      if (progressBarEl) {
+        progressBarEl.style.width = '0%';
+        progressInterval = setInterval(updateProgress, 200);
+      }
     };
 
     const completeProgress = () => {
       clearInterval(progressInterval);
-      progressBarEl.style.width = '100%';
+      if (progressBarEl) {
+        progressBarEl.style.width = '100%';
+      }
       setTimeout(() => {
-        loadingScreenEl.classList.add('opacity-0', 'pointer-events-none');
-        videoEl.classList.add('opacity-100');
+        if (loadingScreenEl) {
+          loadingScreenEl.classList.add('opacity-0', 'pointer-events-none');
+        }
+        if (videoEl) {
+          videoEl.classList.add('opacity-100');
+        }
       }, 500);
     };
     
@@ -54,14 +66,16 @@ export function HeroVideo() {
           "https://cdn.coverr.co/videos/coverr-aerial-view-of-forest-and-river-1568/1080p.mp4",
           "https://cdn.coverr.co/videos/coverr-green-forest-from-above-5508/1080p.mp4"
         ];
-        videoEl.src = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        if (videoEl) {
+          videoEl.src = fallbacks[Math.floor(Math.random() * fallbacks.length)];
+        }
     };
 
     const loadRandomVideoFast = async () => {
       try {
         startProgress();
         const res = await fetch(
-          `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=10&page=${Math.floor(Math.random() * 10) + 1}`,
+          `https://api.pexels.com/videos/search?query=${encodeURIComponent(query)}&per_page=15&orientation=landscape`,
           { headers: { Authorization: API_KEY } }
         );
 
@@ -74,11 +88,14 @@ export function HeroVideo() {
           const files = randomVideo.video_files;
           
           const bestFile = files.find(v => v.quality === 'uhd') || 
-                           files.find(v => v.quality === 'hd') || 
-                           files[0];
+                           files.find(v => v.quality === 'hd') ||
+                           files.find(v => v.quality === 'sd') ||
+                           files.sort((a,b) => b.width - a.width)[0];
     
-          if (videoEl) {
+          if (videoEl && bestFile) {
             videoEl.src = bestFile.link;
+          } else {
+             throw new Error("No suitable video file found");
           }
         } else {
           throw new Error("No videos found");
