@@ -12,6 +12,8 @@ import {
   Plane,
   ChevronDown,
   Wand2,
+  Globe,
+  CircleDollarSign,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -40,6 +42,22 @@ const travelTools = [
   { href: "/transport", icon: Briefcase, label: "Smart Transport" },
   { href: "/itinerary-planner", icon: Wand2, label: "AI Itinerary Generator" },
 ]
+
+const languages = [
+    { code: "en", label: "English" },
+    { code: "es", label: "Español" },
+    { code: "fr", label: "Français" },
+    { code: "de", label: "Deutsch" },
+    { code: "hi", label: "हिन्दी" },
+];
+
+const currencies = [
+    { code: "USD", label: "USD ($)" },
+    { code: "EUR", label: "EUR (€)" },
+    { code: "GBP", label: "GBP (£)" },
+    { code: "INR", label: "INR (₹)" },
+    { code: "JPY", label: "JPY (¥)" },
+];
 
 
 function NavLink({ href, children, className }: { href: string, children: React.ReactNode, className?: string }) {
@@ -111,6 +129,52 @@ function useScrollState() {
   return { isScrolled, isHomePage };
 }
 
+function LanguageSelector() {
+    const { isScrolled, isHomePage } = useScrollState();
+    const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const [selectedLanguage, setSelectedLanguage] = React.useState(languages[0]);
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={cn('hidden sm:inline-flex', buttonColorClass)}>
+                    <Globe />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                {languages.map(lang => (
+                    <DropdownMenuItem key={lang.code} onSelect={() => setSelectedLanguage(lang)}>
+                        {lang.label}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
+function CurrencySelector() {
+    const { isScrolled, isHomePage } = useScrollState();
+    const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const [selectedCurrency, setSelectedCurrency] = React.useState(currencies[0]);
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className={cn('hidden sm:inline-flex', buttonColorClass)}>
+                    <CircleDollarSign />
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+                {currencies.map(currency => (
+                    <DropdownMenuItem key={currency.code} onSelect={() => setSelectedCurrency(currency)}>
+                        {currency.label}
+                    </DropdownMenuItem>
+                ))}
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
 
@@ -131,6 +195,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <TravelToolsDropdown />
           </nav>
           <div className="ml-auto flex items-center gap-2">
+            <LanguageSelector />
+            <CurrencySelector />
             <AuthButton isScrolled={isScrolled} isHomePage={isHomePage} />
             <Sheet>
               <SheetTrigger asChild>
