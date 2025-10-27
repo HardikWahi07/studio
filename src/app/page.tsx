@@ -1,4 +1,5 @@
 
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
@@ -16,6 +17,7 @@ import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { HeroVideo } from '@/components/hero-video';
 
 const features = [
   {
@@ -111,45 +113,35 @@ const moreFeatures = [
 ];
 
 export default function DashboardPage() {
-  const heroImage = PlaceHolderImages.find(p => p.id === 'hero-dashboard');
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="flex-1">
-        <section className="relative w-full min-h-screen text-foreground flex items-center justify-center">
-          {heroImage && (
-             <Image
-                src={heroImage.imageUrl}
-                alt={heroImage.description}
-                fill
-                className="object-cover"
-                priority
-              />
-          )}
-          <div className="absolute inset-0 bg-white/60 dark:bg-black/40" />
-          <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+        <section className="relative w-full min-h-screen text-white flex items-center justify-center">
+          <HeroVideo />
+          <div className="relative z-20 flex flex-col items-center justify-center text-center px-4">
             <div className='flex items-center gap-2 mb-4'>
-                <Sparkles className='w-5 h-5 text-primary' />
-                <p className='font-bold text-primary'>AI-POWERED TRAVEL ASSISTANT</p>
+                <Sparkles className='w-5 h-5 text-white' />
+                <p className='font-bold text-white tracking-widest'>AI-POWERED TRAVEL ASSISTANT</p>
             </div>
             <h1 className="font-headline text-5xl md:text-7xl font-bold">
               Plan Smart. <span className='text-primary'>Travel Green.</span><br/> Enjoy More.
             </h1>
-            <p className="mt-4 text-lg md:text-xl max-w-3xl text-muted-foreground">
+            <p className="mt-4 text-lg md:text-xl max-w-3xl text-gray-200">
               Your intelligent travel companion that helps you discover hidden gems, book eco-friendly transport, and create unforgettable experiences—all while keeping your carbon footprint low.
             </p>
             <div className="mt-8 flex gap-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full">
                 <Link href="/itinerary-planner">Start Planning</Link>
               </Button>
-               <Button asChild size="lg" variant="outline" className="bg-white/80 border-gray-300 hover:bg-white text-lg px-8 py-6 rounded-full">
+               <Button asChild size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black text-lg px-8 py-6 rounded-full">
                 <Link href="#">Learn More</Link>
               </Button>
             </div>
              <div className="mt-8 flex gap-4">
-                <Badge variant="outline" className="bg-white/80 backdrop-blur-sm border-gray-300 py-2 px-4 rounded-full text-sm font-medium text-muted-foreground"><Sparkles className="w-4 h-4 mr-2 text-primary"/>AI-Powered</Badge>
-                <Badge variant="outline" className="bg-white/80 backdrop-blur-sm border-gray-300 py-2 px-4 rounded-full text-sm font-medium text-muted-foreground"><Leaf className="w-4 h-4 mr-2 text-primary"/>Green & Intuitive</Badge>
-                <Badge variant="outline" className="bg-white/80 backdrop-blur-sm border-gray-300 py-2 px-4 rounded-full text-sm font-medium text-muted-foreground"><Users className="w-4 h-4 mr-2 text-primary"/>User-Friendly</Badge>
+                <Badge variant="outline" className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium"><Sparkles className="w-4 h-4 mr-2 text-primary"/>AI-Powered</Badge>
+                <Badge variant="outline" className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium"><Leaf className="w-4 h-4 mr-2 text-primary"/>Green & Intuitive</Badge>
+                <Badge variant="outline" className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium"><Users className="w-4 h-4 mr-2 text-primary"/>User-Friendly</Badge>
             </div>
           </div>
         </section>
@@ -182,7 +174,7 @@ export default function DashboardPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-16 md:py-24 bg-secondary/50">
           <div className="container mx-auto px-4">
             <div className="text-center max-w-3xl mx-auto">
               <h2 className="text-4xl md:text-5xl font-bold font-headline">
@@ -250,7 +242,7 @@ export default function DashboardPage() {
             </div>
         </section>
         
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-16 md:py-24 bg-secondary/50">
             <div className="container mx-auto px-4">
                  <div className="text-center max-w-3xl mx-auto features-header">
                     <h2 className="text-4xl md:text-5xl font-bold font-headline">

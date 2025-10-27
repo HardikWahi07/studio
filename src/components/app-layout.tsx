@@ -45,7 +45,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
   const isActive = pathname === href
 
   const { isScrolled, isHomePage } = useScrollState();
-  const linkColorClass = isHomePage && !isScrolled ? "text-gray-700" : "text-gray-700";
+  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-gray-700";
 
   return (
     <Link
@@ -61,7 +61,7 @@ function TravelToolsDropdown() {
   const pathname = usePathname();
   const isActive = travelTools.some(tool => tool.href === pathname);
   const { isScrolled, isHomePage } = useScrollState();
-  const linkColorClass = isHomePage && !isScrolled ? "text-gray-700" : "text-gray-700";
+  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-gray-700";
   
   return (
     <DropdownMenu>
@@ -120,7 +120,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href="/" className="mr-6 flex items-center gap-2">
-             <Logo className="text-primary" />
+             <Logo className={cn(isHomePage && !isScrolled ? 'text-white' : 'text-primary')} />
           </Link>
           <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
             {navItems.map((item) => (
@@ -129,13 +129,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <TravelToolsDropdown />
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" className="hidden sm:inline-flex items-center gap-2 text-gray-700 hover:text-primary hover:bg-black/5">
+            <Button variant="ghost" className={cn("hidden sm:inline-flex items-center gap-2 hover:bg-black/5", isHomePage && !isScrolled ? 'text-white hover:text-white' : 'text-gray-700 hover:text-primary')}>
                 <User className="w-4 h-4" /> Login
             </Button>
             <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full">Sign Up</Button>
             <Sheet>
               <SheetTrigger asChild>
-                <Button id="hamburger" variant="outline" size="icon" className="lg:hidden">
+                <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle navigation menu</span>
                 </Button>
@@ -158,17 +158,17 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="flex-1">{children}</main>
-       <footer className="bg-primary/90 text-white">
+       <footer className="bg-gray-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="md:col-span-2 lg:col-span-1">
               <Logo className="text-white" />
-              <p className="text-sm text-gray-200 mt-4">
+              <p className="text-sm text-gray-400 mt-4">
                 The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.
               </p>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider">Quick Links</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Quick Links</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 <li><Link href="/itinerary-planner" className="hover:text-white transition-colors">Plan a Trip</Link></li>
                 <li><Link href="/local-artisans" className="hover:text-white transition-colors">Local Connect</Link></li>
@@ -176,7 +176,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider">Company</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Company</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
@@ -184,7 +184,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider">Support</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Support</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">FAQ</Link></li>
