@@ -116,7 +116,23 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = React.useState(pathname === '/');
 
   const handleVideoLoad = React.useCallback(() => {
-    setIsLoading(false);
+    let progress = 0;
+    const progressBar = document.getElementById('progressBar');
+    
+    const progressInterval = setInterval(() => {
+        progress += Math.random() * 10;
+        if (progress > 80) { // simulate fast loading
+             clearInterval(progressInterval);
+        }
+        if(progressBar) progressBar.style.width = `${Math.min(progress, 100)}%`;
+    }, 100);
+    
+    if (progressBar) progressBar.style.width = '100%';
+    
+    setTimeout(() => {
+        setIsLoading(false);
+        clearInterval(progressInterval);
+    }, 800); // give it a moment to complete animation
   }, []);
 
   const childrenWithProps = React.useMemo(() => 

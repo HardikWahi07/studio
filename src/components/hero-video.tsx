@@ -10,12 +10,9 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
-    let progressInterval: NodeJS.Timeout;
-    
     const videoEl = videoRef.current;
     if (!videoEl) return;
     
-    // Straight from your JS - this is the reliable way
     const handleVideoLoaded = () => {
       if (onVideoLoad) {
         onVideoLoad();
@@ -72,15 +69,10 @@ export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
       }
     }
 
-    // Attach the event listener that will trigger the end of the loading screen
     videoEl.addEventListener('loadeddata', handleVideoLoaded);
-
-    // Start loading the video
     loadRandomVideoFast();
 
-    // Cleanup function to remove event listener
     return () => {
-        clearInterval(progressInterval);
         if (videoEl) {
             videoEl.removeEventListener('loadeddata', handleVideoLoaded);
         }
