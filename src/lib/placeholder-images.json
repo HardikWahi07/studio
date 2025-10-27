@@ -65,6 +65,42 @@
       "description": "A cozy and hidden cafe in a European alley.",
       "imageUrl": "https://images.unsplash.com/photo-1564079544-775b48b99354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlbnwwfHx8fDE3NjE1NTYzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "european cafe"
+    },
+    {
+      "id": "artisan-pottery",
+      "description": "A potter's hands shaping clay on a wheel.",
+      "imageUrl": "https://images.unsplash.com/photo-1488977678660-dca8681ca872?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3R0ZXJ5JTIwaGFuZHN8ZW58MHx8fHwxNzYxNTQwNzIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "pottery hands"
+    },
+    {
+      "id": "artisan-textiles",
+      "description": "A traditional loom with colorful threads.",
+      "imageUrl": "https://images.unsplash.com/photo-1630551628028-08093ac538fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWF2aW5nJTIwbG9vbXxlbnwwfHx8fDE3NjE0NzAzNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "weaving loom"
+    },
+    {
+      "id": "artisan-food",
+      "description": "Fresh pasta being prepared on a wooden board.",
+      "imageUrl": "https://images.unsplash.com/photo-1606091484089-089fa86fad4f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMHBhc3RhfGVufDB8fHx8MTc2MTU1OTk0OHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "fresh pasta"
+    },
+    {
+      "id": "artisan-woodwork",
+      "description": "A woodworker carving a detailed pattern into a piece of wood.",
+      "imageUrl": "https://images.unsplash.com/photo-1606077089563-cff5a4f3d3d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b29kJTIwY2FydmluZ3xlbnwwfHx8fDE3NjE0NDI2NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "wood carving"
+    },
+    {
+      "id": "artisan-jewelry",
+      "description": "A close-up of a jeweler setting a stone in a silver ring.",
+      "imageUrl": "https://images.unsplash.com/photo-1608112169461-48616144c894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqZXdlbHJ5JTIwbWFraW5nfGVufDB8fHx8MTc2MTUzNzgyNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "jewelry making"
+    },
+    {
+      "id": "artisan-painting",
+      "description": "An artist's easel with a partially finished landscape painting.",
+      "imageUrl": "https://images.unsplash.com/photo-1578926375605-eaf7559b1458?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYW52YXMlMjBwYWludGluZ3xlbnwwfHx8fDE3NjE1NTk5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "canvas painting"
     }
   ]
 }

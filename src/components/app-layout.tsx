@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import * as React from "react"
@@ -11,7 +10,8 @@ import {
   Briefcase,
   Users,
   Plane,
-  ChevronDown
+  ChevronDown,
+  User
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/", label: "Home" },
+  { href: "#", label: "About" },
   { href: "/itinerary-planner", label: "AI Trip Planner" },
   { href: "/transport", label: "Booking" },
   { href: "/local-artisans", label: "Local Connect" },
@@ -42,10 +43,14 @@ const travelTools = [
 function NavLink({ href, children, className }: { href: string, children: React.ReactNode, className?: string }) {
   const pathname = usePathname()
   const isActive = pathname === href
+
+  const { isScrolled, isHomePage } = useScrollState();
+  const linkColorClass = isHomePage && !isScrolled ? "text-gray-700" : "text-gray-700";
+
   return (
     <Link
       href={href}
-      className={cn("text-sm font-medium transition-colors hover:text-white", isActive ? "text-white" : "text-white/70", className)}
+      className={cn("text-sm font-medium transition-colors hover:text-primary", isActive ? "text-primary font-semibold" : linkColorClass, className)}
     >
       {children}
     </Link>
@@ -55,11 +60,13 @@ function NavLink({ href, children, className }: { href: string, children: React.
 function TravelToolsDropdown() {
   const pathname = usePathname();
   const isActive = travelTools.some(tool => tool.href === pathname);
+  const { isScrolled, isHomePage } = useScrollState();
+  const linkColorClass = isHomePage && !isScrolled ? "text-gray-700" : "text-gray-700";
   
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("text-sm font-medium hover:text-white focus:ring-0", isActive ? "text-white" : "text-white/70")}>
+        <Button variant="ghost" className={cn("text-sm font-medium hover:text-primary focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : linkColorClass)}>
           Travel Tools
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
@@ -78,42 +85,57 @@ function TravelToolsDropdown() {
   )
 }
 
-export function AppLayout({ children }: { children: React.ReactNode }) {
+function useScrollState() {
   const pathname = usePathname();
   const isHomePage = pathname === '/';
-  const [isScrolled, setIsScrolled] = React.useState(false)
+  const [isScrolled, setIsScrolled] = React.useState(!isHomePage);
 
   React.useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 50)
+    if (!isHomePage) {
+      setIsScrolled(true);
+      return;
     }
-    window.addEventListener("scroll", handleScroll)
-    handleScroll(); // Check on mount
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 50);
+    };
+    
+    window.addEventListener("scroll", handleScroll);
+    handleScroll();
+    
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [isHomePage, pathname]);
+
+  return { isScrolled, isHomePage };
+}
+
+export function AppLayout({ children }: { children: React.ReactNode }) {
+  const { isScrolled, isHomePage } = useScrollState();
   
   return (
     <div className="flex min-h-screen flex-col">
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
-          isHomePage && !isScrolled ? "bg-transparent text-white" : "bg-white/80 shadow-md backdrop-blur-sm text-black"
+          isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href="/" className="mr-6 flex items-center gap-2">
-             <Logo className={cn(isHomePage && !isScrolled ? "text-white" : "text-primary")} />
+             <Logo className="text-primary" />
           </Link>
-          <nav id="navLinks" className="hidden items-center gap-4 md:flex">
+          <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
             {navItems.map((item) => (
               <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
             ))}
             <TravelToolsDropdown />
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" className={cn("hidden sm:inline-flex", isHomePage && !isScrolled ? "hover:text-white hover:bg-white/10" : "hover:text-primary hover:bg-black/5")}>Login</Button>
-            <Button className={cn(isHomePage && !isScrolled ? "bg-white text-black hover:bg-white/90" : "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign Up</Button>
+            <Button variant="ghost" className="hidden sm:inline-flex items-center gap-2 text-gray-700 hover:text-primary hover:bg-black/5">
+                <User className="w-4 h-4" /> Login
+            </Button>
+            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full">Sign Up</Button>
             <Sheet>
               <SheetTrigger asChild>
-                <Button id="hamburger" variant="outline" size="icon" className="md:hidden">
+                <Button id="hamburger" variant="outline" size="icon" className="lg:hidden">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle navigation menu</span>
                 </Button>
@@ -136,12 +158,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="flex-1">{children}</main>
-       <footer className="bg-gray-800 text-white">
+       <footer className="bg-primary/90 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="md:col-span-2 lg:col-span-1">
               <Logo className="text-white" />
-              <p className="text-sm text-gray-400 mt-4">
+              <p className="text-sm text-gray-200 mt-4">
                 The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.
               </p>
             </div>
@@ -170,7 +192,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
           </div>
-          <div className="mt-10 border-t border-gray-700 pt-8 text-center text-sm text-gray-500">
+          <div className="mt-10 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
             © 2024 TripMind. All rights reserved. Plan Smart. Travel Green.
           </div>
         </div>
