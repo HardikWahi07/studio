@@ -1,14 +1,16 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Clock, Languages, MapPin, Users } from 'lucide-react';
+import { MessageSquare, Clock, Languages, MapPin, Users, Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 type LocalSupporter = {
     id: string;
@@ -22,15 +24,29 @@ type LocalSupporter = {
 
 export default function LocalSupportersPage() {
     const firestore = useFirestore();
+    const [searchLocation, setSearchLocation] = useState('');
+    const [searchedCity, setSearchedCity] = useState('');
 
     const supportersQuery = useMemoFirebase(() => {
-        if (!firestore) return null;
-        return query(collection(firestore, 'supporters'), orderBy('name'));
-    }, [firestore]);
+        if (!firestore || !searchedCity) return null;
+        // Query for supporters in the specified location, ordered by name.
+        return query(
+            collection(firestore, 'supporters'), 
+            where('location', '>=', searchedCity),
+            where('location', '<=', searchedCity + '\uf8ff'),
+            orderBy('location'),
+            orderBy('name')
+        );
+    }, [firestore, searchedCity]);
 
     const { data: supporters, isLoading: isLoadingSupporters } = useCollection<LocalSupporter>(supportersQuery);
     
     const isLoading = isLoadingSupporters;
+
+    const handleSearch = (e: React.FormEvent) => {
+        e.preventDefault();
+        setSearchedCity(searchLocation);
+    }
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
@@ -40,6 +56,26 @@ export default function LocalSupportersPage() {
                     Connect with friendly locals who are happy to help. Get advice, ask questions, or just get a friendly tip when you're feeling lost.
                 </p>
             </div>
+
+             <Card>
+                <CardHeader>
+                    <CardTitle>Find a Supporter</CardTitle>
+                    <CardDescription>Enter a city to find locals who can help.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleSearch} className="flex gap-2">
+                        <Input 
+                            placeholder="e.g., Madrid, Spain"
+                            value={searchLocation}
+                            onChange={(e) => setSearchLocation(e.target.value)}
+                        />
+                        <Button type="submit">
+                            <Search className="mr-2 h-4 w-4" />
+                            Search
+                        </Button>
+                    </form>
+                </CardContent>
+            </Card>
 
             {isLoading && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -69,12 +105,22 @@ export default function LocalSupportersPage() {
                 </div>
             )}
             
-            {!isLoading && !supporters?.length && (
+            {!isLoading && searchedCity && !supporters?.length && (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Users className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">No Supporters Found</h3>
+                    <h3 className="mt-4 font-bold text-lg">No Supporters Found in {searchedCity}</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
-                       We're still building our network of local supporters. Check back soon!
+                       We're still building our network. Try searching for another city or check back soon!
+                    </p>
+                </Card>
+            )}
+
+            {!isLoading && !searchedCity && (
+                 <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
+                    <MapPin className="h-16 w-16 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-bold text-lg">Search for a City</h3>
+                    <p className="mt-2 text-muted-foreground max-w-sm">
+                       Enter a location above to find local supporters in that area.
                     </p>
                 </Card>
             )}
