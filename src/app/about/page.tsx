@@ -1,6 +1,6 @@
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Cpu, Leaf, Heart, Award } from "lucide-react";
+import { Cpu, Leaf, Heart } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
 
 const values = [
@@ -18,11 +18,6 @@ const values = [
     icon: <Heart className="h-10 w-10 text-primary" />,
     title: "User First",
     description: "Experience",
-  },
-  {
-    icon: <Award className="h-10 w-10 text-primary" />,
-    title: "Award Ready",
-    description: "Hackathon 2025",
   },
 ];
 
@@ -69,7 +64,7 @@ export default function AboutPage() {
 
        <section className="pb-16 md:pb-24">
         <div className="container mx-auto px-4">
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4 max-w-5xl mx-auto">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
                 {values.map((value) => (
                     <Card key={value.title} className="text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
                         <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
