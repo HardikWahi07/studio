@@ -116,7 +116,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col">
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
-          isScrolled ? "bg-card/80 shadow-md backdrop-blur-sm" : "bg-transparent"
+          isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href="/" className="mr-6 flex items-center gap-2">
