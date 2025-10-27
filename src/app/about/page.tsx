@@ -1,6 +1,7 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Cpu, Leaf, Heart, Award } from "lucide-react";
+import { PexelsImage } from "@/components/pexels-image";
 
 const values = [
   {
@@ -86,8 +87,12 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="pb-16 md:py-24 bg-primary/90 text-primary-foreground">
-          <div className="container mx-auto px-4 text-center">
+      <section className="relative py-16 md:py-24 text-white">
+        <div className="absolute inset-0">
+            <PexelsImage query="beautiful landscape" alt="Our mission background" fill className="object-cover" />
+            <div className="absolute inset-0 bg-black/60"></div>
+        </div>
+        <div className="container mx-auto px-4 text-center relative">
             <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">Our Mission</h2>
             <p className="text-lg md:text-2xl max-w-3xl mx-auto italic">
                 "To empower travelers with AI-driven insights that make every journey smarter, greener, and more enriching—while supporting local communities and protecting our planet."
@@ -100,7 +105,7 @@ export default function AboutPage() {
                     </div>
                 ))}
             </div>
-          </div>
+        </div>
       </section>
     </main>
   );
