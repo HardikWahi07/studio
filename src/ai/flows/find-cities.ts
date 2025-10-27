@@ -12,14 +12,14 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const FindCitiesInputSchema = z.object({
-  query: z.string().describe('The search term for finding a city.'),
+  query: z.string().describe('The search term for finding a location.'),
 });
 export type FindCitiesInput = z.infer<typeof FindCitiesInputSchema>;
 
 const FindCitiesOutputSchema = z.object({
   cities: z
     .array(z.string())
-    .describe('A list of city names that match the query, including country. Example: ["Paris, France", "Paris, Texas, USA"]'),
+    .describe('A list of location names that match the query, including city, state, and country where applicable. Example: ["Lohegaon, Pune, India", "Pune, Maharashtra, India"]'),
 });
 export type FindCitiesOutput = z.infer<typeof FindCitiesOutputSchema>;
 
@@ -31,12 +31,12 @@ const prompt = ai.definePrompt({
   name: 'findCitiesPrompt',
   input: { schema: FindCitiesInputSchema },
   output: { schema: FindCitiesOutputSchema },
-  prompt: `You are a helpful assistant that suggests cities based on a user's search query.
+  prompt: `You are a helpful location search assistant. You suggest locations based on a user's search query, including cities, neighborhoods, airports, and points of interest.
 
   The user is searching for: {{{query}}}
 
-  Provide a list of up to 10 matching cities. For each city, include its country. If relevant, also include the state or province.
-  For example, if the query is "san jo", you might suggest "San Jose, California, USA", "San José, Costa Rica", etc.
+  Provide a list of up to 10 matching locations. For each location, provide a descriptive name including the city, state/province, and country.
+  For example, if the query is "lohegaon", you might suggest "Lohegaon, Pune, India" or "Pune International Airport (PNQ), Pune, India".
 
   Return the result in the requested JSON format.
   `,
