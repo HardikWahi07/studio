@@ -20,21 +20,21 @@
     },
     {
       "id": "dest-hallstatt",
-      "description": "A picturesque view of Hallstatt village by the lake in winter.",
+      "description": "A picturesque view of Hallstatt village by the lake.",
       "imageUrl": "https://images.unsplash.com/photo-1526425579294-42d515a44835?q=80&w=1974&auto=format&fit=crop",
-      "imageHint": "hallstatt village winter"
+      "imageHint": "hallstatt village"
     },
     {
       "id": "dest-seoul",
       "description": "Gyeongbokgung Palace in Seoul with people in traditional hanbok.",
-      "imageUrl": "https://images.unsplash.com/photo-1542139364-96e03d88a463?q=80&w=1974&auto=format&fit=crop",
+      "imageUrl": "https://images.unsplash.com/photo-1547893439-2e5f52479f61?q=80&w=2070&auto=format&fit=crop",
       "imageHint": "seoul palace hanbok"
     },
     {
       "id": "dest-valsad",
       "description": "Sunset at Tithal Beach in Valsad, India.",
-      "imageUrl": "https://source.unsplash.com/800x1000/?valsad,beach",
-      "imageHint": "valsad beach"
+      "imageUrl": "https://images.unsplash.com/photo-1601752874599-e7d3fb3911b5?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "valsad beach sunset"
     },
     {
       "id": "artisan-pottery",
