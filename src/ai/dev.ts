@@ -1,3 +1,4 @@
+
 import { config } from 'dotenv';
 config();
 import { exec } from 'child_process';
@@ -6,6 +7,7 @@ import { exec } from 'child_process';
 import '@/ai/flows/explore-hidden-gems.ts';
 import '@/ai/flows/generate-personalized-itineraries.ts';
 import '@/ai/flows/get-safety-assistance.ts';
+import '@/ai/flows/plan-trip.ts';
 
 
 // Seed the database

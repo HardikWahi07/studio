@@ -2,6 +2,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,59 +12,72 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { useToast } from '@/hooks/use-toast';
+import { PlanTripOutput, planTrip } from '@/ai/flows/plan-trip';
 
-const transportOptions = [
-    {
-      mode: 'Flight',
-      icon: <Plane className="h-6 w-6 text-primary" />,
-      duration: '2h 15m',
-      cost: '$250',
-      carbon: 'High',
-      carbonValue: 3,
-      recommendation: null,
-    },
-    {
-      mode: 'Train',
-      icon: <Train className="h-6 w-6 text-primary" />,
-      duration: '8h 30m',
-      cost: '$120',
-      carbon: 'Low',
-      carbonValue: 1,
-      recommendation: 'Eco-Friendly Choice',
-    },
-    {
-      mode: 'Bus',
-      icon: <Bus className="h-6 w-6 text-primary" />,
-      duration: '12h 0m',
-      cost: '$75',
-      carbon: 'Medium',
-      carbonValue: 2,
-      recommendation: 'Budget Choice',
-    },
-  ];
+const formSchema = z.object({
+    from: z.string().min(1, 'Origin is required.'),
+    to: z.string().min(1, 'Destination is required.'),
+    departure: z.string().min(1, 'Departure date is required.'),
+    travelers: z.string(),
+});
+
+const transportIcons: { [key: string]: React.ReactNode } = {
+    Flight: <Plane className="h-6 w-6 text-primary" />,
+    Train: <Train className="h-6 w-6 text-primary" />,
+    Bus: <Bus className="h-6 w-6 text-primary" />,
+};
 
 const CarbonFootprint = ({ value }: { value: number }) => (
     <div className="flex items-center gap-1">
-      {[...Array(3)].map((_, i) => (
-        <Leaf
-          key={i}
-          className={`h-4 w-4 ${i < value ? 'text-green-500 fill-current' : 'text-gray-300 dark:text-gray-600'}`}
-        />
-      ))}
+        {[...Array(3)].map((_, i) => (
+            <Leaf
+                key={i}
+                className={`h-4 w-4 ${i < value ? 'text-green-500 fill-current' : 'text-gray-300 dark:text-gray-600'}`}
+            />
+        ))}
     </div>
 );
 
 export default function TripPlannerPage() {
-    const [isSearching, setIsSearching] = useState(false);
-    const [hasSearched, setHasSearched] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [results, setResults] = useState<PlanTripOutput | null>(null);
+    const { toast } = useToast();
 
-    const handleSearch = () => {
-        setIsSearching(true);
-        // Simulate an API call
-        setTimeout(() => {
-            setHasSearched(true);
-            setIsSearching(false);
-        }, 1500);
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            from: 'New York, NY',
+            to: 'Chicago, IL',
+            departure: new Date().toISOString().split('T')[0],
+            travelers: '1-economy',
+        },
+    });
+
+    async function handleSearch(values: z.infer<typeof formSchema>) {
+        setIsLoading(true);
+        setResults(null);
+        try {
+            const [numTravelers, travelClass] = values.travelers.split('-');
+            const response = await planTrip({
+                origin: values.from,
+                destination: values.to,
+                departureDate: values.departure,
+                travelers: parseInt(numTravelers, 10),
+                travelClass: travelClass,
+            });
+            setResults(response);
+        } catch (error) {
+            console.error('Failed to plan trip:', error);
+            toast({
+                title: 'Error',
+                description: 'Failed to generate trip plan. Please try again.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
@@ -75,79 +91,122 @@ export default function TripPlannerPage() {
 
             <Card>
                 <CardContent className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                        <div className="space-y-2">
-                            <Label htmlFor="from">From</Label>
-                            <Input id="from" placeholder="New York, NY" defaultValue="New York, NY" />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="to">To</Label>
-                            <Input id="to" placeholder="Chicago, IL" defaultValue="Chicago, IL" />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="departure">Departure</Label>
-                                <Input id="departure" type="date" defaultValue={new Date().toISOString().split('T')[0]}/>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(handleSearch)}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                                <FormField
+                                    control={form.control}
+                                    name="from"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>From</Label>
+                                            <FormControl>
+                                                <Input placeholder="New York, NY" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <FormField
+                                    control={form.control}
+                                    name="to"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>To</Label>
+                                            <FormControl>
+                                                <Input placeholder="Chicago, IL" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                                <div className="grid grid-cols-2 gap-4">
+                                     <FormField
+                                        control={form.control}
+                                        name="departure"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Label>Departure</Label>
+                                                <FormControl>
+                                                    <Input type="date" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="travelers"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <Label>Travelers & Class</Label>
+                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="1-economy">1 Traveler, Economy</SelectItem>
+                                                        <SelectItem value="2-economy">2 Travelers, Economy</SelectItem>
+                                                        <SelectItem value="1-business">1 Traveler, Business</SelectItem>
+                                                        <SelectItem value="2-business">2 Travelers, Business</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                                <Button type="submit" disabled={isLoading} className="w-full lg:w-auto">
+                                    {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
+                                    {isLoading ? 'Searching...' : 'Search'}
+                                </Button>
                             </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="travelers">Travelers & Class</Label>
-                                 <Select defaultValue="1-economy">
-                                    <SelectTrigger id="travelers">
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1-economy">1 Traveler, Economy</SelectItem>
-                                        <SelectItem value="2-economy">2 Travelers, Economy</SelectItem>
-                                        <SelectItem value="1-business">1 Traveler, Business</SelectItem>
-                                        <SelectItem value="2-business">2 Travelers, Business</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        </div>
-                        <Button onClick={handleSearch} disabled={isSearching} className="w-full lg:w-auto">
-                            {isSearching ? <Loader2 className="animate-spin" /> : <Search />}
-                            {isSearching ? 'Searching...' : 'Search'}
-                        </Button>
-                    </div>
+                        </form>
+                    </Form>
                 </CardContent>
             </Card>
 
-            {isSearching && (
-              <div className="flex items-center justify-center pt-10">
-                <Loader2 className="w-8 h-8 animate-spin text-primary"/>
-                <p className="ml-4 text-muted-foreground">Finding the best options for you...</p>
-              </div>
+            {isLoading && (
+                <div className="flex items-center justify-center pt-10">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                    <p className="ml-4 text-muted-foreground">Finding the best options for you...</p>
+                </div>
             )}
 
-            {hasSearched && !isSearching && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {results && !isLoading && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6">
                     <div className="lg:col-span-2 space-y-6">
                         <h2 className="font-headline text-2xl font-bold">Transport Options</h2>
-                        <Card className="bg-primary/10 border-primary">
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 text-primary">
-                                    <Sparkles className="h-6 w-6"/>
-                                    Best Eco Mix
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                                <p className="md:col-span-3 text-muted-foreground text-left">
-                                    Combine a high-speed train with a short-haul flight to get the best balance of speed, cost, and environmental impact.
-                                </p>
-                                <div className="font-semibold">6h 45m</div>
-                                <div className="font-semibold">$180</div>
-                                <div className="flex justify-center"><CarbonFootprint value={1} /></div>
-                            </CardContent>
-                        </Card>
+                        
+                        {results.ecoMix && (
+                            <Card className="bg-primary/10 border-primary">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2 text-primary">
+                                        <Sparkles className="h-6 w-6" />
+                                        {results.ecoMix.title}
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                    <p className="md:col-span-3 text-muted-foreground text-left">
+                                        {results.ecoMix.description}
+                                    </p>
+                                    <div className="font-semibold">{results.ecoMix.duration}</div>
+                                    <div className="font-semibold">${results.ecoMix.cost}</div>
+                                    <div className="flex justify-center"><CarbonFootprint value={results.ecoMix.carbonValue} /></div>
+                                </CardContent>
+                            </Card>
+                        )}
 
-                        {transportOptions.map(option => (
+                        {results.transportOptions.map(option => (
                             <Card key={option.mode}>
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
-                                        {option.icon}
+                                        {transportIcons[option.mode] || <Plane className="h-6 w-6 text-primary" />}
                                         <div>
                                             <h3 className="font-bold">{option.mode}</h3>
-                                            <p className="text-sm text-muted-foreground">{option.recommendation}</p>
+                                            {option.recommendation && <p className="text-sm text-muted-foreground">{option.recommendation}</p>}
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-6 text-sm text-center">
@@ -156,7 +215,7 @@ export default function TripPlannerPage() {
                                             <p className="text-muted-foreground">Duration</p>
                                         </div>
                                         <div>
-                                            <p className="font-bold">{option.cost}</p>
+                                            <p className="font-bold">${option.cost}</p>
                                             <p className="text-muted-foreground">Cost</p>
                                         </div>
                                         <div className="hidden sm:block">
@@ -171,21 +230,23 @@ export default function TripPlannerPage() {
                     </div>
 
                     <div className="lg:col-span-1 space-y-6">
-                         <h2 className="font-headline text-2xl font-bold">Recommended Stay</h2>
-                         <Card>
-                             <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                                <PexelsImage query="luxury hotel chicago" alt="Hotel in Chicago" className="w-full h-full object-cover" width={400} height={225} />
-                             </div>
-                             <CardContent className="p-4">
-                                 <h3 className="font-bold">The Peninsula Chicago</h3>
-                                 <div className="flex items-center text-sm text-muted-foreground mt-1">
-                                     <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                                     <span>4.8 (1.2k reviews)</span>
-                                 </div>
-                                 <p className="text-lg font-semibold mt-2">$450 / night</p>
-                                 <Button className="w-full mt-4">View Hotel</Button>
-                             </CardContent>
-                         </Card>
+                        <h2 className="font-headline text-2xl font-bold">Recommended Stay</h2>
+                        {results.recommendedStay && (
+                            <Card>
+                                <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
+                                    <PexelsImage query={`luxury hotel ${results.recommendedStay.location}`} alt={results.recommendedStay.name} className="w-full h-full object-cover" width={400} height={225} />
+                                </div>
+                                <CardContent className="p-4">
+                                    <h3 className="font-bold">{results.recommendedStay.name}</h3>
+                                    <div className="flex items-center text-sm text-muted-foreground mt-1">
+                                        <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
+                                        <span>{results.recommendedStay.rating} ({results.recommendedStay.reviews} reviews)</span>
+                                    </div>
+                                    <p className="text-lg font-semibold mt-2">${results.recommendedStay.pricePerNight} / night</p>
+                                    <Button className="w-full mt-4">View Hotel</Button>
+                                </CardContent>
+                            </Card>
+                        )}
                     </div>
                 </div>
             )}
