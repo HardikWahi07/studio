@@ -42,7 +42,9 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
         setIsLoading(true)
         try {
           const result = await findCities({ query: debouncedSearchTerm })
-          setSuggestions(result.cities)
+          // Filter out duplicates before setting state
+          const uniqueCities = [...new Set(result.cities)];
+          setSuggestions(uniqueCities)
         } catch (error) {
           console.error("Failed to fetch cities:", error)
           setSuggestions([])
@@ -96,9 +98,9 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
               <CommandEmpty>No city found.</CommandEmpty>
             )}
             <CommandGroup>
-              {suggestions.map((city) => (
+              {suggestions.map((city, index) => (
                 <CommandItem
-                  key={city}
+                  key={`${city}-${index}`}
                   value={city}
                   onSelect={() => handleSelect(city.toLowerCase())}
                 >
