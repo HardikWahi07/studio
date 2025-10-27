@@ -5,22 +5,21 @@ import { AppLayout } from '@/components/app-layout';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase';
 import { SettingsProvider } from '@/context/settings-context';
-import {NextIntlClientProvider} from 'next-intl';
-import {getMessages} from 'next-intl/server';
+import {NextIntlClientProvider, useMessages} from 'next-intl';
 
 export const metadata: Metadata = {
   title: 'TripMind',
   description: 'The smarter, greener, easier way to explore.',
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
   params: {locale}
 }: Readonly<{
   children: React.ReactNode;
   params: {locale: string};
 }>) {
-  const messages = await getMessages();
+  const messages = useMessages();
 
   return (
     <html lang={locale} suppressHydrationWarning className="dark">
