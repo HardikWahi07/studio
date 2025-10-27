@@ -19,6 +19,7 @@ import {
   CircleDollarSign,
   Heart,
   Shield,
+  LifeBuoy,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -229,6 +230,7 @@ function TravelToolsDropdown() {
     { href: "/local-supporters", icon: Shield, label: t('localSupporters') },
     { href: "/transport", icon: Briefcase, label: t('smartTransport') },
     { href: "/itinerary-planner", icon: Wand2, label: t('aiItineraryGenerator') },
+    { href: "/safety", icon: LifeBuoy, label: 'Safety Companion' },
   ];
   const isActive = travelTools.some(tool => pathname.endsWith(tool.href));
   
@@ -351,7 +353,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       { href: "/expenses", label: t('expenseSplitter') },
       { href: "/local-supporters", label: t('localSupporters') },
       { href: "/transport", label: t('smartTransport') },
-      { href: "/itinerary-planner", label: t('aiItineraryGenerator') }
+      { href: "/itinerary-planner", label: t('aiItineraryGenerator') },
+      { href: "/safety", label: 'Safety Companion' }
     ]
   ];
 
