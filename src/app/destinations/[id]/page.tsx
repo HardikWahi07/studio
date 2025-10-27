@@ -1,29 +1,12 @@
 
 import { destinations } from '@/lib/destinations';
-import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, Plane } from 'lucide-react';
 import Link from 'next/link';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { PexelsImage } from '@/components/pexels-image';
 
-
-function GalleryImage({ hint, index }: { hint: string, index: number }) {
-  // We'll construct a more unique seed for picsum to get varied images
-  const seed = hint.replace(/ /g, '') + index;
-  return (
-    <div className="relative aspect-video w-full overflow-hidden rounded-lg group">
-      <Image
-        src={`https://picsum.photos/seed/${seed}/800/600`}
-        alt={`${hint} photo ${index + 1}`}
-        fill
-        className="object-cover group-hover:scale-105 transition-transform duration-300"
-        data-ai-hint={hint}
-      />
-    </div>
-  );
-}
 
 export default function DestinationPage({ params }: { params: { id: string } }) {
   const destination = destinations.find((d) => d.id === params.id);
@@ -32,18 +15,14 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
     notFound();
   }
 
-  const heroImage = PlaceHolderImages.find(p => p.id === destination.id);
-
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
-       {heroImage && (
         <div className="relative h-[400px] md:h-[500px] w-full">
-            <Image
-            src={heroImage.imageUrl}
-            alt={destination.name}
-            fill
-            className="object-cover rounded-2xl"
-            data-ai-hint={heroImage.imageHint}
+            <PexelsImage
+                query={destination.imageHint}
+                alt={destination.name}
+                fill
+                className="object-cover rounded-2xl"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl" />
             <div className="absolute bottom-8 left-8 text-white">
@@ -56,7 +35,6 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
             </div>
             </div>
         </div>
-       )}
 
 
       <div className="container mx-auto px-4 py-8">
@@ -75,7 +53,14 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
                     <h2 className="text-3xl font-bold font-headline mb-6">Photo Gallery</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {[...Array(6)].map((_, index) => (
-                           <GalleryImage key={index} hint={destination.imageHint} index={index} />
+                           <div key={index} className="relative aspect-video w-full overflow-hidden rounded-lg group">
+                             <PexelsImage
+                                query={`${destination.imageHint} ${index}`}
+                                alt={`${destination.imageHint} photo ${index + 1}`}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              />
+                           </div>
                         ))}
                     </div>
                 </div>

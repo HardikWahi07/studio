@@ -13,8 +13,7 @@ import {
   Star,
   BookOpen,
 } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { PexelsImage } from '@/components/pexels-image';
 import { destinations } from '@/lib/destinations';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
@@ -50,19 +49,22 @@ const stories = [
         id: 'story-solo',
         title: '10 Essential Tips for Solo Travelers',
         description: 'A guide to staying safe and sane on your solo adventures.',
-        readTime: '4 min read'
+        readTime: '4 min read',
+        imageHint: 'solo traveler'
     },
     {
         id: 'story-budget',
         title: 'How I Traveled Southeast Asia on a Budget',
         description: 'My journey through Vietnam, Cambodia and beyond for under $1,000.',
-        readTime: '6 min read'
+        readTime: '6 min read',
+        imageHint: 'asia market'
     },
     {
         id: 'story-cafes',
         title: 'Hidden Cafes in European Cities',
         description: 'Espresso-hunting in the quiet, cozy corners of the continent.',
-        readTime: '5 min read'
+        readTime: '5 min read',
+        imageHint: 'european cafe'
     }
 ]
 
@@ -179,12 +181,11 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid md:grid-cols-3 gap-8 mt-12">
                 {stories.map(story => {
-                    const image = PlaceHolderImages.find(p => p.id === story.id);
                     return (
                     <Card key={story.id} className="overflow-hidden group">
-                        {image && <div className="aspect-video w-full overflow-hidden">
-                        <Image src={image.imageUrl} alt={story.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
-                        </div>}
+                        <div className="aspect-video w-full overflow-hidden">
+                        <PexelsImage query={story.imageHint} alt={story.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                        </div>
                         <CardContent className="p-6">
                         <h3 className="font-bold text-lg">{story.title}</h3>
                         <p className="text-muted-foreground text-sm mt-2">{story.description}</p>
@@ -228,5 +229,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    

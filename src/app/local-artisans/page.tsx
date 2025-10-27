@@ -1,8 +1,7 @@
-import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { ArrowRight } from "lucide-react";
+import { PexelsImage } from "@/components/pexels-image";
 
 const artisans = [
   {
@@ -10,36 +9,42 @@ const artisans = [
     name: "Elena's Pottery Studio",
     description: "Hand-thrown ceramics and pottery workshops. Take a piece of local art home with you.",
     category: "Handicrafts",
+    imageHint: "pottery hands"
   },
   {
     id: "artisan-textiles",
     name: "The Weaver's Knot",
     description: "Discover traditional weaving techniques and purchase beautiful, handwoven textiles.",
     category: "Textiles",
+    imageHint: "weaving loom"
   },
   {
     id: "artisan-food",
     name: "Mama Rosa's Kitchen",
     description: "Join a cooking class to learn the secrets of authentic regional cuisine.",
     category: "Culinary Experience",
+    imageHint: "fresh pasta"
   },
   {
     id: "artisan-woodwork",
     name: "Old Forest Woodcraft",
     description: "Intricate wood carvings and custom furniture made from sustainably sourced timber.",
     category: "Woodwork",
+    imageHint: "wood carving"
   },
   {
     id: "artisan-jewelry",
     name: "Silver & Stone",
     description: "Unique, handmade jewelry inspired by local nature and mythology.",
     category: "Jewelry",
+    imageHint: "jewelry making"
   },
   {
     id: "artisan-painting",
     name: "Canvas & Coast",
     description: "Plein air painting sessions with a local artist capturing stunning seaside views.",
     category: "Art & Painting",
+    imageHint: "canvas painting"
   },
 ];
 
@@ -55,22 +60,18 @@ export default function LocalArtisansPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {artisans.map((artisan) => {
-          const image = PlaceHolderImages.find(p => p.id === artisan.id);
           return (
             <Card key={artisan.id} className="flex flex-col group overflow-hidden">
               <CardHeader>
-                {image && (
                   <div className="aspect-video w-full overflow-hidden rounded-lg -mt-2 -mx-2">
-                    <Image
-                      src={image.imageUrl}
-                      alt={image.description}
+                    <PexelsImage
+                      query={artisan.imageHint}
+                      alt={artisan.name}
                       width={400}
                       height={300}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      data-ai-hint={image.imageHint}
                     />
                   </div>
-                )}
                  <CardTitle className="font-headline text-xl pt-4">{artisan.name}</CardTitle>
                  <CardDescription className="text-accent-foreground/80 font-semibold">{artisan.category}</CardDescription>
               </CardHeader>

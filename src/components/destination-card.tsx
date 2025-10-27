@@ -1,12 +1,11 @@
 
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { PexelsImage } from "@/components/pexels-image";
 
 type Destination = {
     id: string;
@@ -18,23 +17,19 @@ type Destination = {
 }
 
 export function DestinationCard({ destination }: { destination: Destination }) {
-    const image = PlaceHolderImages.find(p => p.id === destination.id);
 
     return (
         <Link href={`/destinations/${destination.id}`} className="block">
             <Card className="overflow-hidden group h-full">
-                {image && (
                   <div className='relative aspect-[4/5] w-full'>
-                      <Image
-                          src={image.imageUrl}
+                      <PexelsImage
+                          query={destination.imageHint}
                           alt={destination.name}
                           fill
                           className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          data-ai-hint={image.imageHint}
                       />
                       <Badge className="absolute top-2 right-2">Trending</Badge>
                   </div>
-                )}
                 <CardContent className="p-4">
                     <h3 className="font-bold">{destination.name}</h3>
                     <div className="flex items-center text-sm text-muted-foreground mt-1">
