@@ -1,30 +1,24 @@
 
-"use client";
 import { destinations } from '@/lib/destinations';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Plane } from 'lucide-react';
+import { Star, Plane } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/utils';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+
 
 function GalleryImage({ hint, index }: { hint: string, index: number }) {
-  const [isLoading, setIsLoading] = useState(true);
+  // We'll construct a more unique seed for picsum to get varied images
+  const seed = hint.replace(/ /g, '') + index;
   return (
     <div className="relative aspect-video w-full overflow-hidden rounded-lg group">
-      <Skeleton className={cn("absolute inset-0 rounded-lg", !isLoading && "hidden")} />
       <Image
-        src={`https://source.unsplash.com/800x600/?${hint.replace(/ /g, ',')},${index}`}
+        src={`https://picsum.photos/seed/${seed}/800/600`}
         alt={`${hint} photo ${index + 1}`}
         fill
-        className={cn(
-            "object-cover group-hover:scale-105 transition-transform duration-300",
-            isLoading ? "opacity-0" : "opacity-100"
-        )}
-        onLoad={() => setIsLoading(false)}
+        className="object-cover group-hover:scale-105 transition-transform duration-300"
       />
     </div>
   );
@@ -32,34 +26,37 @@ function GalleryImage({ hint, index }: { hint: string, index: number }) {
 
 export default function DestinationPage({ params }: { params: { id: string } }) {
   const destination = destinations.find((d) => d.id === params.id);
-  const [isHeroLoading, setHeroIsLoading] = useState(true);
 
   if (!destination) {
     notFound();
   }
 
+  const heroImage = PlaceHolderImages.find(p => p.id === destination.id);
+
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
-      <div className="relative h-[400px] md:h-[500px] w-full">
-         <Skeleton className={cn("absolute inset-0 rounded-2xl", !isHeroLoading && "hidden")} />
-        <Image
-          src={`https://source.unsplash.com/1920x1080/?${destination.imageHint.replace(/ /g, ',')}`}
-          alt={destination.name}
-          fill
-          className={cn("object-cover rounded-2xl", isHeroLoading ? "opacity-0" : "opacity-100")}
-          onLoad={() => setHeroIsLoading(false)}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl" />
-        <div className="absolute bottom-8 left-8 text-white">
-          <h1 className="font-headline text-4xl md:text-6xl font-bold">{destination.name}</h1>
-          <div className="flex items-center text-lg mt-2">
-            <Star className="w-5 h-5 mr-2 text-yellow-400 fill-yellow-400" />
-            <span>{destination.rating}</span>
-            <span className="mx-2">·</span>
-            <span>{destination.reviewers} reviews</span>
-          </div>
+       {heroImage && (
+        <div className="relative h-[400px] md:h-[500px] w-full">
+            <Image
+            src={heroImage.imageUrl}
+            alt={destination.name}
+            fill
+            className="object-cover rounded-2xl"
+            data-ai-hint={heroImage.imageHint}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl" />
+            <div className="absolute bottom-8 left-8 text-white">
+            <h1 className="font-headline text-4xl md:text-6xl font-bold">{destination.name}</h1>
+            <div className="flex items-center text-lg mt-2">
+                <Star className="w-5 h-5 mr-2 text-yellow-400 fill-yellow-400" />
+                <span>{destination.rating}</span>
+                <span className="mx-2">·</span>
+                <span>{destination.reviewers} reviews</span>
+            </div>
+            </div>
         </div>
-      </div>
+       )}
+
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

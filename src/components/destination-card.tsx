@@ -1,14 +1,12 @@
 
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@/lib/utils";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 type Destination = {
     id: string;
@@ -20,26 +18,23 @@ type Destination = {
 }
 
 export function DestinationCard({ destination }: { destination: Destination }) {
-    const [isLoading, setIsLoading] = useState(true);
+    const image = PlaceHolderImages.find(p => p.id === destination.id);
 
     return (
         <Link href={`/destinations/${destination.id}`} className="block">
             <Card className="overflow-hidden group h-full">
-                <div className='relative aspect-[4/5] w-full'>
-                    <Skeleton className={cn("absolute inset-0 rounded-b-none", !isLoading && "hidden")} />
-                    <Image
-                        src={`https://source.unsplash.com/800x1000/?${destination.imageHint.replace(/ /g, ',')}`}
-                        alt={destination.name}
-                        fill
-                        className={cn(
-                            "object-cover group-hover:scale-105 transition-transform duration-300",
-                            isLoading ? "opacity-0" : "opacity-100"
-                        )}
-                        onLoad={() => setIsLoading(false)}
-                        data-ai-hint={destination.imageHint}
-                    />
-                    <Badge className="absolute top-2 right-2">Trending</Badge>
-                </div>
+                {image && (
+                  <div className='relative aspect-[4/5] w-full'>
+                      <Image
+                          src={image.imageUrl}
+                          alt={destination.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          data-ai-hint={image.imageHint}
+                      />
+                      <Badge className="absolute top-2 right-2">Trending</Badge>
+                  </div>
+                )}
                 <CardContent className="p-4">
                     <h3 className="font-bold">{destination.name}</h3>
                     <div className="flex items-center text-sm text-muted-foreground mt-1">

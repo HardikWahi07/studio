@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -9,46 +8,69 @@
     },
     {
       "id": "dest-bali",
-      "description": "A traditional Balinese market stall with colorful offerings.",
-      "imageHint": "balinese market"
+      "description": "A traditional Balinese temple gate against a scenic mountain backdrop.",
+      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1938&auto=format&fit=crop",
+      "imageHint": "bali temple"
     },
     {
       "id": "dest-osaka",
-      "description": "The bustling streets of Osaka at night with neon lights.",
-      "imageHint": "osaka street"
+      "description": "The bustling streets of Osaka at night with the iconic Glico Running Man sign.",
+      "imageUrl": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "osaka street night"
     },
     {
       "id": "dest-hallstatt",
-      "description": "A picturesque view of Hallstatt village by the lake.",
-      "imageHint": "hallstatt village"
+      "description": "A picturesque view of Hallstatt village by the lake in winter.",
+      "imageUrl": "https://images.unsplash.com/photo-1526425579294-42d515a44835?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "hallstatt village winter"
     },
     {
       "id": "dest-seoul",
-      "description": "Gyeongbokgung Palace in Seoul with cherry blossoms.",
-      "imageHint": "seoul palace"
+      "description": "Gyeongbokgung Palace in Seoul with people in traditional hanbok.",
+      "imageUrl": "https://images.unsplash.com/photo-1542139364-96e03d88a463?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "seoul palace hanbok"
     },
     {
       "id": "dest-valsad",
-      "description": "Sunset at Tithal Beach in Valsad.",
+      "description": "Sunset at Tithal Beach in Valsad, India.",
+      "imageUrl": "https://source.unsplash.com/800x1000/?valsad,beach",
       "imageHint": "valsad beach"
     },
     {
-      "id": "ai-alps",
-      "description": "A scenic view of the Swiss Alps with a lake.",
-      "imageUrl": "https://images.unsplash.com/photo-1534417739506-d24e04f03939?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxzd2lzcyUyMGFscHMlMjBsYWtlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "swiss alps"
+      "id": "artisan-pottery",
+      "description": "A potter's hands shaping clay on a wheel.",
+      "imageUrl": "https://images.unsplash.com/photo-1557659897-4886364121b6?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "pottery hands"
     },
     {
-      "id": "ai-tropical",
-      "description": "A beautiful tropical beach with palm trees and clear water.",
-      "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723a996f329?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx0cm9waWNhbCUyMGJlYWNofGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "tropical beach"
+      "id": "artisan-textiles",
+      "description": "A traditional loom with colorful threads.",
+      "imageUrl": "https://images.unsplash.com/photo-1630551628028-08093ac538fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWF2aW5nJTIwbG9vbXxlbnwwfHx8fDE3NjE0NzAzNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "weaving loom"
     },
     {
-      "id": "ai-cultural",
-      "description": "Ancient ruins of a historic temple.",
-      "imageUrl": "https://images.unsplash.com/photo-1588435889635-d7b6b15a6b32?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhbmNpZW50JTIwdGVtcGxlfGVufDB8fHx8MTc2MTU1NjMzMnww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "ancient temple"
+      "id": "artisan-food",
+      "description": "Fresh pasta being prepared on a wooden board.",
+      "imageUrl": "https://images.unsplash.com/photo-1526394931702-5daae04e2888?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "fresh pasta"
+    },
+    {
+      "id": "artisan-woodwork",
+      "description": "A woodworker carving a detailed pattern into a piece of wood.",
+      "imageUrl": "https://images.unsplash.com/photo-1594970490002-3f114c00a65f?q=80&w=1974&auto=format&fit=crop",
+      "imageHint": "wood carving"
+    },
+    {
+      "id": "artisan-jewelry",
+      "description": "A close-up of a jeweler setting a stone in a silver ring.",
+      "imageUrl": "https://images.unsplash.com/photo-1608112169461-48616144c894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqZXdlbHJ5JTIwbWFraW5nfGVufDB8fHx8MTc2MTUzNzgyNXww&ixlibrb-4.1.0&q=80&w=1080",
+      "imageHint": "jewelry making"
+    },
+    {
+      "id": "artisan-painting",
+      "description": "An artist's easel with a partially finished landscape painting.",
+      "imageUrl": "https://images.unsplash.com/photo-1578926375605-eaf7559b9e4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYW52YXMlMjBwYWludGluZ3xlbnwwfHx8fDE3NjE1NTk5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "canvas painting"
     },
     {
       "id": "story-solo",
@@ -67,44 +89,6 @@
       "description": "A cozy and hidden cafe in a European alley.",
       "imageUrl": "https://images.unsplash.com/photo-1564079544-775b48b99354?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlbnwwfHx8fDE3NjE1NTYzMzN8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "european cafe"
-    },
-    {
-      "id": "artisan-pottery",
-      "description": "A potter's hands shaping clay on a wheel.",
-      "imageUrl": "https://images.unsplash.com/photo-1488977678660-dca8681ca872?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3R0ZXJ5JTIwaGFuZHN8ZW58MHx8fHwxNzYxNTQwNzIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "pottery hands"
-    },
-    {
-      "id": "artisan-textiles",
-      "description": "A traditional loom with colorful threads.",
-      "imageUrl": "https://images.unsplash.com/photo-1630551628028-08093ac538fa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx3ZWF2aW5nJTIwbG9vbXxlbnwwfHx8fDE3NjE0NzAzNTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "weaving loom"
-    },
-    {
-      "id": "artisan-food",
-      "description": "Fresh pasta being prepared on a wooden board.",
-      "imageUrl": "https://images.unsplash.com/photo-1606091484089-08093fa86fad4f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxmcmVzaCUyMHBhc3RhfGVufDB8fHx8MTc2MTU1OTk0OHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "fresh pasta"
-    },
-    {
-      "id": "artisan-woodwork",
-      "description": "A woodworker carving a detailed pattern into a piece of wood.",
-      "imageUrl": "https://images.unsplash.com/photo-1606077089563-cff5a4f3d3d9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHx3b29kJTIwY2FydmluZ3xlbnwwfHx8fDE3NjE0NDI2NzV8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "wood carving"
-    },
-    {
-      "id": "artisan-jewelry",
-      "description": "A close-up of a jeweler setting a stone in a silver ring.",
-      "imageUrl": "https://images.unsplash.com/photo-1608112169461-48616144c894?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqZXdlbHJ5JTIwbWFraW5nfGVufDB8fHx8MTc2MTUzNzgyNXww&ixlibrb-4.1.0&q=80&w=1080",
-      "imageHint": "jewelry making"
-    },
-    {
-      "id": "artisan-painting",
-      "description": "An artist's easel with a partially finished landscape painting.",
-      "imageUrl": "https://images.unsplash.com/photo-1578926375605-eaf7559b9e4a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjYW52YXMlMjBwYWludGluZ3xlbnwwfHx8fDE3NjE1NTk5NDh8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "canvas painting"
     }
   ]
 }
-
-    
