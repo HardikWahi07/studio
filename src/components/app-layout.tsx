@@ -112,18 +112,20 @@ function useScrollState() {
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(isHomePage);
   const pathname = usePathname();
 
   React.useEffect(() => {
     if (pathname !== '/') {
       setIsLoading(false);
+    } else {
+       setIsLoading(true);
     }
   }, [pathname]);
 
-  const handleVideoLoad = () => {
+  const handleVideoLoad = React.useCallback(() => {
     setIsLoading(false);
-  }
+  }, []);
 
   const childrenWithProps = React.Children.map(children, child => {
     if (React.isValidElement(child) && isHomePage) {
@@ -136,7 +138,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-       {isHomePage && isLoading && <LoadingScreen />}
+       {isLoading && <LoadingScreen />}
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
