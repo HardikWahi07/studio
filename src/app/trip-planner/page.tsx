@@ -1,12 +1,13 @@
 
 'use client';
 
+import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plane, Train, Bus, Leaf, Sparkles, Star, Calendar, Users, Briefcase } from "lucide-react";
+import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
 
 const transportOptions = [
@@ -51,6 +52,18 @@ const CarbonFootprint = ({ value }: { value: number }) => (
 );
 
 export default function TripPlannerPage() {
+    const [isSearching, setIsSearching] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
+
+    const handleSearch = () => {
+        setIsSearching(true);
+        // Simulate an API call
+        setTimeout(() => {
+            setHasSearched(true);
+            setIsSearching(false);
+        }, 1500);
+    };
+
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
             <div className="space-y-2">
@@ -91,79 +104,91 @@ export default function TripPlannerPage() {
                                 </Select>
                             </div>
                         </div>
-                        <Button className="w-full lg:w-auto">Search</Button>
+                        <Button onClick={handleSearch} disabled={isSearching} className="w-full lg:w-auto">
+                            {isSearching ? <Loader2 className="animate-spin" /> : <Search />}
+                            {isSearching ? 'Searching...' : 'Search'}
+                        </Button>
                     </div>
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 space-y-6">
-                    <h2 className="font-headline text-2xl font-bold">Transport Options</h2>
-                    <Card className="bg-primary/10 border-primary">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 text-primary">
-                                <Sparkles className="h-6 w-6"/>
-                                Best Eco Mix
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                            <p className="md:col-span-3 text-muted-foreground text-left">
-                                Combine a high-speed train with a short-haul flight to get the best balance of speed, cost, and environmental impact.
-                            </p>
-                            <div className="font-semibold">6h 45m</div>
-                            <div className="font-semibold">$180</div>
-                            <div className="flex justify-center"><CarbonFootprint value={1} /></div>
-                        </CardContent>
-                    </Card>
+            {isSearching && (
+              <div className="flex items-center justify-center pt-10">
+                <Loader2 className="w-8 h-8 animate-spin text-primary"/>
+                <p className="ml-4 text-muted-foreground">Finding the best options for you...</p>
+              </div>
+            )}
 
-                    {transportOptions.map(option => (
-                        <Card key={option.mode}>
-                            <CardContent className="p-4 flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    {option.icon}
-                                    <div>
-                                        <h3 className="font-bold">{option.mode}</h3>
-                                        <p className="text-sm text-muted-foreground">{option.recommendation}</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-6 text-sm text-center">
-                                    <div>
-                                        <p className="font-bold">{option.duration}</p>
-                                        <p className="text-muted-foreground">Duration</p>
-                                    </div>
-                                    <div>
-                                        <p className="font-bold">{option.cost}</p>
-                                        <p className="text-muted-foreground">Cost</p>
-                                    </div>
-                                    <div className="hidden sm:block">
-                                        <CarbonFootprint value={option.carbonValue} />
-                                        <p className="text-muted-foreground">Carbon</p>
-                                    </div>
-                                </div>
-                                <Button variant="outline">Select</Button>
+            {hasSearched && !isSearching && (
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 space-y-6">
+                        <h2 className="font-headline text-2xl font-bold">Transport Options</h2>
+                        <Card className="bg-primary/10 border-primary">
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2 text-primary">
+                                    <Sparkles className="h-6 w-6"/>
+                                    Best Eco Mix
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                                <p className="md:col-span-3 text-muted-foreground text-left">
+                                    Combine a high-speed train with a short-haul flight to get the best balance of speed, cost, and environmental impact.
+                                </p>
+                                <div className="font-semibold">6h 45m</div>
+                                <div className="font-semibold">$180</div>
+                                <div className="flex justify-center"><CarbonFootprint value={1} /></div>
                             </CardContent>
                         </Card>
-                    ))}
-                </div>
 
-                <div className="lg:col-span-1 space-y-6">
-                     <h2 className="font-headline text-2xl font-bold">Recommended Stay</h2>
-                     <Card>
-                         <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                            <PexelsImage query="luxury hotel chicago" alt="Hotel in Chicago" className="w-full h-full object-cover" width={400} height={225} />
-                         </div>
-                         <CardContent className="p-4">
-                             <h3 className="font-bold">The Peninsula Chicago</h3>
-                             <div className="flex items-center text-sm text-muted-foreground mt-1">
-                                 <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                                 <span>4.8 (1.2k reviews)</span>
+                        {transportOptions.map(option => (
+                            <Card key={option.mode}>
+                                <CardContent className="p-4 flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        {option.icon}
+                                        <div>
+                                            <h3 className="font-bold">{option.mode}</h3>
+                                            <p className="text-sm text-muted-foreground">{option.recommendation}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-6 text-sm text-center">
+                                        <div>
+                                            <p className="font-bold">{option.duration}</p>
+                                            <p className="text-muted-foreground">Duration</p>
+                                        </div>
+                                        <div>
+                                            <p className="font-bold">{option.cost}</p>
+                                            <p className="text-muted-foreground">Cost</p>
+                                        </div>
+                                        <div className="hidden sm:block">
+                                            <CarbonFootprint value={option.carbonValue} />
+                                            <p className="text-muted-foreground">Carbon</p>
+                                        </div>
+                                    </div>
+                                    <Button variant="outline">Select</Button>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
+                    <div className="lg:col-span-1 space-y-6">
+                         <h2 className="font-headline text-2xl font-bold">Recommended Stay</h2>
+                         <Card>
+                             <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
+                                <PexelsImage query="luxury hotel chicago" alt="Hotel in Chicago" className="w-full h-full object-cover" width={400} height={225} />
                              </div>
-                             <p className="text-lg font-semibold mt-2">$450 / night</p>
-                             <Button className="w-full mt-4">View Hotel</Button>
-                         </CardContent>
-                     </Card>
+                             <CardContent className="p-4">
+                                 <h3 className="font-bold">The Peninsula Chicago</h3>
+                                 <div className="flex items-center text-sm text-muted-foreground mt-1">
+                                     <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
+                                     <span>4.8 (1.2k reviews)</span>
+                                 </div>
+                                 <p className="text-lg font-semibold mt-2">$450 / night</p>
+                                 <Button className="w-full mt-4">View Hotel</Button>
+                             </CardContent>
+                         </Card>
+                    </div>
                 </div>
-            </div>
+            )}
         </main>
     );
 }
