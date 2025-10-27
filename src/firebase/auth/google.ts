@@ -13,6 +13,9 @@ export async function handleGoogleSignIn() {
   } catch (error) {
     console.error('Error during Google sign-in:', error);
     if (error instanceof FirebaseError) {
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Google Sign-In is not enabled. Please enable it in your Firebase console.');
+      }
       throw new Error(error.message);
     }
     throw new Error('An unknown error occurred during sign-in.');
@@ -29,6 +32,9 @@ export async function handleEmailSignUp(email: string, password: string, display
   } catch (error) {
     console.error('Error during Email sign-up:', error);
     if (error instanceof FirebaseError) {
+      if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Email/Password Sign-Up is not enabled. Please enable it in your Firebase console.');
+      }
       if (error.code === 'auth/email-already-in-use') {
         throw new Error('This email is already in use. Please sign in or use a different email.');
       }
@@ -45,6 +51,9 @@ export async function handleEmailSignIn(email: string, password: string): Promis
   } catch (error) {
     console.error('Error during Email sign-in:', error);
     if (error instanceof FirebaseError) {
+       if (error.code === 'auth/operation-not-allowed') {
+        throw new Error('Email/Password Sign-In is not enabled. Please enable it in your Firebase console.');
+      }
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         throw new Error('Invalid email or password. Please try again.');
       }
@@ -61,5 +70,3 @@ export function handleSignOut() {
     console.error('Error during sign-out:', error);
   });
 }
-
-    
