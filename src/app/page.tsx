@@ -166,7 +166,7 @@ export default function DashboardPage() {
                   <Link href={`/destinations/${dest.id}`} key={dest.id} className="block">
                     <Card className="overflow-hidden group h-full">
                       <div className='relative aspect-[4/5] w-full'>
-                         <Image src={image.imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
+                         <Image src={`https://picsum.photos/seed/${dest.id}${Math.random()}/800/1000`} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
                          <Badge className="absolute top-2 right-2">Trending</Badge>
                       </div>
                       <CardContent className="p-4">
@@ -247,3 +247,5 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+    

@@ -18,7 +18,7 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
       <div className="relative h-[400px] md:h-[500px] w-full">
         <Image
-          src={`https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D`}
+          src={`https://picsum.photos/seed/${destination.id}${Math.random()}/1920/1080`}
           alt={destination.name}
           fill
           className="object-cover rounded-2xl"
@@ -53,7 +53,7 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
                         {[...Array(6)].map((_, index) => (
                             <div key={index} className="relative aspect-video w-full overflow-hidden rounded-lg group">
                                 <Image
-                                    src={`https://picsum.photos/seed/${destination.id}${index}/800/600`}
+                                    src={`https://picsum.photos/seed/${destination.id}${index}${Math.random()}/800/600`}
                                     alt={`${destination.name} photo ${index + 1}`}
                                     fill
                                     className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -84,3 +84,5 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
     </main>
   );
 }
+
+    

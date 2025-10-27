@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -9,31 +10,26 @@
     {
       "id": "dest-bali",
       "description": "A traditional Balinese market stall with colorful offerings.",
-      "imageUrl": "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=1938&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "balinese market"
     },
     {
       "id": "dest-osaka",
       "description": "The bustling streets of Osaka at night with neon lights.",
-      "imageUrl": "https://images.unsplash.com/photo-1574224039865-c343464522b2?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "osaka street"
     },
     {
       "id": "dest-hallstatt",
       "description": "A picturesque view of Hallstatt village by the lake.",
-      "imageUrl": "https://images.unsplash.com/photo-1528181304800-259b08848526?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "hallstatt village"
     },
     {
       "id": "dest-seoul",
       "description": "Gyeongbokgung Palace in Seoul with cherry blossoms.",
-      "imageUrl": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
       "imageHint": "seoul palace"
     },
     {
       "id": "dest-valsad",
       "description": "Sunset at Tithal Beach in Valsad.",
-      "imageUrl": "https://images.unsplash.com/photo-1678020824540-1422eaf03f07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHx2YWxzYWQlMjBiZWFjaHxlbnwwfHx8fDE3NjE1NjUzMTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "valsad beach"
     },
     {
@@ -110,3 +106,5 @@
     }
   ]
 }
+
+    
