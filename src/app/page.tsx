@@ -19,6 +19,7 @@ import { destinations } from '@/lib/destinations';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 import { Badge } from '@/components/ui/badge';
+import { DestinationCard } from '@/components/destination-card';
 
 const features = [
   {
@@ -159,29 +160,9 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-              {destinations.map((dest) => {
-                const image = PlaceHolderImages.find(p => p.id === dest.id);
-                if (!image) return null;
-                return (
-                  <Link href={`/destinations/${dest.id}`} key={dest.id} className="block">
-                    <Card className="overflow-hidden group h-full">
-                      <div className='relative aspect-[4/5] w-full'>
-                         <Image src={`https://source.unsplash.com/800x1000/?${dest.imageHint.replace(/ /g,',')}&sig=${Math.random()}`} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
-                         <Badge className="absolute top-2 right-2">Trending</Badge>
-                      </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-bold">{dest.name}</h3>
-                        <div className="flex items-center text-sm text-muted-foreground mt-1">
-                          <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                          <span>{dest.rating}</span>
-                          <span className='mx-1'>·</span>
-                          <span>{dest.reviewers} reviews</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                )
-              })}
+              {destinations.map((dest) => (
+                  <DestinationCard key={dest.id} destination={dest} />
+              ))}
             </div>
           </div>
         </section>

@@ -1,4 +1,5 @@
 
+"use client";
 import { destinations } from '@/lib/destinations';
 import Image from 'next/image';
 import { notFound } from 'next/navigation';
@@ -6,9 +7,32 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Star, MapPin, Plane } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+
+function GalleryImage({ hint, index }: { hint: string, index: number }) {
+  const [isLoading, setIsLoading] = useState(true);
+  return (
+    <div className="relative aspect-video w-full overflow-hidden rounded-lg group">
+      <Skeleton className={cn("absolute inset-0 rounded-lg", !isLoading && "hidden")} />
+      <Image
+        src={`https://source.unsplash.com/800x600/?${hint.replace(/ /g, ',')},${index}`}
+        alt={`${hint} photo ${index + 1}`}
+        fill
+        className={cn(
+            "object-cover group-hover:scale-105 transition-transform duration-300",
+            isLoading ? "opacity-0" : "opacity-100"
+        )}
+        onLoad={() => setIsLoading(false)}
+      />
+    </div>
+  );
+}
 
 export default function DestinationPage({ params }: { params: { id: string } }) {
   const destination = destinations.find((d) => d.id === params.id);
+  const [isHeroLoading, setHeroIsLoading] = useState(true);
 
   if (!destination) {
     notFound();
@@ -17,11 +41,13 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
       <div className="relative h-[400px] md:h-[500px] w-full">
+         <Skeleton className={cn("absolute inset-0 rounded-2xl", !isHeroLoading && "hidden")} />
         <Image
-          src={`https://source.unsplash.com/1920x1080/?${destination.imageHint.replace(/ /g, ',')}&sig=${Math.random()}`}
+          src={`https://source.unsplash.com/1920x1080/?${destination.imageHint.replace(/ /g, ',')}`}
           alt={destination.name}
           fill
-          className="object-cover rounded-2xl"
+          className={cn("object-cover rounded-2xl", isHeroLoading ? "opacity-0" : "opacity-100")}
+          onLoad={() => setHeroIsLoading(false)}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent rounded-2xl" />
         <div className="absolute bottom-8 left-8 text-white">
@@ -51,14 +77,7 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
                     <h2 className="text-3xl font-bold font-headline mb-6">Photo Gallery</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                         {[...Array(6)].map((_, index) => (
-                            <div key={index} className="relative aspect-video w-full overflow-hidden rounded-lg group">
-                                <Image
-                                    src={`https://source.unsplash.com/800x600/?${destination.imageHint.replace(/ /g, ',')},${index}&sig=${Math.random()}`}
-                                    alt={`${destination.name} photo ${index + 1}`}
-                                    fill
-                                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                                />
-                            </div>
+                           <GalleryImage key={index} hint={destination.imageHint} index={index} />
                         ))}
                     </div>
                 </div>
