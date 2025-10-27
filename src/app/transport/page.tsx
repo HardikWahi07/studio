@@ -73,7 +73,7 @@ export default function TransportPage() {
           {transportOptions.map((option) => (
             <Card key={option.mode} className="relative overflow-hidden transition-all hover:shadow-lg hover:-translate-y-1">
               {option.recommendation && (
-                <Badge className="absolute top-4 right-4 bg-accent text-accent-foreground">{option.recommendation}</Badge>
+                <Badge className="absolute top-4 right-4">{option.recommendation}</Badge>
               )}
               <CardHeader className="flex-row items-center gap-4">
                 {option.icon}
