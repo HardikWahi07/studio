@@ -11,7 +11,6 @@ import {
   Users,
   Plane,
   ChevronDown,
-  User
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -23,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { AuthButton } from "./auth-button"
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -129,10 +129,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <TravelToolsDropdown />
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" className={cn("hidden sm:inline-flex items-center gap-2 hover:bg-black/5", isHomePage && !isScrolled ? 'text-white hover:text-white' : 'text-foreground hover:text-primary')}>
-                <User className="w-4 h-4" /> Login
-            </Button>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground rounded-full">Sign Up</Button>
+            <AuthButton isScrolled={isScrolled} isHomePage={isHomePage} />
             <Sheet>
               <SheetTrigger asChild>
                 <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
