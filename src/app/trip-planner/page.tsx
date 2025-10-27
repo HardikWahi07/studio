@@ -233,7 +233,7 @@ export default function TripPlannerPage() {
                         {recommendedStays.map((stay, index) => stay && (
                             <Card key={index}>
                                 <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                                    <PexelsImage query={`${stay.recommendationType} hotel ${stay.location}`} alt={stay.name} className="w-full h-full object-cover" width={400} height={225} />
+                                    <PexelsImage query={stay.name} alt={stay.name} className="w-full h-full object-cover" width={400} height={225} />
                                 </div>
                                 <CardContent className="p-4">
                                     <h3 className="font-bold">{stay.name}</h3>
@@ -253,3 +253,4 @@ export default function TripPlannerPage() {
         </main>
     );
 }
+
