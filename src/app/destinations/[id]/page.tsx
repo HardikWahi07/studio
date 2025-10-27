@@ -19,6 +19,7 @@ function GalleryImage({ hint, index }: { hint: string, index: number }) {
         alt={`${hint} photo ${index + 1}`}
         fill
         className="object-cover group-hover:scale-105 transition-transform duration-300"
+        data-ai-hint={hint}
       />
     </div>
   );
