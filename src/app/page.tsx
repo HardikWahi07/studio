@@ -135,17 +135,19 @@ export default function DashboardPage() {
             </div>
             <div className="grid gap-8 md:grid-cols-3 mt-12">
               {features.map((feature, index) => (
-                <Card key={feature.title} className="text-center p-8 feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
-                    <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
-                        {feature.icon}
-                    </div>
-                    <h3 className="text-xl font-bold">
-                        {feature.title}
-                    </h3>
-                    <p className="text-muted-foreground mt-2">
-                        {feature.description}
-                    </p>
-                </Card>
+                <Link href={feature.link} key={feature.title}>
+                  <Card className="text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                      <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
+                          {feature.icon}
+                      </div>
+                      <h3 className="text-xl font-bold">
+                          {feature.title}
+                      </h3>
+                      <p className="text-muted-foreground mt-2">
+                          {feature.description}
+                      </p>
+                  </Card>
+                </Link>
               ))}
             </div>
           </div>
@@ -182,19 +184,21 @@ export default function DashboardPage() {
                 <div className="grid md:grid-cols-3 gap-8 mt-12">
                 {stories.map(story => {
                     return (
-                    <Card key={story.id} className="overflow-hidden group">
-                        <div className="aspect-video w-full overflow-hidden">
-                        <PexelsImage query={story.imageHint} alt={story.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
-                        </div>
-                        <CardContent className="p-6">
-                        <h3 className="font-bold text-lg">{story.title}</h3>
-                        <p className="text-muted-foreground text-sm mt-2">{story.description}</p>
-                        <div className="flex items-center text-sm text-muted-foreground mt-4">
-                            <BookOpen className="w-4 h-4 mr-2" />
-                            <span>{story.readTime}</span>
-                        </div>
-                        </CardContent>
-                    </Card>
+                    <Link href="#" key={story.id}>
+                      <Card className="overflow-hidden group h-full">
+                          <div className="aspect-video w-full overflow-hidden">
+                          <PexelsImage query={story.imageHint} alt={story.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                          </div>
+                          <CardContent className="p-6">
+                          <h3 className="font-bold text-lg">{story.title}</h3>
+                          <p className="text-muted-foreground text-sm mt-2">{story.description}</p>
+                          <div className="flex items-center text-sm text-muted-foreground mt-4">
+                              <BookOpen className="w-4 h-4 mr-2" />
+                              <span>{story.readTime}</span>
+                          </div>
+                          </CardContent>
+                      </Card>
+                    </Link>
                     )
                 })}
                 </div>
@@ -213,13 +217,15 @@ export default function DashboardPage() {
                 </div>
                 <div className="grid gap-8 md:grid-cols-3 mt-12">
                     {moreFeatures.map(feature => (
-                        <Card key={feature.title} className="text-center p-8 feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
-                            <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
-                                {feature.icon}
-                            </div>
-                            <h3 className="text-xl font-bold">{feature.title}</h3>
-                            <p className="text-muted-foreground mt-2">{feature.description}</p>
-                        </Card>
+                        <Link href={feature.link} key={feature.title}>
+                            <Card className="text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                                <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
+                                    {feature.icon}
+                                </div>
+                                <h3 className="text-xl font-bold">{feature.title}</h3>
+                                <p className="text-muted-foreground mt-2">{feature.description}</p>
+                            </Card>
+                        </Link>
                     ))}
                 </div>
             </div>
