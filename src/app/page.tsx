@@ -77,9 +77,9 @@ const moreFeatures = [
   },
   {
     icon: <Shield className="h-8 w-8 text-primary" />,
-    title: 'Safety Dashboard',
-    description: 'Emergency contacts & alerts',
-    link: '/safety',
+    title: 'Local Supporters',
+    description: 'Connect with real locals for help',
+    link: '/local-supporters',
   },
   {
     icon: <Leaf className="h-8 w-8 text-primary" />,

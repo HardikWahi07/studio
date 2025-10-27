@@ -16,6 +16,7 @@ import {
   Globe,
   CircleDollarSign,
   Heart,
+  Shield,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -41,7 +42,7 @@ const navItems = [
 
 const travelTools = [
   { href: "/expenses", icon: Users, label: "Expense Splitter" },
-  { href: "/safety", icon: Plane, label: "Safety Companion" },
+  { href: "/local-supporters", icon: Shield, label: "Local Supporters" },
   { href: "/transport", icon: Briefcase, label: "Smart Transport" },
   { href: "/itinerary-planner", icon: Wand2, label: "AI Itinerary Generator" },
 ]
@@ -507,7 +508,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div>
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Support</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
-                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="/local-supporters" className="hover:text-white transition-colors">Local Supporters</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">FAQ</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
               </ul>

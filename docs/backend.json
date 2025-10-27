@@ -243,6 +243,53 @@
         "happyTravelers",
         "destinations"
       ]
+    },
+     "LocalSupporter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LocalSupporter",
+      "type": "object",
+      "description": "Represents a local resident who can offer support to travelers.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LocalSupporter entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the local supporter."
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short bio about the supporter."
+        },
+        "location": {
+          "type": "string",
+          "description": "The city or area where the supporter is based."
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Languages spoken by the supporter."
+        },
+        "avatarUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the supporter's profile picture."
+        },
+        "response_time": {
+          "type": "string",
+          "description": "Typical response time (e.g., 'Within an hour')."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "bio",
+        "location",
+        "languages"
+      ]
     }
   },
   "auth": {
@@ -368,10 +415,24 @@
             }
           ]
         }
+      },
+       {
+        "path": "/supporters/{supporterId}",
+        "definition": {
+          "entityName": "LocalSupporter",
+          "schema": {
+            "$ref": "#/backend/entities/LocalSupporter"
+          },
+          "description": "Stores profiles of local supporters. Publicly readable.",
+          "params": [
+            {
+              "name": "supporterId",
+              "description": "The unique identifier of the local supporter."
+            }
+          ]
+        }
       }
     ],
-    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation for homogeneous security postures.\n\n**Authorization Independence:**\nAuthorization independence is achieved through path-based ownership for `User`, `Trip`, and `Expense` data. This eliminates the need for `get()` calls in security rules, enabling atomic operations. All data related to a user is stored under their `userId`, making ownership clear and enforceable directly in the path.\n\n**QAPs Support:**\nThe structure supports secure `list` operations (QAPs) by ensuring that each collection has a consistent security posture. Data with different access requirements is stored in separate collections. For instance, user-specific trips and expenses are under `/users/{userId}`, enabling straightforward rules for owner-based access. The new `app-stats` collection is global and can be made publicly readable.\n\n**DBAC (Database-Based Access Control):**\nThis design uses the database to store roles. Since there are no roles defined, this design focuses on the 'request.auth.uid' for authorization, and ownership is determined based on the path. No custom claims are used.\n\n**Structure Overview:**\n- `/users/{userId}`: User profiles and related data (trips, expenses, itinerary items). This path enforces ownership.\n- `/local_businesses/{localBusinessId}`: Information about local businesses is stored globally. A separate collection could be created if business-owners need to update their entries, but this is not specified in the prompt. A separate service (not firestore rules) would handle authorization for that.\n- `/app-stats/{statId}`: A new collection to hold global, publicly readable application statistics like traveler counts.\n"
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation for homogeneous security postures.\n\n**Authorization Independence:**\nAuthorization independence is achieved through path-based ownership for `User`, `Trip`, and `Expense` data. This eliminates the need for `get()` calls in security rules, enabling atomic operations. All data related to a user is stored under their `userId`, making ownership clear and enforceable directly in the path.\n\n**QAPs Support:**\nThe structure supports secure `list` operations (QAPs) by ensuring that each collection has a consistent security posture. Data with different access requirements is stored in separate collections. For instance, user-specific trips and expenses are under `/users/{userId}`, enabling straightforward rules for owner-based access. The new `app-stats` collection is global and can be made publicly readable.\n\n**DBAC (Database-Based Access Control):**\nThis design uses the database to store roles. Since there are no roles defined, this design focuses on the 'request.auth.uid' for authorization, and ownership is determined based on the path. No custom claims are used.\n\n**Structure Overview:**\n- `/users/{userId}`: User profiles and related data (trips, expenses, itinerary items). This path enforces ownership.\n- `/local_businesses/{localBusinessId}`: Information about local businesses is stored globally. A separate collection could be created if business-owners need to update their entries, but this is not specified in the prompt. A separate service (not firestore rules) would handle authorization for that.\n- `/app-stats/{statId}`: A new collection to hold global, publicly readable application statistics like traveler counts.\n- `/supporters/{supporterId}`: A new collection to store profiles of local residents who volunteer to help travelers. This data is intended to be publicly readable to allow travelers to find support."
   }
 }
-
-    
