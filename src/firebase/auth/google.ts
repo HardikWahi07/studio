@@ -1,6 +1,6 @@
 'use client';
 
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
 const provider = new GoogleAuthProvider();
@@ -19,10 +19,13 @@ export async function handleGoogleSignIn() {
   }
 }
 
-export async function handleEmailSignUp(email: string, password: string): Promise<void> {
+export async function handleEmailSignUp(email: string, password: string, displayName: string): Promise<void> {
   const auth = getAuth();
   try {
-    await createUserWithEmailAndPassword(auth, email, password);
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (auth.currentUser) {
+      await updateProfile(auth.currentUser, { displayName });
+    }
   } catch (error) {
     console.error('Error during Email sign-up:', error);
     if (error instanceof FirebaseError) {

@@ -32,9 +32,16 @@ import { handleGoogleSignIn, handleEmailSignUp, handleEmailSignIn } from '@/fire
 import { useToast } from '@/hooks/use-toast';
 
 const signUpSchema = z.object({
+  firstName: z.string().min(1, 'First name is required.'),
+  lastName: z.string().min(1, 'Last name is required.'),
   email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(8, 'Password must be at least 8 characters long.'),
+  confirmPassword: z.string(),
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
 });
+
 
 const signInSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -47,7 +54,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
-    defaultValues: { email: '', password: '' },
+    defaultValues: { firstName: '', lastName: '', email: '', password: '', confirmPassword: '' },
   });
 
   const signInForm = useForm<z.infer<typeof signInSchema>>({
@@ -70,7 +77,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
   const onEmailSignUp = async (values: z.infer<typeof signUpSchema>) => {
     setIsLoading('email');
     try {
-      await handleEmailSignUp(values.email, values.password);
+      await handleEmailSignUp(values.email, values.password, `${values.firstName} ${values.lastName}`);
       onOpenChange(false);
       toast({ title: "Welcome!", description: "You have successfully signed up." });
     } catch (error: any) {
@@ -162,7 +169,23 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
                 </div>
               </div>
               <Form {...signUpForm}>
-                <form onSubmit={signUpForm.handleSubmit(onEmailSignUp)} className="space-y-4">
+                <form onSubmit={signUpForm.handleSubmit(onEmailSignUp)} className="space-y-2">
+                  <div className="grid grid-cols-2 gap-2">
+                    <FormField control={signUpForm.control} name="firstName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name</FormLabel>
+                        <FormControl><Input placeholder="John" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                    <FormField control={signUpForm.control} name="lastName" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name</FormLabel>
+                        <FormControl><Input placeholder="Doe" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
                   <FormField control={signUpForm.control} name="email" render={({ field }) => (
                     <FormItem>
                       <FormLabel>Email</FormLabel>
@@ -177,10 +200,19 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
                       <FormMessage />
                     </FormItem>
                   )} />
-                  <Button type="submit" className="w-full" disabled={!!isLoading}>
-                    {isLoading === 'email' && <Loader2 className="animate-spin" />}
-                    Create Account
-                  </Button>
+                  <FormField control={signUpForm.control} name="confirmPassword" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Confirm Password</FormLabel>
+                      <FormControl><Input type="password" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <div className="pt-2">
+                    <Button type="submit" className="w-full" disabled={!!isLoading}>
+                      {isLoading === 'email' && <Loader2 className="animate-spin" />}
+                      Create Account
+                    </Button>
+                  </div>
                 </form>
               </Form>
             </div>
