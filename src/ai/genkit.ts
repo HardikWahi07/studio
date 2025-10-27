@@ -6,7 +6,7 @@ export const ai = genkit({
     googleAI({
       // A model is required for the 'generate' function.
       // gemini-pro is a stable and reliable model.
-      model: 'gemini-pro',
+      model: 'gemini-flash-lite-latest',
     }),
   ],
 });
