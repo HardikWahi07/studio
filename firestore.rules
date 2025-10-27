@@ -1,81 +1,77 @@
 /**
- * @fileoverview Firestore Security Rules for TripMind application.
+ * @fileOverview Firestore Security Rules for the TripMind application.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for personal data (users, trips, expenses, itinerary items),
- * while allowing public read access to application statistics. Data validation is relaxed to allow for rapid prototyping.
+ * This ruleset implements a strict user-ownership model for user-generated content (trips, expenses, itinerary items),
+ * while allowing public read access to application statistics.
  *
  * Data Structure:
- * - /users/{userId}: Stores user profiles and related data. Only the authenticated user can access their own profile.
- * - /users/{userId}/trips/{tripId}: Stores trip data. Only the owning user can access their trips.
- * - /users/{userId}/trips/{tripId}/expenses/{expenseId}: Stores expense data. Only the owning user can access expenses.
- * - /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}: Stores itinerary data. Only the owning user can access itinerary items.
- * - /local_businesses/{localBusinessId}: Stores local business data.
- * - /app-stats/{statId}: Stores global application statistics, publicly readable.
+ * - /users/{userId}: Stores user profiles. Only the authenticated user can read/write their own profile.
+ * - /users/{userId}/trips/{tripId}: Stores trip data. Only the owning user can manage their trips.
+ * - /users/{userId}/trips/{tripId}/expenses/{expenseId}: Stores expense data for trips. Only the owning user can manage expenses.
+ * - /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}: Stores itinerary items for trips. Only the owning user can manage itinerary items.
+ * - /local_businesses/{localBusinessId}: Stores information about local businesses. Publicly readable.
+ * - /app-stats/{statId}: Stores global application statistics. Publicly readable.
  *
  * Key Security Decisions:
- * - User listing is disallowed.
- * - The /app-stats collection is publicly readable but not writable from the client.
- * - Data validation is minimized to only enforce authorization constraints and essential relational integrity.
- * - All write operations require a verified Firebase Authentication user.
+ * - User data is strictly controlled by the owning user.
+ * - Application statistics are publicly readable.
+ * - Listing of local businesses is public to facilitate discovery.
  *
  * Denormalization for Authorization:
- *  Ownership is enforced through path-based rules, avoiding the need for additional `get()` calls. The `userId` is
- *  implicitly denormalized into the path for all user-owned data.
- *
- * Structural Segregation:
- * Private user data is stored under /users/{userId}, while public application statistics are stored in the top-level
- * /app-stats collection. This allows for different security postures for each type of data.
+ *  - User ID is embedded in the path for trips, expenses, and itinerary items, enabling path-based authorization.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces access control for user profiles. Only the authenticated user can read/write their own profile.
+     * @description Allows a user to read and write their own user document.
      * @path /users/{userId}
-     * @allow (create) Signed-in user creates their own profile with matching userId.
-     * @allow (get,update,delete) Signed-in user accesses their own profile.
-     * @deny  (create) User attempts to create a profile with a mismatched userId.
-     * @deny  (get,list,update,delete) User attempts to access another user's profile.
+     * @allow (create) - Authenticated user creates their own profile with matching userId.
+     * @allow (get, update, delete) - Authenticated user reads/updates/deletes their own profile.
+     * @deny (create, get, update, delete) - Any other user attempts to access this profile.
      * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
       function isSignedIn() {
         return request.auth != null;
       }
+
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
+
       function isExistingOwner(userId) {
-        return isOwner(userId) && exists(resource);
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
-      allow list: if false;
+      allow list: if false; // Users collection is not listable.
       allow create: if isSignedIn() && isOwner(userId);
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces access control for trips. Only the authenticated user can manage their own trips.
+     * @description Allows a user to manage their own trips.
      * @path /users/{userId}/trips/{tripId}
-     * @allow (create) Signed-in user creates a trip under their userId.
-     * @allow (get,update,delete) Signed-in user accesses their own trip.
-     * @deny  (create) User attempts to create a trip under another user's userId.
-     * @deny  (get,list,update,delete) User attempts to access another user's trip.
+     * @allow (create) - Authenticated user creates a trip under their userId.
+     * @allow (get, list, update, delete) - Authenticated user reads/lists/updates/deletes their own trips.
+     * @deny (create, get, list, update, delete) - Any other user attempts to access this trip.
      * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/trips/{tripId} {
       function isSignedIn() {
         return request.auth != null;
       }
+
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
-       function isExistingOwner(userId) {
-        return isOwner(userId) && exists(resource);
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
@@ -86,23 +82,24 @@ service cloud.firestore {
     }
 
     /**
-     * @description Enforces access control for expenses. Only the authenticated user can manage their own expenses.
+     * @description Allows a user to manage their own expenses.
      * @path /users/{userId}/trips/{tripId}/expenses/{expenseId}
-     * @allow (create) Signed-in user creates an expense under their userId and tripId.
-     * @allow (get,update,delete) Signed-in user accesses their own expense.
-     * @deny  (create) User attempts to create an expense under another user's userId or tripId.
-     * @deny  (get,list,update,delete) User attempts to access another user's expense.
+     * @allow (create) - Authenticated user creates an expense under their trip.
+     * @allow (get, list, update, delete) - Authenticated user reads/lists/updates/deletes their own expenses.
+     * @deny (create, get, list, update, delete) - Any other user attempts to access this expense.
      * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/trips/{tripId}/expenses/{expenseId} {
       function isSignedIn() {
         return request.auth != null;
       }
+
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
-       function isExistingOwner(userId) {
-        return isOwner(userId) && exists(resource);
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
@@ -113,23 +110,24 @@ service cloud.firestore {
     }
 
     /**
-     * @description Enforces access control for itinerary items. Only the authenticated user can manage their own itinerary items.
+     * @description Allows a user to manage their own itinerary items.
      * @path /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}
-     * @allow (create) Signed-in user creates an itinerary item under their userId and tripId.
-     * @allow (get,update,delete) Signed-in user accesses their own itinerary item.
-     * @deny  (create) User attempts to create an itinerary item under another user's userId or tripId.
-     * @deny  (get,list,update,delete) User attempts to access another user's itinerary item.
+     * @allow (create) - Authenticated user creates an itinerary item under their trip.
+     * @allow (get, list, update, delete) - Authenticated user reads/lists/updates/deletes their own itinerary items.
+     * @deny (create, get, list, update, delete) - Any other user attempts to access this itinerary item.
      * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId} {
       function isSignedIn() {
         return request.auth != null;
       }
+
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
+
       function isExistingOwner(userId) {
-        return isOwner(userId) && exists(resource);
+        return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
@@ -140,33 +138,27 @@ service cloud.firestore {
     }
 
     /**
-     * @description Defines access control for local businesses.
+     * @description Allows public read access to local businesses.
      * @path /local_businesses/{localBusinessId}
-     * @allow (get,list) Any user can read local business data.
-     * @deny (create,update,delete) No client-side writes are allowed. A separate service should manage this.
-     * @principle Allows public read access.
+     * @allow (get, list) - Any user can read local business data.
+     * @deny (create, update, delete) - Only authorized service can modify local business data.
+     * @principle Allows public read access to local business information.
      */
     match /local_businesses/{localBusinessId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
-      allow update: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
-      allow delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
+      allow get, list: if true;
+      allow create, update, delete: if false; // TODO: Add owner validation if businesses can manage their entries.
     }
 
     /**
-     * @description Defines access control for application statistics. Publicly readable.
+     * @description Allows public read access to application statistics.
      * @path /app-stats/{statId}
-     * @allow (get,list) Any user can read application statistics.
-     * @deny (create,update,delete) No client-side writes are allowed.
-     * @principle Allows public read access.
+     * @allow (get, list) - Any user can read application statistics.
+     * @deny (create, update, delete) - Only authorized service can modify application statistics.
+     * @principle Allows public read access to application statistics.
      */
     match /app-stats/{statId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if false; // Only admins can update.
     }
   }
 }
