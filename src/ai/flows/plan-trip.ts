@@ -24,9 +24,10 @@ const prompt = ai.definePrompt({
   - Destination: {{{destination}}}
   - Departure Date: {{{departureDate}}}
   - Travelers: {{{travelers}}}
+  - Desired Currency: {{{currency}}}
 
   Please provide a set of realistic travel options. Your response must be in JSON.
-  - CRITICAL: All costs must be in the local currency of the origin country. It is absolutely essential to use the correct currency symbol based on the origin country (e.g., use ₹ for India, $ for USA, € for France, £ for UK). Do not mix them up.
+  - CRITICAL: All costs MUST be in the requested currency: {{{currency}}}. It is absolutely essential to use the correct currency symbol and generate realistic prices for that currency.
   - Create one "eco mix" option which is a creative combination of transport (e.g., part train, part electric bus).
   - Provide at least three standard transport options (Flight, Train, Bus).
   - For flights, if there is no direct flight from the origin, find the nearest major airport and mention that in the recommendation text. For example, for a trip from Vapi to Pune, you might suggest a flight from Surat or Mumbai.
@@ -51,5 +52,3 @@ const planTripFlow = ai.defineFlow(
     return output!;
   }
 );
-
-    

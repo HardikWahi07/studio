@@ -6,6 +6,7 @@ export const PlanTripInputSchema = z.object({
   destination: z.string().describe('The travel destination.'),
   departureDate: z.string().describe('The date of departure.'),
   travelers: z.number().describe('The number of people traveling.'),
+  currency: z.string().describe('The currency to be used for all costs (e.g., USD, EUR, INR).'),
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
 
@@ -42,5 +43,3 @@ export const PlanTripOutputSchema = z.object({
   recommendedStayValue: HotelSchema.optional(),
 });
 export type PlanTripOutput = z.infer<typeof PlanTripOutputSchema>;
-
-    

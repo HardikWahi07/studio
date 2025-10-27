@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
 import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
 import { CityCombobox } from '@/components/city-combobox';
+import { useSettings } from '@/context/settings-context';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -45,6 +46,7 @@ export default function TripPlannerPage() {
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
     const { toast } = useToast();
+    const { currency } = useSettings();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -65,6 +67,7 @@ export default function TripPlannerPage() {
                 destination: values.to,
                 departureDate: values.departure,
                 travelers: values.travelers,
+                currency: currency,
             });
             setResults(response);
         } catch (error) {
@@ -253,4 +256,3 @@ export default function TripPlannerPage() {
         </main>
     );
 }
-

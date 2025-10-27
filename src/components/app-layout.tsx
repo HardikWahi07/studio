@@ -1,10 +1,10 @@
 
-
 "use client"
 
 import * as React from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useSettings } from "@/context/settings-context"
 
 import {
   Menu,
@@ -385,8 +385,8 @@ function useScrollState() {
 
 function LanguageSelector() {
     const { isScrolled, isHomePage } = useScrollState();
+    const { setLanguage } = useSettings();
     const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
-    const [selectedLanguage, setSelectedLanguage] = React.useState(languages[0]);
 
     return (
         <DropdownMenu>
@@ -397,7 +397,7 @@ function LanguageSelector() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="max-h-96 overflow-y-auto">
                 {languages.map(lang => (
-                    <DropdownMenuItem key={lang.code} onSelect={() => setSelectedLanguage(lang)}>
+                    <DropdownMenuItem key={lang.code} onSelect={() => setLanguage(lang.code)}>
                         {lang.label}
                     </DropdownMenuItem>
                 ))}
@@ -408,8 +408,8 @@ function LanguageSelector() {
 
 function CurrencySelector() {
     const { isScrolled, isHomePage } = useScrollState();
+    const { setCurrency } = useSettings();
     const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
-    const [selectedCurrency, setSelectedCurrency] = React.useState(currencies[0]);
 
     return (
         <DropdownMenu>
@@ -420,7 +420,7 @@ function CurrencySelector() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="max-h-96 overflow-y-auto">
                 {currencies.map(currency => (
-                    <DropdownMenuItem key={currency.code} onSelect={() => setSelectedCurrency(currency)}>
+                    <DropdownMenuItem key={currency.code} onSelect={() => setCurrency(currency.code)}>
                         {currency.label}
                     </DropdownMenuItem>
                 ))}
