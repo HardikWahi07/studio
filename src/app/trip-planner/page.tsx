@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -22,7 +21,7 @@ const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
     to: z.string().min(1, 'Destination is required.'),
     departure: z.string().min(1, 'Departure date is required.'),
-    travelers: z.string(),
+    travelers: z.coerce.number().min(1, "Please enter at least 1 traveler.").positive(),
 });
 
 const transportIcons: { [key: string]: React.ReactNode } = {
@@ -53,7 +52,7 @@ export default function TripPlannerPage() {
             from: '',
             to: '',
             departure: new Date().toISOString().split('T')[0],
-            travelers: '1-economy',
+            travelers: 1,
         },
     });
 
@@ -61,13 +60,11 @@ export default function TripPlannerPage() {
         setIsLoading(true);
         setResults(null);
         try {
-            const [numTravelers, travelClass] = values.travelers.split('-');
             const response = await planTrip({
                 origin: values.from,
                 destination: values.to,
                 departureDate: values.departure,
-                travelers: parseInt(numTravelers, 10),
-                travelClass: travelClass,
+                travelers: values.travelers,
             });
             setResults(response);
         } catch (error) {
@@ -81,6 +78,12 @@ export default function TripPlannerPage() {
             setIsLoading(false);
         }
     };
+
+    const recommendedStays = results ? [
+        results.recommendedStayLuxury,
+        results.recommendedStayBudget,
+        results.recommendedStayValue
+    ].filter(stay => !!stay) : [];
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
@@ -145,20 +148,10 @@ export default function TripPlannerPage() {
                                         name="travelers"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <Label>Travelers & Class</Label>
-                                                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                                    <FormControl>
-                                                        <SelectTrigger>
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                    </FormControl>
-                                                    <SelectContent>
-                                                        <SelectItem value="1-economy">1 Traveler, Economy</SelectItem>
-                                                        <SelectItem value="2-economy">2 Travelers, Economy</SelectItem>
-                                                        <SelectItem value="1-business">1 Traveler, Business</SelectItem>
-                                                        <SelectItem value="2-business">2 Travelers, Business</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
+                                                <Label>Travelers</Label>
+                                                 <FormControl>
+                                                    <Input type="number" min="1" {...field} />
+                                                </FormControl>
                                                 <FormMessage />
                                             </FormItem>
                                         )}
@@ -236,26 +229,29 @@ export default function TripPlannerPage() {
                     </div>
 
                     <div className="lg:col-span-1 space-y-6">
-                        <h2 className="font-headline text-2xl font-bold">Recommended Stay</h2>
-                        {results.recommendedStay && (
-                            <Card>
+                        <h2 className="font-headline text-2xl font-bold">Recommended Stays</h2>
+                        {recommendedStays.map((stay, index) => stay && (
+                            <Card key={index}>
                                 <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                                    <PexelsImage query={`luxury hotel ${results.recommendedStay.location}`} alt={results.recommendedStay.name} className="w-full h-full object-cover" width={400} height={225} />
+                                    <PexelsImage query={`${stay.recommendationType} hotel ${stay.location}`} alt={stay.name} className="w-full h-full object-cover" width={400} height={225} />
                                 </div>
                                 <CardContent className="p-4">
-                                    <h3 className="font-bold">{results.recommendedStay.name}</h3>
+                                    <h3 className="font-bold">{stay.name}</h3>
+                                    <p className='text-xs font-semibold uppercase text-primary'>{stay.recommendationType}</p>
                                     <div className="flex items-center text-sm text-muted-foreground mt-1">
                                         <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                                        <span>{results.recommendedStay.rating} ({results.recommendedStay.reviews} reviews)</span>
+                                        <span>{stay.rating} ({stay.reviews} reviews)</span>
                                     </div>
-                                    <p className="text-lg font-semibold mt-2">{results.recommendedStay.pricePerNight} / night</p>
+                                    <p className="text-lg font-semibold mt-2">{stay.pricePerNight} / night</p>
                                     <Button className="w-full mt-4">View Hotel</Button>
                                 </CardContent>
                             </Card>
-                        )}
+                        ))}
                     </div>
                 </div>
             )}
         </main>
     );
 }
+
+    
