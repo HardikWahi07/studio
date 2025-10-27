@@ -199,7 +199,7 @@ export default function TripPlannerPage() {
                                         {results.ecoMix.description}
                                     </p>
                                     <div className="font-semibold">{results.ecoMix.duration}</div>
-                                    <div className="font-semibold">₹{results.ecoMix.cost.toLocaleString('en-IN')}</div>
+                                    <div className="font-semibold">{results.ecoMix.cost}</div>
                                     <div className="flex justify-center"><CarbonFootprint value={results.ecoMix.carbonValue} /></div>
                                 </CardContent>
                             </Card>
@@ -221,7 +221,7 @@ export default function TripPlannerPage() {
                                             <p className="text-muted-foreground">Duration</p>
                                         </div>
                                         <div>
-                                            <p className="font-bold">₹{option.cost.toLocaleString('en-IN')}</p>
+                                            <p className="font-bold">{option.cost}</p>
                                             <p className="text-muted-foreground">Cost</p>
                                         </div>
                                         <div className="hidden sm:block">
@@ -248,7 +248,7 @@ export default function TripPlannerPage() {
                                         <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
                                         <span>{results.recommendedStay.rating} ({results.recommendedStay.reviews} reviews)</span>
                                     </div>
-                                    <p className="text-lg font-semibold mt-2">₹{results.recommendedStay.pricePerNight.toLocaleString('en-IN')} / night</p>
+                                    <p className="text-lg font-semibold mt-2">{results.recommendedStay.pricePerNight} / night</p>
                                     <Button className="w-full mt-4">View Hotel</Button>
                                 </CardContent>
                             </Card>
