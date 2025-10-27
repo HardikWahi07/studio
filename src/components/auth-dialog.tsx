@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -30,6 +31,7 @@ import { Input } from '@/components/ui/input';
 import { Leaf, Loader2 } from 'lucide-react';
 import { handleGoogleSignIn, handleEmailSignUp, handleEmailSignIn } from '@/firebase/auth/google';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslations } from 'next-intl';
 
 const signUpSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -51,6 +53,7 @@ const signInSchema = z.object({
 export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const [isLoading, setIsLoading] = useState<null | 'google' | 'email'>(null);
   const { toast } = useToast();
+  const t = useTranslations('AuthDialog');
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -68,7 +71,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
       await handleGoogleSignIn();
       onOpenChange(false);
     } catch (error: any) {
-      toast({ title: "Sign-in Error", description: error.message, variant: "destructive" });
+      toast({ title: t('signInError'), description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(null);
     }
@@ -79,9 +82,9 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
     try {
       await handleEmailSignUp(values.email, values.password, `${values.firstName} ${values.lastName}`);
       onOpenChange(false);
-      toast({ title: "Welcome!", description: "You have successfully signed up." });
+      toast({ title: t('welcomeToast'), description: t('signUpSuccessToast') });
     } catch (error: any) {
-      toast({ title: "Sign-up Error", description: error.message, variant: "destructive" });
+      toast({ title: t('signUpError'), description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(null);
     }
@@ -93,7 +96,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
       await handleEmailSignIn(values.email, values.password);
       onOpenChange(false);
     } catch (error: any) {
-      toast({ title: "Sign-in Error", description: error.message, variant: "destructive" });
+      toast({ title: t('signInError'), description: error.message, variant: "destructive" });
     } finally {
       setIsLoading(null);
     }
@@ -105,50 +108,50 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Leaf className="w-5 h-5 text-primary"/>
-            Welcome to TripMind
+            {t('title')}
           </DialogTitle>
           <DialogDescription>
-            Sign in or create an account to save and plan your trips.
+            {t('description')}
           </DialogDescription>
         </DialogHeader>
         <Tabs defaultValue="sign-in" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="sign-in">Sign In</TabsTrigger>
-            <TabsTrigger value="sign-up">Sign Up</TabsTrigger>
+            <TabsTrigger value="sign-in">{t('signIn')}</TabsTrigger>
+            <TabsTrigger value="sign-up">{t('signUp')}</TabsTrigger>
           </TabsList>
           <TabsContent value="sign-in">
             <div className="space-y-4 py-4">
               <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={!!isLoading}>
                 {isLoading === 'google' ? <Loader2 className="animate-spin" /> : <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308.6 106.5 280.2 96 248 96c-88.8 0-160.1 72.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"></path></svg>}
-                Continue with Google
+                {t('continueWithGoogle')}
               </Button>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  <span className="bg-background px-2 text-muted-foreground">{t('orContinueWith')}</span>
                 </div>
               </div>
               <Form {...signInForm}>
                 <form onSubmit={signInForm.handleSubmit(onEmailSignIn)} className="space-y-4">
                   <FormField control={signInForm.control} name="email" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl><Input placeholder="m@example.com" {...field} /></FormControl>
+                      <FormLabel>{t('emailLabel')}</FormLabel>
+                      <FormControl><Input placeholder={t('emailPlaceholder')} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={signInForm.control} name="password" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('passwordLabel')}</FormLabel>
                       <FormControl><Input type="password" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <Button type="submit" className="w-full" disabled={!!isLoading}>
                     {isLoading === 'email' && <Loader2 className="animate-spin" />}
-                    Sign In
+                    {t('signIn')}
                   </Button>
                 </form>
               </Form>
@@ -158,14 +161,14 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
             <div className="space-y-4 py-4">
                <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={!!isLoading}>
                 {isLoading === 'google' ? <Loader2 className="animate-spin" /> : <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308.6 106.5 280.2 96 248 96c-88.8 0-160.1 72.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"></path></svg>}
-                Continue with Google
+                {t('continueWithGoogle')}
               </Button>
                <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+                  <span className="bg-background px-2 text-muted-foreground">{t('orContinueWith')}</span>
                 </div>
               </div>
               <Form {...signUpForm}>
@@ -173,36 +176,36 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
                   <div className="grid grid-cols-2 gap-2">
                     <FormField control={signUpForm.control} name="firstName" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name</FormLabel>
-                        <FormControl><Input placeholder="John" {...field} /></FormControl>
+                        <FormLabel>{t('firstNameLabel')}</FormLabel>
+                        <FormControl><Input placeholder={t('firstNamePlaceholder')} {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                     <FormField control={signUpForm.control} name="lastName" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name</FormLabel>
-                        <FormControl><Input placeholder="Doe" {...field} /></FormControl>
+                        <FormLabel>{t('lastNameLabel')}</FormLabel>
+                        <FormControl><Input placeholder={t('lastNamePlaceholder')} {...field} /></FormControl>
                         <FormMessage />
                       </FormItem>
                     )} />
                   </div>
                   <FormField control={signUpForm.control} name="email" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl><Input placeholder="m@example.com" {...field} /></FormControl>
+                      <FormLabel>{t('emailLabel')}</FormLabel>
+                      <FormControl><Input placeholder={t('emailPlaceholder')} {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={signUpForm.control} name="password" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('passwordLabel')}</FormLabel>
                       <FormControl><Input type="password" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )} />
                   <FormField control={signUpForm.control} name="confirmPassword" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>{t('confirmPasswordLabel')}</FormLabel>
                       <FormControl><Input type="password" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
@@ -210,7 +213,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
                   <div className="pt-2">
                     <Button type="submit" className="w-full" disabled={!!isLoading}>
                       {isLoading === 'email' && <Loader2 className="animate-spin" />}
-                      Create Account
+                      {t('createAccount')}
                     </Button>
                   </div>
                 </form>

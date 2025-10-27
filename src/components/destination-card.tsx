@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { PexelsImage } from "@/components/pexels-image";
+import { useLocale, useTranslations } from "next-intl";
 
 type Destination = {
     id: string;
@@ -17,9 +18,11 @@ type Destination = {
 }
 
 export function DestinationCard({ destination }: { destination: Destination }) {
+    const locale = useLocale();
+    const t = useTranslations('DashboardPage');
 
     return (
-        <Link href={`/destinations/${destination.id}`} className="block">
+        <Link href={`/${locale}/destinations/${destination.id}`} className="block">
             <Card className="overflow-hidden group h-full">
                   <div className='relative aspect-[4/5] w-full'>
                       <PexelsImage
@@ -36,7 +39,7 @@ export function DestinationCard({ destination }: { destination: Destination }) {
                         <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
                         <span>{destination.rating}</span>
                         <span className='mx-1'>·</span>
-                        <span>{destination.reviewers} reviews</span>
+                        <span>{destination.reviewers} {t('DashboardPage.reviews')}</span>
                     </div>
                 </CardContent>
             </Card>
