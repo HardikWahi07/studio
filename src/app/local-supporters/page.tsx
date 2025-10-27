@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Clock, Languages, MapPin } from 'lucide-react';
+import { MessageSquare, Clock, Languages, MapPin, Users } from 'lucide-react';
 
 type LocalSupporter = {
     id: string;
