@@ -1,0 +1,329 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user in the TripMind application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "User's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "User's last name."
+        },
+        "profilePicture": {
+          "type": "string",
+          "description": "URL to the user's profile picture.",
+          "format": "uri"
+        },
+        "preferences": {
+          "type": "string",
+          "description": "User's travel preferences serialized as JSON string."
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "firstName",
+        "lastName"
+      ]
+    },
+    "Trip": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Trip",
+      "type": "object",
+      "description": "Represents a travel trip planned by the user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Trip entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Trip)"
+        },
+        "destination": {
+          "type": "string",
+          "description": "Destination of the trip."
+        },
+        "startDate": {
+          "type": "string",
+          "description": "Start date of the trip.",
+          "format": "date-time"
+        },
+        "endDate": {
+          "type": "string",
+          "description": "End date of the trip.",
+          "format": "date-time"
+        },
+        "budget": {
+          "type": "number",
+          "description": "Budget for the trip."
+        },
+        "itinerary": {
+          "type": "string",
+          "description": "Trip itinerary serialized as JSON string."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "destination",
+        "startDate",
+        "endDate",
+        "budget"
+      ]
+    },
+    "Expense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Expense",
+      "type": "object",
+      "description": "Represents an expense incurred during a trip.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Expense entity."
+        },
+        "tripId": {
+          "type": "string",
+          "description": "Reference to Trip. (Relationship: Trip 1:N Expense)"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User. (Relationship: User 1:N Expense)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the expense."
+        },
+        "amount": {
+          "type": "number",
+          "description": "Amount of the expense."
+        },
+        "date": {
+          "type": "string",
+          "description": "Date of the expense.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "tripId",
+        "userId",
+        "description",
+        "amount",
+        "date"
+      ]
+    },
+    "LocalBusiness": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LocalBusiness",
+      "type": "object",
+      "description": "Represents a local business or artisan.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the LocalBusiness entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the local business."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the local business."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the local business."
+        },
+        "contact": {
+          "type": "string",
+          "description": "Contact information for the local business."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "Latitude of the local business."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "Longitude of the local business."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the local business."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "address"
+      ]
+    },
+    "ItineraryItem": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ItineraryItem",
+      "type": "object",
+      "description": "Represents an item in a trip itinerary.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the ItineraryItem entity."
+        },
+        "tripId": {
+          "type": "string",
+          "description": "Reference to Trip. (Relationship: Trip 1:N ItineraryItem)"
+        },
+        "localBusinessId": {
+          "type": "string",
+          "description": "Reference to LocalBusiness. (Relationship: LocalBusiness 1:N ItineraryItem)"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the itinerary item."
+        },
+        "startTime": {
+          "type": "string",
+          "description": "Start time of the itinerary item.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "End time of the itinerary item.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "tripId",
+        "description",
+        "startTime",
+        "endTime"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profile data. Path-based ownership is used. Only the user can read/write their own data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/trips/{tripId}",
+        "definition": {
+          "entityName": "Trip",
+          "schema": {
+            "$ref": "#/backend/entities/Trip"
+          },
+          "description": "Stores trip data associated with a user. Path-based ownership is enforced. Only the user can manage their trips.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "tripId",
+              "description": "The unique identifier of the trip."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/trips/{tripId}/expenses/{expenseId}",
+        "definition": {
+          "entityName": "Expense",
+          "schema": {
+            "$ref": "#/backend/entities/Expense"
+          },
+          "description": "Stores expense data associated with a trip and user. Path-based ownership is enforced.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "tripId",
+              "description": "The unique identifier of the trip."
+            },
+            {
+              "name": "expenseId",
+              "description": "The unique identifier of the expense."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}",
+        "definition": {
+          "entityName": "ItineraryItem",
+          "schema": {
+            "$ref": "#/backend/entities/ItineraryItem"
+          },
+          "description": "Stores itinerary items associated with a trip. Path-based ownership is enforced.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "tripId",
+              "description": "The unique identifier of the trip."
+            },
+            {
+              "name": "itineraryItemId",
+              "description": "The unique identifier of the itinerary item."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/local_businesses/{localBusinessId}",
+        "definition": {
+          "entityName": "LocalBusiness",
+          "schema": {
+            "$ref": "#/backend/entities/LocalBusiness"
+          },
+          "description": "Stores data for local businesses.",
+          "params": [
+            {
+              "name": "localBusinessId",
+              "description": "The unique identifier of the local business."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation for homogeneous security postures.\n\n**Authorization Independence:**\nAuthorization independence is achieved through path-based ownership for `User`, `Trip`, and `Expense` data. This eliminates the need for `get()` calls in security rules, enabling atomic operations. All data related to a user is stored under their `userId`, making ownership clear and enforceable directly in the path.\n\n**QAPs Support:**\nThe structure supports secure `list` operations (QAPs) by ensuring that each collection has a consistent security posture. Data with different access requirements is stored in separate collections. For instance, user-specific trips and expenses are under `/users/{userId}`, enabling straightforward rules for owner-based access.\n\n**DBAC (Database-Based Access Control):**\nThis design uses the database to store roles. Since there are no roles defined, this design focuses on the 'request.auth.uid' for authorization, and ownership is determined based on the path. No custom claims are used.\n\n**Structure Overview:**\n- `/users/{userId}`: User profiles and related data (trips, expenses, itinerary items). This path enforces ownership.\n- `/local_businesses/{localBusinessId}`: Information about local businesses is stored globally. A separate collection could be created if business-owners need to update their entries, but this is not specified in the prompt. A separate service (not firestore rules) would handle authorization for that.\n"
+  }
+}
