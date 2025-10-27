@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import * as React from "react"
@@ -9,8 +10,6 @@ import {
   Menu,
   Briefcase,
   Users,
-  Map,
-  Sparkles,
   Plane,
   ChevronDown
 } from "lucide-react"
@@ -27,7 +26,6 @@ import { cn } from "@/lib/utils"
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "/about", label: "About" },
   { href: "/itinerary-planner", label: "AI Trip Planner" },
   { href: "/transport", label: "Booking" },
   { href: "/local-artisans", label: "Local Connect" },
@@ -47,7 +45,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
   return (
     <Link
       href={href}
-      className={cn("text-sm font-medium transition-colors hover:text-primary", isActive ? "text-primary" : "text-foreground/60", className)}
+      className={cn("text-sm font-medium transition-colors hover:text-white", isActive ? "text-white" : "text-white/70", className)}
     >
       {children}
     </Link>
@@ -55,10 +53,13 @@ function NavLink({ href, children, className }: { href: string, children: React.
 }
 
 function TravelToolsDropdown() {
+  const pathname = usePathname();
+  const isActive = travelTools.some(tool => tool.href === pathname);
+  
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="text-sm font-medium text-foreground/60 hover:text-primary focus:ring-0">
+        <Button variant="ghost" className={cn("text-sm font-medium hover:text-white focus:ring-0", isActive ? "text-white" : "text-white/70")}>
           Travel Tools
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
@@ -78,13 +79,16 @@ function TravelToolsDropdown() {
 }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isHomePage = pathname === '/';
   const [isScrolled, setIsScrolled] = React.useState(false)
 
   React.useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
+      setIsScrolled(window.scrollY > 50)
     }
     window.addEventListener("scroll", handleScroll)
+    handleScroll(); // Check on mount
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
   
@@ -92,24 +96,24 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-screen flex-col">
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
-          isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
+          isHomePage && !isScrolled ? "bg-transparent text-white" : "bg-white/80 shadow-md backdrop-blur-sm text-black"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href="/" className="mr-6 flex items-center gap-2">
-            <Logo />
+             <Logo className={cn(isHomePage && !isScrolled ? "text-white" : "text-primary")} />
           </Link>
-          <nav className="hidden items-center gap-6 md:flex">
+          <nav id="navLinks" className="hidden items-center gap-4 md:flex">
             {navItems.map((item) => (
               <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
             ))}
             <TravelToolsDropdown />
           </nav>
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost">Login</Button>
-            <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">Sign Up</Button>
+            <Button variant="ghost" className={cn("hidden sm:inline-flex", isHomePage && !isScrolled ? "hover:text-white hover:bg-white/10" : "hover:text-primary hover:bg-black/5")}>Login</Button>
+            <Button className={cn(isHomePage && !isScrolled ? "bg-white text-black hover:bg-white/90" : "bg-primary hover:bg-primary/90 text-primary-foreground")}>Sign Up</Button>
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="md:hidden">
+                <Button id="hamburger" variant="outline" size="icon" className="md:hidden">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Toggle navigation menu</span>
                 </Button>
@@ -132,37 +136,43 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="bg-primary text-primary-foreground">
+       <footer className="bg-gray-800 text-white">
         <div className="container mx-auto px-4 py-12">
-            <div className="grid gap-8 md:grid-cols-4">
-                <div>
-                    <Logo className="text-white"/>
-                    <p className="text-sm text-primary-foreground/80 mt-2">The smartest, easiest way to explore this world. All-powered travel palnner easy to be a conscious travelers.</p>
-                </div>
-                <div>
-                    <h4 className="font-bold">Quick Links</h4>
-                    <ul className="space-y-2 mt-2 text-sm text-primary-foreground/80">
-                        <li><Link href="#" className="hover:underline">Plan Trip</Link></li>
-                        <li><Link href="#" className="hover:underline">About Us</Link></li>
-                    </ul>
-                </div>
-                 <div>
-                    <h4 className="font-bold">Best in Search</h4>
-                    <ul className="space-y-2 mt-2 text-sm text-primary-foreground/80">
-                        <li><Link href="#" className="hover:underline">Work with us: for travelers</Link></li>
-                        <li><Link href="#" className="hover:underline">Blog</Link></li>
-                    </ul>
-                </div>
-                 <div>
-                    <h4 className="font-bold">Contact Us</h4>
-                     <ul className="space-y-2 mt-2 text-sm text-primary-foreground/80">
-                        <li><Link href="#" className="hover:underline">support@tripmind.com</Link></li>
-                    </ul>
-                </div>
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+            <div className="md:col-span-2 lg:col-span-1">
+              <Logo className="text-white" />
+              <p className="text-sm text-gray-400 mt-4">
+                The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.
+              </p>
             </div>
-            <div className="mt-8 border-t border-primary-foreground/20 pt-8 text-center text-sm text-primary-foreground/60">
-                © 2024 TripMind. All rights reserved. Plan Smart. Travel Green.
+            <div>
+              <h4 className="font-bold tracking-wider">Quick Links</h4>
+              <ul className="space-y-2 mt-4 text-sm text-gray-300">
+                <li><Link href="/itinerary-planner" className="hover:text-white transition-colors">Plan a Trip</Link></li>
+                <li><Link href="/local-artisans" className="hover:text-white transition-colors">Local Connect</Link></li>
+                <li><Link href="/hidden-gems" className="hover:text-white transition-colors">Hidden Gems</Link></li>
+              </ul>
             </div>
+            <div>
+              <h4 className="font-bold tracking-wider">Company</h4>
+              <ul className="space-y-2 mt-4 text-sm text-gray-300">
+                <li><Link href="#" className="hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Work with Us</Link></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-bold tracking-wider">Support</h4>
+              <ul className="space-y-2 mt-4 text-sm text-gray-300">
+                <li><Link href="#" className="hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">FAQ</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-10 border-t border-gray-700 pt-8 text-center text-sm text-gray-500">
+            © 2024 TripMind. All rights reserved. Plan Smart. Travel Green.
+          </div>
         </div>
       </footer>
     </div>
