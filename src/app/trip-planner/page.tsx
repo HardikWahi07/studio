@@ -198,8 +198,8 @@ export default function TripPlannerPage() {
                             </Card>
                         )}
 
-                        {results.transportOptions.map(option => (
-                            <Card key={option.mode}>
+                        {results.transportOptions.map((option, index) => (
+                            <Card key={`${option.mode}-${index}`}>
                                 <CardContent className="p-4 flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         {transportIcons[option.mode] || <Plane className="h-6 w-6 text-primary" />}
@@ -253,5 +253,3 @@ export default function TripPlannerPage() {
         </main>
     );
 }
-
-    
