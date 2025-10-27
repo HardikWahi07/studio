@@ -19,7 +19,7 @@ const formSchema = z.object({
   interests: z.string().min(5, "Tell us more about your interests."),
 });
 
-export default function ItineraryPlannerPage() {
+export default function ItineraryGeneratorPage() {
   const [itinerary, setItinerary] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();

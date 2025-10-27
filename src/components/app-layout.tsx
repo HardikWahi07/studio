@@ -11,6 +11,7 @@ import {
   Users,
   Plane,
   ChevronDown,
+  Wand2,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -27,7 +28,7 @@ import { AuthButton } from "./auth-button"
 const navItems = [
   { href: "/", label: "Home" },
   { href: "/about", label: "About" },
-  { href: "/itinerary-planner", label: "AI Trip Planner" },
+  { href: "/trip-planner", label: "AI Trip Planner" },
   { href: "/transport", label: "Booking" },
   { href: "/local-artisans", label: "Local Connect" },
   { href: "/hidden-gems", label: "Hidden Gems" },
@@ -37,6 +38,7 @@ const travelTools = [
   { href: "/expenses", icon: Users, label: "Expense Splitter" },
   { href: "/safety", icon: Plane, label: "Safety Companion" },
   { href: "/transport", icon: Briefcase, label: "Smart Transport" },
+  { href: "/itinerary-planner", icon: Wand2, label: "AI Itinerary Generator" },
 ]
 
 
@@ -167,7 +169,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div>
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Quick Links</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
-                <li><Link href="/itinerary-planner" className="hover:text-white transition-colors">Plan a Trip</Link></li>
+                <li><Link href="/trip-planner" className="hover:text-white transition-colors">Plan a Trip</Link></li>
                 <li><Link href="/local-artisans" className="hover:text-white transition-colors">Local Connect</Link></li>
                 <li><Link href="/hidden-gems" className="hover:text-white transition-colors">Hidden Gems</Link></li>
               </ul>
