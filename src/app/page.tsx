@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { destinations } from '@/lib/destinations';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 import { Badge } from '@/components/ui/badge';
@@ -42,37 +43,6 @@ const features = [
     link: '/hidden-gems',
   },
 ];
-
-const destinations = [
-  {
-    id: "dest-bali",
-    name: "Bali, Indonesia",
-    rating: 4.9,
-    reviewers: "2.4k",
-    imageHint: "bali landscape"
-  },
-  {
-    id: "dest-osaka",
-    name: "Osaka, Japan",
-    rating: 4.8,
-    reviewers: "1.9k",
-    imageHint: "osaka street food"
-  },
-    {
-    id: "dest-hallstatt",
-    name: "Hallstatt, Austria",
-    rating: 4.7,
-    reviewers: "1.8k",
-    imageHint: "hallstatt village"
-  },
-  {
-    id: "dest-seoul",
-    name: "Seoul, South Korea",
-    rating: 4.9,
-    reviewers: "2.2k",
-    imageHint: "seoul palace"
-  }
-]
 
 const stories = [
     {
@@ -189,26 +159,28 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-              {destinations.map((dest, index) => {
+              {destinations.map((dest) => {
                 const image = PlaceHolderImages.find(p => p.id === dest.id);
                 if (!image) return null;
-                const imageUrl = `${image.imageUrl}?random=${Math.random()}`;
+                 const imageUrl = `${image.imageUrl}?random=${Math.random()}`;
                 return (
-                  <Card key={dest.id} className="overflow-hidden group">
-                    <div className='relative aspect-[4/5] w-full'>
-                      <Image src={imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
-                       <Badge className="absolute top-2 right-2">Trending</Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-bold">{dest.name}</h3>
-                      <div className="flex items-center text-sm text-muted-foreground mt-1">
-                        <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                        <span>{dest.rating}</span>
-                        <span className='mx-1'>·</span>
-                        <span>{dest.reviewers} reviews</span>
+                  <Link href={`/destinations/${dest.id}`} key={dest.id} className="block">
+                    <Card className="overflow-hidden group h-full">
+                      <div className='relative aspect-[4/5] w-full'>
+                         <Image src={`https://source.unsplash.com/800x600/?${dest.imageHint}&sig=${Math.random()}`} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
+                         <Badge className="absolute top-2 right-2">Trending</Badge>
                       </div>
-                    </CardContent>
-                  </Card>
+                      <CardContent className="p-4">
+                        <h3 className="font-bold">{dest.name}</h3>
+                        <div className="flex items-center text-sm text-muted-foreground mt-1">
+                          <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
+                          <span>{dest.rating}</span>
+                          <span className='mx-1'>·</span>
+                          <span>{dest.reviewers} reviews</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
                 )
               })}
             </div>
@@ -276,5 +248,3 @@ export default function DashboardPage() {
     </div>
   );
 }
-
-    
