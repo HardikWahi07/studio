@@ -23,6 +23,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
+import { LoadingScreen } from "@/components/ui/loading-screen"
 
 const navItems = [
   { href: "/", label: "Home" },
@@ -111,9 +112,22 @@ function useScrollState() {
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
-  
+  const [isLoading, setIsLoading] = React.useState(true);
+  const pathname = usePathname();
+
+  React.useEffect(() => {
+    if (pathname === '/') {
+      setIsLoading(true);
+      const timer = setTimeout(() => setIsLoading(false), 100);
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
+  }, [pathname]);
+
   return (
     <div className="flex min-h-screen flex-col">
+       {isHomePage && isLoading && <LoadingScreen />}
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           isScrolled ? "bg-white/80 shadow-md backdrop-blur-sm" : "bg-transparent"
