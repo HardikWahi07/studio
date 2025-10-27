@@ -49,24 +49,28 @@ const destinations = [
     name: "Bali, Indonesia",
     rating: 4.9,
     reviewers: "2.4k",
+    imageHint: "bali landscape"
   },
   {
     id: "dest-osaka",
     name: "Osaka, Japan",
     rating: 4.8,
     reviewers: "1.9k",
+    imageHint: "osaka street food"
   },
     {
     id: "dest-hallstatt",
     name: "Hallstatt, Austria",
     rating: 4.7,
     reviewers: "1.8k",
+    imageHint: "hallstatt village"
   },
   {
     id: "dest-seoul",
     name: "Seoul, South Korea",
     rating: 4.9,
     reviewers: "2.2k",
+    imageHint: "seoul palace"
   }
 ]
 
@@ -185,12 +189,12 @@ export default function DashboardPage() {
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-              {destinations.map(dest => {
-                const image = PlaceHolderImages.find(p => p.id === dest.id);
+              {destinations.map((dest, index) => {
+                const imageUrl = `https://picsum.photos/seed/${dest.id}${Math.random()}/400/500`;
                 return (
                   <Card key={dest.id} className="overflow-hidden group">
                     <div className='relative aspect-[4/5] w-full'>
-                      {image && <Image src={image.imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />}
+                      <Image src={imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" data-ai-hint={dest.imageHint} />
                        <Badge className="absolute top-2 right-2">Trending</Badge>
                     </div>
                     <CardContent className="p-4">
