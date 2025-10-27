@@ -14,7 +14,8 @@ import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search } from "lucide
 import { PexelsImage } from "@/components/pexels-image";
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { PlanTripOutput, planTrip } from '@/ai/flows/plan-trip';
+import { planTrip } from '@/ai/flows/plan-trip';
+import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -160,7 +161,7 @@ export default function TripPlannerPage() {
                                 </div>
                                 <Button type="submit" disabled={isLoading} className="w-full lg:w-auto">
                                     {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                                    {isLoading ? 'Searching...' : 'Search'}
+                                    <span className="ml-2">{isLoading ? 'Searching...' : 'Search'}</span>
                                 </Button>
                             </div>
                         </form>
