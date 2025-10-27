@@ -18,20 +18,22 @@ async function getPexelsImage(query: string): Promise<string> {
 
     try {
         const res = await fetch(
-            `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=15&orientation=landscape`,
+            `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=5&orientation=landscape`,
             { headers: { Authorization: API_KEY } }
         );
 
         if (!res.ok) {
             console.error(`Pexels API error: ${res.status}`);
-            return "https://placehold.co/800x600/000000/FFFFFF/png?text=Error";
+            return `https://placehold.co/800x600/EEE/31343C/png?text=Not+Found`;
         }
         
         const data = await res.json();
     
         if (data.photos?.length > 0) {
-            const randomPhoto = data.photos[Math.floor(Math.random() * data.photos.length)];
-            const imageUrl = randomPhoto.src.large;
+            // Pick one of the top results, which are sorted by relevance.
+            // A little bit of randomness to avoid the exact same image every time for a query.
+            const relevantPhoto = data.photos[Math.floor(Math.random() * Math.min(data.photos.length, 3))];
+            const imageUrl = relevantPhoto.src.large;
             imageCache.set(query, imageUrl);
             return imageUrl;
         } else {
@@ -54,9 +56,8 @@ export function PexelsImage({ query, className, ...props }: PexelsImageProps) {
     useEffect(() => {
         let isMounted = true;
         
-        // Use a random number for caching to ensure different images on different renders
-        // but stable image on re-renders of the same component instance.
-        const cacheKey = `${query}-${Math.floor(Math.random() * 1000)}`;
+        // Use the query itself as the key for stable caching.
+        const cacheKey = query;
 
         getPexelsImage(cacheKey).then(url => {
             if (isMounted) {
