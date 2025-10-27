@@ -26,7 +26,7 @@ import { AuthButton } from "./auth-button"
 
 const navItems = [
   { href: "/", label: "Home" },
-  { href: "#", label: "About" },
+  { href: "/about", label: "About" },
   { href: "/itinerary-planner", label: "AI Trip Planner" },
   { href: "/transport", label: "Booking" },
   { href: "/local-artisans", label: "Local Connect" },
