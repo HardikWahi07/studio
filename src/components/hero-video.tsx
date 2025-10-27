@@ -1,19 +1,18 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 const API_KEY = "R1hsiiOY8ZHYJ9eIH6UaE4HFaHgaAFkdz3aUXvMpsvQA7XTdFx3wJ1uK";
 const query = "green valley river drone 4k";
 
-export function HeroVideo() {
+export function HeroVideo({ onVideoLoad }: { onVideoLoad?: () => void }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   useEffect(() => {
     let progressInterval: NodeJS.Timeout;
     let progress = 0;
     
-    const loadingScreen = document.getElementById("loadingScreen");
     const progressBar = document.getElementById("progressBar");
 
     function updateProgress() {
@@ -24,9 +23,6 @@ export function HeroVideo() {
     }
 
     function startProgress() {
-      if (loadingScreen && loadingScreen.classList.contains('hidden')) {
-        loadingScreen.classList.remove('hidden');
-      }
       progressInterval = setInterval(updateProgress, 200);
     }
 
@@ -36,10 +32,10 @@ export function HeroVideo() {
         progressBar.style.width = '100%';
       }
       
-      // Hide loading screen after a short delay
+      // Hide loading screen via callback
       setTimeout(() => {
-        if (loadingScreen) {
-            loadingScreen.classList.add('opacity-0', 'pointer-events-none');
+        if (onVideoLoad) {
+            onVideoLoad();
         }
         if (videoRef.current) {
             videoRef.current.classList.add('opacity-100');
@@ -121,7 +117,7 @@ export function HeroVideo() {
             videoEl.onloadeddata = null;
         }
     }
-  }, []);
+  }, [onVideoLoad]);
 
 
   return (

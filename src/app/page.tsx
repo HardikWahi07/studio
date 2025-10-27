@@ -15,7 +15,6 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 
@@ -112,13 +111,13 @@ const moreFeatures = [
   },
 ];
 
-export default function DashboardPage() {
+export default function DashboardPage({ onVideoLoad }: { onVideoLoad?: () => void }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <main className="flex-1">
         <section className="relative w-full min-h-screen text-white flex items-center justify-center">
-          <HeroVideo />
+          <HeroVideo onVideoLoad={onVideoLoad} />
           <div className="relative z-20 flex flex-col items-center justify-center text-center px-4">
             <div className='flex items-center gap-2 mb-4'>
                 <Sparkles className='w-5 h-5 text-white' />
@@ -139,9 +138,9 @@ export default function DashboardPage() {
               </Button>
             </div>
              <div className="mt-8 flex gap-4">
-                <Badge variant="outline" className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium"><Sparkles className="w-4 h-4 mr-2 text-primary"/>AI-Powered</Badge>
-                <Badge variant="outline" className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium"><Leaf className="w-4 h-4 mr-2 text-primary"/>Green & Intuitive</Badge>
-                <Badge variant="outline" className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium"><Users className="w-4 h-4 mr-2 text-primary"/>User-Friendly</Badge>
+                 <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Sparkles className="w-4 h-4 mr-2 text-primary"/>AI-Powered</div>
+                <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Leaf className="w-4 h-4 mr-2 text-primary"/>Green & Intuitive</div>
+                <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Users className="w-4 h-4 mr-2 text-primary"/>User-Friendly</div>
             </div>
           </div>
         </section>
@@ -191,7 +190,7 @@ export default function DashboardPage() {
                   <Card key={dest.id} className="overflow-hidden group">
                     <div className='relative aspect-[4/5] w-full'>
                       {image && <Image src={image.imageUrl} alt={dest.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" />}
-                      <Badge className="absolute top-2 right-2 bg-primary text-primary-foreground">Trending</Badge>
+                       <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs font-semibold px-2 py-1 rounded-full">Trending</div>
                     </div>
                     <CardContent className="p-4">
                       <h3 className="font-bold">{dest.name}</h3>

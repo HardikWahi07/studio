@@ -116,14 +116,23 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   React.useEffect(() => {
-    if (pathname === '/') {
-      setIsLoading(true);
-      const timer = setTimeout(() => setIsLoading(false), 100);
-      return () => clearTimeout(timer);
-    } else {
+    if (pathname !== '/') {
       setIsLoading(false);
     }
   }, [pathname]);
+
+  const handleVideoLoad = () => {
+    setIsLoading(false);
+  }
+
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child) && isHomePage) {
+      // @ts-ignore
+      return React.cloneElement(child, { onVideoLoad: handleVideoLoad });
+    }
+    return child;
+  });
+
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -171,7 +180,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </header>
-      <main className="flex-1">{children}</main>
+      <main className="flex-1">{isHomePage ? childrenWithProps : children}</main>
        <footer className="bg-gray-900 text-white">
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
