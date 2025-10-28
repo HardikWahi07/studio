@@ -5,7 +5,7 @@ import { AppLayout } from '@/components/app-layout';
 import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase';
 import { SettingsProvider } from '@/context/settings-context';
-import {NextIntlClientProvider, useMessages} from 'next-intl';
+import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
  
 export const metadata: Metadata = {
