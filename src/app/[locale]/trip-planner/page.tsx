@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { 
     Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search, CheckCircle, 
-    Bike, TramFront, Car, Walking, Footprints, Clock, MapPin, Ticket, Info
+    Bike, TramFront, Car, Walking, Footprints, Clock, MapPin, Ticket, Info, Save
 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
@@ -19,11 +19,12 @@ import type { PlanTripOutput, PlanTripInput } from '@/ai/flows/plan-trip.types';
 import { CityCombobox } from '@/components/city-combobox';
 import { useSettings } from '@/context/settings-context';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AuthDialog } from '@/components/auth-dialog';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -49,35 +50,34 @@ const transportIcons: { [key: string]: React.ReactNode } = {
 export default function TripPlannerPage() {
     const t = useTranslations('TripPlannerPage');
     const [isLoading, setIsLoading] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
+    const [tripSaved, setTripSaved] = useState(false);
+    const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
     const { currency } = useSettings();
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const { toast } = useToast();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            from: 'New York, USA',
-            to: 'Madrid, Spain',
-            departure: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-            tripDuration: 3,
-            travelers: 2,
+            from: '',
+            to: '',
+            departure: '',
+            tripDuration: 7,
+            travelers: 1,
             tripPace: 'moderate',
-            travelStyle: 'couple',
+            travelStyle: 'solo',
             accommodationType: 'hotel',
-            interests: 'We love historical sites, amazing food (especially tapas!), and maybe seeing a football match.',
+            interests: '',
         },
     });
 
     async function handleSearch(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setResults(null);
-        if (!user || !firestore) {
-            toast({ title: t('toastLoginTitle'), description: t('toastLoginDescription'), variant: "destructive" });
-            setIsLoading(false);
-            return;
-        }
+        setTripSaved(false);
 
         try {
             const planTripInput: PlanTripInput = {
@@ -96,25 +96,6 @@ export default function TripPlannerPage() {
             const response = await planTrip(planTripInput);
             setResults(response);
 
-            // Save the generated trip
-            const tripId = doc(collection(firestore, `users/${user.uid}/trips`)).id;
-            const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
-            await setDoc(tripRef, {
-                id: tripId,
-                userId: user.uid,
-                destination: values.to,
-                origin: values.from,
-                startDate: values.departure,
-                travelers: values.travelers,
-                itinerary: response.itinerary,
-                createdAt: serverTimestamp(),
-                updatedAt: serverTimestamp(),
-            });
-             toast({
-                title: "Itinerary Saved!",
-                description: `Your trip to ${values.to} has been saved to 'My Trips'.`,
-            });
-
         } catch (error) {
             console.error('Failed to plan trip:', error);
             toast({
@@ -126,9 +107,50 @@ export default function TripPlannerPage() {
             setIsLoading(false);
         }
     };
+    
+    async function handleSaveTrip() {
+        if (!user || !firestore) {
+            setIsAuthDialogOpen(true);
+            return;
+        }
+
+        if (!results) return;
+        setIsSaving(true);
+
+        try {
+            const values = form.getValues();
+            const tripId = doc(collection(firestore, `users/${user.uid}/trips`)).id;
+            const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
+            await setDoc(tripRef, {
+                id: tripId,
+                userId: user.uid,
+                destination: values.to,
+                origin: values.from,
+                startDate: values.departure,
+                travelers: values.travelers,
+                itinerary: results.itinerary,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp(),
+            });
+             toast({
+                title: "Itinerary Saved!",
+                description: `Your trip to ${values.to} has been saved to 'My Trips'.`,
+            });
+            setTripSaved(true);
+        } catch(error) {
+             toast({
+                title: "Save Failed",
+                description: "There was an error saving your trip. Please try again.",
+                variant: 'destructive'
+            });
+        } finally {
+            setIsSaving(false);
+        }
+    }
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
+            <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
             <div className="space-y-2">
                 <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
                 <p className="text-muted-foreground max-w-2xl">
@@ -186,10 +208,9 @@ export default function TripPlannerPage() {
                             <FormField control={form.control} name="interests" render={({ field }) => (
                                 <FormItem><FormLabel>{t('interestsLabel')}</FormLabel><FormControl><Textarea placeholder={t('interestsPlaceholder')} rows={3} {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                            <Button type="submit" disabled={isLoading || !user} className="w-full sm:w-auto">
+                            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                                 {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('searchButton')}</span></>}
                             </Button>
-                            {!user && <p className="text-sm text-destructive mt-2">{t('loginToPlan')}</p>}
                         </form>
                     </Form>
                 </CardContent>
@@ -205,7 +226,22 @@ export default function TripPlannerPage() {
 
             {results && !isLoading && (
                 <div className="pt-6 space-y-6">
-                    <h2 className="font-headline text-3xl md:text-4xl font-bold text-center">{results.tripTitle}</h2>
+                    <div className="text-center">
+                        <h2 className="font-headline text-3xl md:text-4xl font-bold">{results.tripTitle}</h2>
+                        {!tripSaved && (
+                        <Button onClick={handleSaveTrip} disabled={isSaving || isUserLoading} className="mt-4">
+                            {isSaving && <Loader2 className="animate-spin mr-2" />}
+                            <Save className="mr-2" />
+                            Save Trip to My Plans
+                        </Button>
+                        )}
+                        {tripSaved && (
+                             <div className="mt-4 inline-flex items-center gap-2 text-green-600 font-semibold">
+                                <CheckCircle /> Trip Saved!
+                            </div>
+                        )}
+                    </div>
+                    
                     <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
                         {results.itinerary.map((day, dayIndex) => (
                         <AccordionItem value={`item-${dayIndex}`} key={dayIndex}>
@@ -249,3 +285,5 @@ export default function TripPlannerPage() {
         </main>
     );
 }
+
+    
