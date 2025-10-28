@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -8,6 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Plane, Hotel, Calendar, Users, Briefcase, Train, Bus } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
+import Link from 'next/link';
+import { useLocale } from 'next-intl';
 
 type BookingOption = {
     type: 'flight' | 'train' | 'bus';
@@ -25,6 +28,7 @@ type Trip = {
     travelers: number;
     hotel?: { name: string; location: string; pricePerNight: string };
     transport?: BookingOption;
+    bookingOptions?: BookingOption[];
 };
 
 const transportIcons = {
@@ -37,6 +41,7 @@ export default function MyTripsPage() {
     const t = useTranslations('MyTripsPage');
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
+    const locale = useLocale();
 
     const tripsQuery = useMemoFirebase(() => {
         if (!user || !firestore) return null;
@@ -49,6 +54,15 @@ export default function MyTripsPage() {
     const { data: trips, isLoading: isLoadingTrips } = useCollection<Trip>(tripsQuery);
     
     const isLoading = isUserLoading || isLoadingTrips;
+    
+    const getPrimaryTransport = (trip: Trip): BookingOption | undefined => {
+        if (trip.transport) return trip.transport;
+        if (trip.bookingOptions && trip.bookingOptions.length > 0) {
+            return trip.bookingOptions.find(opt => opt.type === 'flight') || trip.bookingOptions[0];
+        }
+        return undefined;
+    }
+
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
@@ -89,43 +103,47 @@ export default function MyTripsPage() {
 
             {!isLoading && trips && trips.length > 0 && (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {trips.map(trip => (
-                        <Card key={trip.id} className="flex flex-col">
-                            <CardHeader className="p-0">
-                                <div className="aspect-video w-full relative">
-                                    <PexelsImage query={trip.destination} alt={trip.destination} fill className="rounded-t-lg object-cover"/>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-6 flex-grow flex flex-col justify-between">
-                                <div>
-                                    <CardTitle className="font-headline text-xl">{trip.destination}</CardTitle>
-                                    <CardDescription>{t('from', { origin: trip.origin })}</CardDescription>
-                                    <div className="space-y-3 text-sm text-muted-foreground mt-4">
-                                        <div className="flex items-center gap-2">
-                                            <Calendar className="w-4 h-4" />
-                                            <span>{format(new Date(trip.startDate), 'PPP')}</span>
-                                        </div>
-                                         <div className="flex items-center gap-2">
-                                            <Users className="w-4 h-4" />
-                                            <span>{t('travelers', { count: trip.travelers })}</span>
-                                        </div>
-                                        {trip.transport && (
-                                             <div className="flex items-center gap-2">
-                                                {transportIcons[trip.transport.type]}
-                                                <span>{trip.transport.provider} - {trip.transport.price} ({trip.transport.duration})</span>
-                                            </div>
-                                        )}
-                                        {trip.hotel && (
-                                            <div className="flex items-center gap-2">
-                                                <Hotel className="w-4 h-4" />
-                                                <span>{trip.hotel.name} - {trip.hotel.pricePerNight}</span>
-                                            </div>
-                                        )}
+                    {trips.map(trip => {
+                        const primaryTransport = getPrimaryTransport(trip);
+                        return (
+                        <Link key={trip.id} href={`/${locale}/my-trips/${trip.id}`} className="block group">
+                            <Card className="flex flex-col h-full transition-shadow duration-300 group-hover:shadow-lg">
+                                <CardHeader className="p-0">
+                                    <div className="aspect-video w-full relative">
+                                        <PexelsImage query={trip.destination} alt={trip.destination} fill className="rounded-t-lg object-cover"/>
                                     </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
+                                </CardHeader>
+                                <CardContent className="p-6 flex-grow flex flex-col justify-between">
+                                    <div>
+                                        <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{trip.destination}</CardTitle>
+                                        <CardDescription>{t('from', { origin: trip.origin })}</CardDescription>
+                                        <div className="space-y-3 text-sm text-muted-foreground mt-4">
+                                            <div className="flex items-center gap-2">
+                                                <Calendar className="w-4 h-4" />
+                                                <span>{format(new Date(trip.startDate), 'PPP')}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Users className="w-4 h-4" />
+                                                <span>{t('travelers', { count: trip.travelers })}</span>
+                                            </div>
+                                            {primaryTransport && (
+                                                <div className="flex items-center gap-2">
+                                                    {transportIcons[primaryTransport.type]}
+                                                    <span>{primaryTransport.provider} - {primaryTransport.price} ({primaryTransport.duration})</span>
+                                                </div>
+                                            )}
+                                            {trip.hotel && (
+                                                <div className="flex items-center gap-2">
+                                                    <Hotel className="w-4 h-4" />
+                                                    <span>{trip.hotel.name} - {trip.hotel.pricePerNight}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </Link>
+                    )})}
                 </div>
             )}
         </main>
