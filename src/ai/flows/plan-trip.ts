@@ -42,12 +42,12 @@ const prompt = ai.definePrompt({
         - **Description:** A clear description of the activity (e.g., "Guided tour of the Prado Museum").
         - **Location:** The address or name of the place.
         - **Details:** Practical tips, booking information, or why it's a great spot.
-      - **Include Transportation:** Between each activity, add a `transportToNext` segment.
-        - Specify the `mode` (e.g., Walk, Metro, E-bike, Bus, Taxi).
-        - Provide a realistic `duration` (e.g., "15 minutes").
-        - Give a short `description` of the route (e.g., "Take Metro Line 1 from Sol to Atocha").
-        - **Prioritize Eco-Friendly Options:** Mark `ecoFriendly` as `true` for walking, cycling, or public transport. Suggest taxis or ride-shares only when necessary.
-      - **Be Realistic:** Ensure the plan is logical for the chosen `tripPace`. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
+      - **Include Transportation:** Between each activity, add a transportToNext segment.
+        - Specify the "mode" (e.g., Walk, Metro, E-bike, Bus, Taxi).
+        - Provide a realistic "duration" (e.g., "15 minutes").
+        - Give a short "description" of the route (e.g., "Take Metro Line 1 from Sol to Atocha").
+        - **Prioritize Eco-Friendly Options:** Mark "ecoFriendly" as "true" for walking, cycling, or public transport. Suggest taxis or ride-shares only when necessary.
+      - **Be Realistic:** Ensure the plan is logical for the chosen "tripPace". A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
       - **Example Given:** The user mentioned visiting Santiago Bernabéu and the Atlético stadium in Madrid on different days. Incorporate such specific interests if provided.
 
   Produce the final output in the required JSON format.
