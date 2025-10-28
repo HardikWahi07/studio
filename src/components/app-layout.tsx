@@ -346,7 +346,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/my-trips", label: t('myTrips') },
     { href: "/about", label: t('about') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
-    { href: "/transport", label: t('booking') },
     { href: "/local-artisans", label: t('localConnect') },
     { href: "/hidden-gems", label: t('hiddenGems') },
   ];
@@ -442,8 +441,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div>
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('support')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
-                <li><Link href={`/${locale}/local-supporters`} className="hover:text-white transition-colors">{t('localSupporters')}</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">{t('helpCenter')}</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">{t('faq')}</Link></li>
+                <li><Link href="#" className="hover:text-white transition-colors">{t('contactUs')}</Link></li>
                 <li><Link href="#" className="hover:text-white transition-colors">{t('termsOfService')}</Link></li>
               </ul>
             </div>
