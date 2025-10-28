@@ -42,8 +42,8 @@ const prompt = ai.definePrompt({
 
   3.  **Generate Mock Booking Options:**
       - These options should be for the main journey from the identified transport hub to the final destination.
-      - Create a list of 3-4 realistic but *mock* booking options. Include a mix of flights, trains, or buses where appropriate.
-      - For each option, provide a provider, details, duration, price (in the requested currency), and a fake booking URL.
+      - Create a list of 3-4 realistic but *mock* booking options. Include a mix of flights, trains, buses, and driving/cab options where appropriate.
+      - For each option, provide a provider (e.g., "British Airways", "Uber", "National Express"), details, duration, price (in the requested currency), and a fake booking URL.
 
   4.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.

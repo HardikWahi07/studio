@@ -6,7 +6,7 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebas
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plane, Hotel, Train, Bus, Briefcase } from 'lucide-react';
+import { Plane, Hotel, Train, Bus, Briefcase, Car } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { PlanTripOutput, BookingOption } from '@/ai/flows/plan-trip.types';
 import { Button } from '@/components/ui/button';
@@ -15,26 +15,41 @@ import Link from 'next/link';
 type Trip = PlanTripOutput & {
   id: string;
   destination: string;
+  origin: string;
+  createdAt: any;
 };
 
 const transportIcons: { [key: string]: React.ReactNode } = {
   flight: <Plane className="h-8 w-8 text-blue-500" />,
   train: <Train className="h-8 w-8 text-emerald-500" />,
   bus: <Bus className="h-8 w-8 text-amber-500" />,
-  driving: <Briefcase className="h-8 w-8 text-gray-500" />,
+  driving: <Car className="h-8 w-8 text-gray-500" />,
 };
 
-function BookingOptionCard({ option }: { option: BookingOption }) {
+function BookingOptionCard({ option, trip }: { option: BookingOption, trip: Trip }) {
     const getBookingUrl = () => {
-        // This is a simplified example. Real-world implementation would be more complex.
-        const encodedProvider = encodeURIComponent(option.provider);
-        return `https://www.skyscanner.net/search?q=${encodedProvider}`;
+        const from = encodeURIComponent(trip.origin);
+        const to = encodeURIComponent(trip.destination);
+        
+        switch(option.type) {
+            case 'flight':
+                return `https://www.skyscanner.net/transport/flights/${from.substring(0,4)}/${to.substring(0,4)}/`;
+            case 'train':
+                return `https://www.thetrainline.com/book/results?origin=${from}&destination=${to}`;
+            case 'bus':
+                return `https://www.busbud.com/en/bus-tickets/${from}/${to}`;
+            case 'driving':
+                 // This will attempt to open the Uber app with the destination pre-filled.
+                return `https://m.uber.com/ul/?action=setPickup&dropoff[formatted_address]=${to}`;
+            default:
+                return `https://www.google.com/search?q=travel+from+${from}+to+${to}`;
+        }
     }
 
     return (
         <Card className="hover:shadow-lg transition-shadow">
             <CardHeader className="flex flex-row items-center gap-4">
-                {transportIcons[option.type]}
+                {transportIcons[option.type] || <Briefcase className="h-8 w-8 text-gray-500" />}
                 <div>
                     <CardTitle>{option.provider}</CardTitle>
                     <CardDescription>{option.details}</CardDescription>
@@ -132,7 +147,7 @@ export default function BookingPage() {
                             <h2 className="text-2xl font-bold font-headline mb-4">Transport Options</h2>
                             <div className="grid gap-4 md:grid-cols-2">
                                 {selectedTrip.bookingOptions?.map((opt, index) => (
-                                    <BookingOptionCard key={index} option={opt} />
+                                    <BookingOptionCard key={index} option={opt} trip={selectedTrip} />
                                 ))}
                                 {!selectedTrip.bookingOptions?.length && <p>No transport bookings found for this trip.</p>}
                             </div>
@@ -176,5 +191,3 @@ export default function BookingPage() {
         </main>
     );
 }
-
-    
