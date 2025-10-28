@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const PlanTripInputSchema = z.object({
@@ -33,12 +32,24 @@ const ActivitySchema = z.object({
 const DayPlanSchema = z.object({
   day: z.number().describe('The day number of the itinerary (e.g., 1, 2, 3).'),
   title: z.string().describe('A catchy title for the day, e.g., "Historic Heart & Royal Splendor".'),
-  summary: z.string().describe('A brief summary of the day\'s plan.'),
+  summary: z.string().describe("A brief summary of the day's plan."),
   activities: z.array(ActivitySchema),
+});
+
+const BookingOptionSchema = z.object({
+    type: z.enum(['flight', 'train', 'bus']).describe('Type of transport.'),
+    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa"'),
+    details: z.string().describe('e.g., "Flight IB388, Non-stop"'),
+    duration: z.string().describe('e.g., "2h 30m"'),
+    price: z.string().describe('e.g., "€120"'),
+    ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
+    bookingLink: z.string().url().describe('A mock URL to a booking page.'),
 });
 
 export const PlanTripOutputSchema = z.object({
   tripTitle: z.string().describe('A creative and exciting title for the whole trip.'),
   itinerary: z.array(DayPlanSchema),
+  bookingOptions: z.array(BookingOptionSchema).describe("A list of mock booking options for the main journey from origin to destination."),
 });
 export type PlanTripOutput = z.infer<typeof PlanTripOutputSchema>;
+export type BookingOption = z.infer<typeof BookingOptionSchema>;

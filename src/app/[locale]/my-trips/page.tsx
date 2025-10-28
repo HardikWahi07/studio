@@ -5,9 +5,17 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PexelsImage } from '@/components/pexels-image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plane, Hotel, Calendar, Users, Briefcase } from 'lucide-react';
+import { Plane, Hotel, Calendar, Users, Briefcase, Train, Bus } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
+
+type BookingOption = {
+    type: 'flight' | 'train' | 'bus';
+    provider: string;
+    details: string;
+    duration: string;
+    price: string;
+};
 
 type Trip = {
     id: string;
@@ -16,8 +24,14 @@ type Trip = {
     startDate: string;
     travelers: number;
     hotel?: { name: string; location: string; pricePerNight: string };
-    transport?: { mode: string; cost: string; duration: string };
+    transport?: BookingOption;
 };
+
+const transportIcons = {
+    flight: <Plane className="w-4 h-4" />,
+    train: <Train className="w-4 h-4" />,
+    bus: <Bus className="w-4 h-4" />,
+}
 
 export default function MyTripsPage() {
     const t = useTranslations('MyTripsPage');
@@ -97,8 +111,8 @@ export default function MyTripsPage() {
                                         </div>
                                         {trip.transport && (
                                              <div className="flex items-center gap-2">
-                                                <Plane className="w-4 h-4" />
-                                                <span>{trip.transport.mode} - {trip.transport.cost} ({trip.transport.duration})</span>
+                                                {transportIcons[trip.transport.type]}
+                                                <span>{trip.transport.provider} - {trip.transport.price} ({trip.transport.duration})</span>
                                             </div>
                                         )}
                                         {trip.hotel && (
