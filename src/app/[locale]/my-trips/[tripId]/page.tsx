@@ -17,11 +17,12 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const locale = useLocale();
+    const { tripId } = params;
 
     const tripDocRef = useMemoFirebase(() => {
-        if (!user || !firestore || !params.tripId) return null;
-        return doc(firestore, 'users', user.uid, 'trips', params.tripId);
-    }, [user, firestore, params]);
+        if (!user || !firestore || !tripId) return null;
+        return doc(firestore, 'users', user.uid, 'trips', tripId);
+    }, [user, firestore, tripId]);
 
     const { data: trip, isLoading: isLoadingTrip } = useDoc<PlanTripOutput & { tripTitle: string }>(tripDocRef);
 
