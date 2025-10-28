@@ -13,10 +13,11 @@ import { Button } from '@/components/ui/button';
 import { useLocale } from 'next-intl';
 
 
-export default function TripDetailsPage({ params: { tripId } }: { params: { tripId: string } }) {
+export default function TripDetailsPage({ params }: { params: { tripId: string } }) {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const locale = useLocale();
+    const tripId = params.tripId;
 
     const tripDocRef = useMemoFirebase(() => {
         if (!user || !firestore || !tripId) return null;
