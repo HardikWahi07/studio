@@ -20,6 +20,8 @@ const TransportSegmentSchema = z.object({
   description: z.string().describe('Route description, e.g., "Metro Line 10 to Plaza de España".'),
   ecoFriendly: z.boolean().describe('Whether this is an eco-friendly travel option.'),
 });
+export type TransportSegment = z.infer<typeof TransportSegmentSchema>;
+
 
 const ActivitySchema = z.object({
   time: z.string().describe('e.g., "09:00 AM".'),
@@ -48,6 +50,7 @@ const BookingOptionSchema = z.object({
 
 export const PlanTripOutputSchema = z.object({
   tripTitle: z.string().describe('A creative and exciting title for the whole trip.'),
+  journeyToHub: z.array(TransportSegmentSchema).optional().describe("A detailed, multi-modal plan to get from the user's origin to the nearest major transport hub (airport/train station). This should only be populated if the origin is not itself a major hub."),
   itinerary: z.array(DayPlanSchema),
   bookingOptions: z.array(BookingOptionSchema).describe("A list of mock booking options for the main journey from origin to destination."),
 });

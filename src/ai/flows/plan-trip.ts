@@ -20,8 +20,8 @@ const prompt = ai.definePrompt({
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
-  - **Destination:** {{{destination}}}
   - **Origin:** {{{origin}}}
+  - **Destination:** {{{destination}}}
   - **Departure Date:** {{{departureDate}}}
   - **Trip Duration:** {{{tripDuration}}} days
   - **Travelers:** {{{travelers}}}
@@ -35,13 +35,18 @@ const prompt = ai.definePrompt({
 
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
 
-  2.  **Generate Mock Booking Options:**
-      - **First, analyze the origin.** If the user's origin (e.g., 'Vapi, India') is not a major city with an international airport, your first step is to determine the best route to the nearest major transport hub (e.g., 'Mumbai, India').
-      - **Then, create booking options for the main journey.** These options should be from the identified transport hub to the final destination.
-      - Create a list of 3-4 realistic but *mock* booking options for this main journey. Include a mix of flights, trains, or buses where appropriate.
+  2.  **Plan Journey to Hub (if necessary):**
+      - **Analyze the Origin:** First, check if the user's origin (e.g., 'Avadh Heliconia Homes, Vapi, India') is a major city with its own international airport.
+      - **If NOT a Major Hub:** Your first step is to create a detailed, multi-modal plan to get from the user's specific origin to the nearest major transport hub (e.g., 'Chhatrapati Shivaji Maharaj International Airport, Mumbai').
+      - **Provide Detailed Segments:** Populate the \`journeyToHub\` field with a step-by-step guide. For example: "Take a 15-min auto-rickshaw to Vapi Railway Station. Then, take the 2h 30m Gujarat Express train to Mumbai Central. Finally, take a 45-min taxi to the airport."
+      - The \`journeyToHub\` field should only be used if this preliminary travel is necessary.
+
+  3.  **Generate Mock Booking Options:**
+      - These options should be for the main journey from the identified transport hub to the final destination (e.g., Mumbai to Madrid).
+      - Create a list of 3-4 realistic but *mock* booking options. Include a mix of flights, trains, or buses where appropriate.
       - For each option, provide a provider, details, duration, price (in the requested currency), and a fake booking URL.
 
-  3.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
+  4.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.
       - For each activity, provide:
         - **Time:** A specific start time (e.g., "09:00 AM").

@@ -15,7 +15,7 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
-import type { PlanTripOutput, PlanTripInput, BookingOption } from '@/ai/flows/plan-trip.types';
+import type { PlanTripOutput, PlanTripInput, BookingOption, TransportSegment } from '@/ai/flows/plan-trip.types';
 import { CityCombobox } from '@/components/city-combobox';
 import { useSettings } from '@/context/settings-context';
 import { useUser, useFirestore } from '@/firebase';
@@ -49,7 +49,23 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     flight: <Plane className="h-5 w-5 text-sky-500" />,
     train: <Train className="h-5 w-5 text-purple-500" />,
     bus: <Bus className="h-5 w-5 text-orange-500" />,
+    "Auto-rickshaw": <Car className="h-5 w-5 text-yellow-500" />,
 };
+
+function TransportSegmentDisplay({ segment }: { segment: TransportSegment }) {
+    return (
+        <div className="flex items-start gap-3">
+            <div className="mt-1">
+                {transportIcons[segment.mode] || <Car className="h-5 w-5" />}
+            </div>
+            <div>
+                <p className="font-semibold text-sm">{segment.mode} <span className="text-muted-foreground font-normal">({segment.duration})</span></p>
+                <p className="text-xs text-muted-foreground">{segment.description}</p>
+                 {segment.ecoFriendly && <Leaf className="h-3 w-3 text-green-500 mt-1" title="Eco-friendly"/>}
+            </div>
+        </div>
+    )
+}
 
 export default function TripPlannerPage() {
     const t = useTranslations('TripPlannerPage');
@@ -106,7 +122,7 @@ export default function TripPlannerPage() {
             const tripId = doc(collection(firestore, `users/${user.uid}/trips`)).id;
             const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
             await setDoc(tripRef, {
-                id: tripId, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+                id: tripId, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
             });
             toast({ title: "Itinerary Saved!", description: `Your trip to ${values.to} has been saved to 'My Trips'.`, });
             setTripSaved(true);
@@ -266,6 +282,17 @@ export default function TripPlannerPage() {
                             </Button>
                         )}
                     </div>
+
+                    {results.journeyToHub && results.journeyToHub.length > 0 && (
+                        <Card>
+                            <CardHeader><CardTitle>Journey to the Airport</CardTitle></CardHeader>
+                            <CardContent className="space-y-4">
+                                {results.journeyToHub.map((segment, idx) => (
+                                    <TransportSegmentDisplay key={idx} segment={segment} />
+                                ))}
+                            </CardContent>
+                        </Card>
+                    )}
                     
                     {results.bookingOptions?.length > 0 && (
                         <Card>
@@ -315,16 +342,8 @@ export default function TripPlannerPage() {
                                            <p className='flex items-start gap-2'><Info className='mt-0.5' /> {activity.details}</p>
                                         </div>
                                         {activity.transportToNext && (
-                                            <div className="mt-4 flex items-center gap-3 bg-secondary p-2 rounded-md">
-                                                <div className="flex items-center gap-2">
-                                                    {transportIcons[activity.transportToNext.mode] || <Car className="h-5 w-5" />}
-                                                    <span className="font-semibold text-sm">{activity.transportToNext.mode}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                                    <Clock className="h-4 w-4" />
-                                                    {activity.transportToNext.duration}
-                                                </div>
-                                                {activity.transportToNext.ecoFriendly && <Leaf className="h-4 w-4 text-green-500" title="Eco-friendly"/>}
+                                            <div className="mt-4 p-3 rounded-md bg-secondary">
+                                                <TransportSegmentDisplay segment={activity.transportToNext} />
                                             </div>
                                         )}
                                     </div>
