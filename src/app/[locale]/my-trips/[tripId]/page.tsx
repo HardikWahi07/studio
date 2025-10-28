@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
 import { TripItinerary } from '@/components/trip-itinerary';
-import { ArrowLeft, Briefcase } from 'lucide-react';
+import { ArrowLeft, Briefcase, ShoppingCart, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useLocale } from 'next-intl';
@@ -25,19 +25,29 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
         return doc(firestore, 'users', user.uid, 'trips', tripId);
     }, [user, firestore, tripId]);
 
-    const { data: trip, isLoading: isLoadingTrip } = useDoc<PlanTripOutput & { tripTitle: string }>(tripDocRef);
+    const { data: trip, isLoading: isLoadingTrip } = useDoc<PlanTripOutput & { tripTitle: string, status?: string }>(tripDocRef);
 
     const isLoading = isUserLoading || isLoadingTrip;
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="container mx-auto">
-                 <Button asChild variant="outline" className="mb-4">
-                    <Link href={`/${locale}/my-trips`}>
-                        <ArrowLeft className="mr-2" />
-                        Back to My Trips
-                    </Link>
-                </Button>
+                 <div className="flex justify-between items-center mb-4">
+                    <Button asChild variant="outline">
+                        <Link href={`/${locale}/my-trips`}>
+                            <ArrowLeft className="mr-2" />
+                            Back to My Trips
+                        </Link>
+                    </Button>
+                    {trip && trip.status !== 'Booked' && (
+                        <Button asChild>
+                            <Link href={`/${locale}/my-trips/${tripId}/book`}>
+                                <ShoppingCart className="mr-2" />
+                                Book Trip
+                            </Link>
+                        </Button>
+                    )}
+                 </div>
 
                 {isLoading && (
                    <div className="space-y-6">
@@ -74,6 +84,11 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
                     <div className="pt-6 space-y-6">
                          <div className="text-center">
                             <h2 className="font-headline text-3xl md:text-4xl font-bold">{trip.tripTitle}</h2>
+                            {trip.status === 'Booked' && (
+                                 <div className="mt-2 inline-flex items-center gap-2 text-green-600 font-semibold bg-green-100 dark:bg-green-900/50 px-3 py-1 rounded-full">
+                                    <CheckCircle /> Booked
+                                </div>
+                            )}
                         </div>
                         <TripItinerary results={trip} />
                     </div>

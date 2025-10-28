@@ -80,6 +80,11 @@
         "itinerary": {
           "type": "string",
           "description": "Trip itinerary serialized as JSON string."
+        },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Booked"],
+          "description": "Booking status of the trip."
         }
       },
       "required": [

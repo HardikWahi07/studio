@@ -6,11 +6,13 @@ import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { PexelsImage } from '@/components/pexels-image';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plane, Hotel, Calendar, Users, Briefcase, Train, Bus } from 'lucide-react';
+import { Plane, Hotel, Calendar, Users, Briefcase, Train, Bus, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 type BookingOption = {
     type: 'flight' | 'train' | 'bus';
@@ -29,6 +31,7 @@ type Trip = {
     hotel?: { name: string; location: string; pricePerNight: string };
     transport?: BookingOption;
     bookingOptions?: BookingOption[];
+    status?: 'Booked' | 'Pending';
 };
 
 const transportIcons = {
@@ -80,11 +83,11 @@ export default function MyTripsPage() {
                             <CardHeader>
                                 <Skeleton className="h-40 w-full" />
                             </CardHeader>
-                            <CardContent className="space-y-4">
+                            <CardContent className="space-y-4 p-6">
                                 <Skeleton className="h-6 w-3/4" />
                                 <Skeleton className="h-4 w-1/2" />
                                 <Skeleton className="h-4 w-full" />
-                                <Skeleton className="h-4 w-full" />
+                                <Skeleton className="h-10 w-full mt-2" />
                             </CardContent>
                         </Card>
                     ))}
@@ -106,11 +109,14 @@ export default function MyTripsPage() {
                     {trips.map(trip => {
                         const primaryTransport = getPrimaryTransport(trip);
                         return (
-                        <Link key={trip.id} href={`/${locale}/my-trips/${trip.id}`} className="block group">
-                            <Card className="flex flex-col h-full transition-shadow duration-300 group-hover:shadow-lg">
+                        <Card key={trip.id} className="flex flex-col h-full transition-shadow duration-300 hover:shadow-lg">
+                            <Link href={`/${locale}/my-trips/${trip.id}`} className="block group">
                                 <CardHeader className="p-0">
                                     <div className="aspect-video w-full relative">
                                         <PexelsImage query={trip.destination} alt={trip.destination} fill className="rounded-t-lg object-cover"/>
+                                         {trip.status === 'Booked' && (
+                                            <Badge variant="secondary" className="absolute top-2 right-2 bg-green-600 text-white gap-1"><CheckCircle className="w-3 h-3"/>Booked</Badge>
+                                        )}
                                     </div>
                                 </CardHeader>
                                 <CardContent className="p-6 flex-grow flex flex-col justify-between">
@@ -141,9 +147,10 @@ export default function MyTripsPage() {
                                         </div>
                                     </div>
                                 </CardContent>
-                            </Card>
-                        </Link>
-                    )})}
+                            </Link>
+                        </Card>
+                        )
+                    })}
                 </div>
             )}
         </main>
