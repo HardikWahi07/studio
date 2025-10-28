@@ -2,6 +2,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from "@/components/ui/input";
 import { 
     Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search, CheckCircle, 
-    Bike, TramFront, Car, Walking, Footprints, Clock, MapPin, Ticket, Info, Save, LifeBuoy
+    Bike, TramFront, Car, Walking, Footprints, Clock, MapPin, Ticket, Info, Save
 } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
@@ -19,13 +20,12 @@ import type { PlanTripOutput, PlanTripInput, BookingOption, TransportSegment } f
 import { CityCombobox } from '@/components/city-combobox';
 import { useSettings } from '@/context/settings-context';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, setDoc, serverTimestamp, collection, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AuthDialog } from '@/components/auth-dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
@@ -73,11 +73,7 @@ export default function TripPlannerPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
     const [tripSaved, setTripSaved] = useState(false);
-    const [savedTripId, setSavedTripId] = useState<string | null>(null);
     const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-    const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
-    const [selectedBooking, setSelectedBooking] = useState<BookingOption | null>(null);
-    const [isBookingConfirmed, setIsBookingConfirmed] = useState(false);
     const { currency } = useSettings();
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
@@ -92,8 +88,6 @@ export default function TripPlannerPage() {
         setIsLoading(true);
         setResults(null);
         setTripSaved(false);
-        setSavedTripId(null);
-        setIsBookingConfirmed(false);
 
         try {
             const planTripInput: PlanTripInput = {
@@ -119,74 +113,22 @@ export default function TripPlannerPage() {
 
         try {
             const values = form.getValues();
-            const tripId = doc(collection(firestore, `users/${user.uid}/trips`)).id;
-            const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
+            const tripRef = doc(collection(firestore, `users/${user.uid}/trips`));
             await setDoc(tripRef, {
-                id: tripId, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+                id: tripRef.id, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
             });
             toast({ title: "Itinerary Saved!", description: `Your trip to ${values.to} has been saved to 'My Trips'.`, });
             setTripSaved(true);
-            setSavedTripId(tripId);
         } catch(error) {
              toast({ title: "Save Failed", description: "There was an error saving your trip. Please try again.", variant: 'destructive' });
         } finally {
             setIsSaving(false);
         }
     }
-    
-    async function handleConfirmBooking() {
-        if (!selectedBooking || !savedTripId || !user || !firestore) {
-             toast({ title: "Booking Failed", description: "You must save the trip before booking.", variant: "destructive" });
-             setIsBookingDialogOpen(false);
-             return;
-        }
-
-        const tripRef = doc(firestore, 'users', user.uid, 'trips', savedTripId);
-        try {
-            await updateDoc(tripRef, {
-                transport: selectedBooking
-            });
-            toast({ title: "Booking Confirmed!", description: `Your ${selectedBooking.type} with ${selectedBooking.provider} is confirmed.` });
-            setIsBookingConfirmed(true);
-        } catch (error) {
-            toast({ title: "Booking Failed", description: "Could not save booking details. Please try again.", variant: "destructive" });
-        } finally {
-            setIsBookingDialogOpen(false);
-            setSelectedBooking(null);
-        }
-    }
-
-    const handleBookClick = (booking: BookingOption) => {
-        if (!user) {
-            setIsAuthDialogOpen(true);
-            return;
-        }
-        if (!tripSaved || !savedTripId) {
-            toast({ title: "Save Trip First", description: "Please save your trip plan before booking transportation.", variant: "default" });
-            return;
-        }
-        setSelectedBooking(booking);
-        setIsBookingDialogOpen(true);
-    };
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
             <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
-            
-             <AlertDialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                        <AlertDialogTitle>Confirm Your Booking</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            You are about to book a {selectedBooking?.type} with {selectedBooking?.provider} for {selectedBooking?.price}. This is a simulation and no real charges will be made.
-                        </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={handleConfirmBooking}>Confirm Booking</AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
 
             <div className="space-y-2">
                 <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
@@ -275,7 +217,7 @@ export default function TripPlannerPage() {
                                 <CheckCircle /> Trip Saved!
                             </div>
                         )}
-                         {!user && (
+                         {!user && !isUserLoading && (
                             <Button onClick={() => setIsAuthDialogOpen(true)} className="mt-4">
                                 <Save className="mr-2" />
                                 Login to Save and Book
@@ -312,8 +254,8 @@ export default function TripPlannerPage() {
                                         </div>
                                         <div className="flex items-center gap-4 w-full sm:w-auto">
                                             <p className="font-bold text-lg">{opt.price}</p>
-                                            <Button onClick={() => handleBookClick(opt)} className="w-full sm:w-auto" disabled={isBookingConfirmed}>
-                                                {isBookingConfirmed ? "Booked" : "Book Now"}
+                                            <Button asChild className="w-full sm:w-auto">
+                                                <Link href={opt.bookingLink} target="_blank">Book Now</Link>
                                             </Button>
                                         </div>
                                     </Card>
