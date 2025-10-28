@@ -21,6 +21,8 @@ import {
   Heart,
   Shield,
   LifeBuoy,
+  HelpCircle,
+  Mail,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -29,6 +31,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
@@ -233,6 +236,10 @@ function TravelToolsDropdown() {
     { href: "/itinerary-planner", icon: Wand2, label: t('aiItineraryGenerator') },
     { href: "/safety", icon: LifeBuoy, label: 'Safety Companion' },
   ];
+  const supportLinks = [
+      { href: "#", icon: HelpCircle, label: t('helpCenter') },
+      { href: "#", icon: Mail, label: t('contactUs') },
+  ]
   const isActive = travelTools.some(tool => pathname.endsWith(tool.href));
   
   return (
@@ -252,6 +259,15 @@ function TravelToolsDropdown() {
             </Link>
           </DropdownMenuItem>
         ))}
+         <DropdownMenuSeparator />
+          {supportLinks.map(link => (
+            <DropdownMenuItem key={link.href} asChild>
+              <Link href={link.href} className="flex items-center gap-2">
+                <link.icon className="w-4 h-4"/>
+                {link.label}
+              </Link>
+            </DropdownMenuItem>
+          ))}
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -353,6 +369,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedOutNavItems = [
     { href: "/", label: t('home') },
     { href: "/about", label: t('about') },
+    { href: "#", label: t('helpCenter') },
+    { href: "#", label: t('contactUs') },
   ];
 
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
@@ -361,7 +379,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       { href: "/local-supporters", label: t('localSupporters') },
       { href: "/transport", label: t('smartTransport') },
       { href: "/itinerary-planner", label: t('aiItineraryGenerator') },
-      { href: "/safety", label: 'Safety Companion' }
+      { href: "/safety", label: 'Safety Companion' },
+      { href: '#', label: t('helpCenter') },
+      { href: '#', label: t('contactUs') },
     ]] : loggedOutNavItems;
 
   return (
@@ -377,7 +397,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {!isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
               {navItems.map((item) => (
-                <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+                <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
               ))}
               {user && <TravelToolsDropdown />}
             </nav>
@@ -398,8 +418,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <nav className="grid gap-6 text-lg font-medium mt-8">
                     {allNavItems.map((item) => (
                       <Link
-                        key={item.href}
-                        href={`/${locale}${item.href}`}
+                        key={item.label}
+                        href={item.href === '#' ? '#' : `/${locale}${item.href}`}
                         className="flex items-center gap-4 text-muted-foreground hover:text-foreground"
                       >
                         {item.label}
