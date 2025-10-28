@@ -21,7 +21,7 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
     const tripDocRef = useMemoFirebase(() => {
         if (!user || !firestore || !params.tripId) return null;
         return doc(firestore, 'users', user.uid, 'trips', params.tripId);
-    }, [user, firestore, params.tripId]);
+    }, [user, firestore, params]);
 
     const { data: trip, isLoading: isLoadingTrip } = useDoc<PlanTripOutput & { tripTitle: string }>(tripDocRef);
 
