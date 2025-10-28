@@ -1,24 +1,14 @@
 import createMiddleware from 'next-intl/middleware';
-import {pathnames, locales, localePrefix} from '../i18n';
-
+ 
 export default createMiddleware({
-  defaultLocale: 'en',
-  locales,
-  pathnames,
-  localePrefix,
+  // A list of all locales that are supported
+  locales: ['en', 'es', 'fr', 'de', 'hi'],
+ 
+  // Used when no locale matches
+  defaultLocale: 'en'
 });
-
+ 
 export const config = {
-  matcher: [
-    // Enable a redirect to a matching locale at the root
-    '/',
-
-    // Set a cookie to remember the previous locale for
-    // all requests that have a locale prefix
-    '/(de|en|es|fr|hi)/:path*',
-
-    // Enable redirects that add a locale prefix
-    // (e.g. `/about` -> `/en/about`)
-    '/((?!_next|.*\\..*).*)'
-  ]
+  // Match only internationalized pathnames
+  matcher: ['/', '/(de|en|es|fr|hi)/:path*']
 };
