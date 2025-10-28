@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useSettings } from "@/context/settings-context"
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
+import { useUser } from "@/firebase"
 
 import {
   Menu,
@@ -335,11 +336,12 @@ function CurrencySelector() {
 }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const { user, isUserLoading } = useUser();
   const { isScrolled, isHomePage } = useScrollState();
   const t = useTranslations('AppLayout');
   const locale = useLocale();
 
-  const navItems = [
+  const loggedInNavItems = [
     { href: "/", label: t('home') },
     { href: "/my-trips", label: t('myTrips') },
     { href: "/about", label: t('about') },
@@ -348,15 +350,20 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/local-artisans", label: t('localConnect') },
     { href: "/hidden-gems", label: t('hiddenGems') },
   ];
+  
+  const loggedOutNavItems = [
+    { href: "/", label: t('home') },
+    { href: "/about", label: t('about') },
+  ];
 
-  const allNavItems = [...navItems, ...[
+  const navItems = user ? loggedInNavItems : loggedOutNavItems;
+  const allNavItems = user ? [...loggedInNavItems, ...[
       { href: "/expenses", label: t('expenseSplitter') },
       { href: "/local-supporters", label: t('localSupporters') },
       { href: "/transport", label: t('smartTransport') },
       { href: "/itinerary-planner", label: t('aiItineraryGenerator') },
       { href: "/safety", label: 'Safety Companion' }
-    ]
-  ];
+    ]] : loggedOutNavItems;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -368,12 +375,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
              <Logo className={cn(isHomePage && !isScrolled ? 'text-white' : 'text-primary')} />
           </Link>
-          <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
-            {navItems.map((item) => (
-              <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
-            ))}
-            <TravelToolsDropdown />
-          </nav>
+          {!isUserLoading && (
+            <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
+              {navItems.map((item) => (
+                <NavLink key={item.href} href={item.href}>{item.label}</NavLink>
+              ))}
+              {user && <TravelToolsDropdown />}
+            </nav>
+          )}
           <div className="ml-auto flex items-center gap-2">
             <LanguageSelector />
             <CurrencySelector />
@@ -386,17 +395,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                <nav className="grid gap-6 text-lg font-medium mt-8">
-                  {allNavItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={`/${locale}${item.href}`}
-                      className="flex items-center gap-4 text-muted-foreground hover:text-foreground"
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </nav>
+                {!isUserLoading && (
+                  <nav className="grid gap-6 text-lg font-medium mt-8">
+                    {allNavItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={`/${locale}${item.href}`}
+                        className="flex items-center gap-4 text-muted-foreground hover:text-foreground"
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </nav>
+                )}
               </SheetContent>
             </Sheet>
           </div>
