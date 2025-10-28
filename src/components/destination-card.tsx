@@ -19,7 +19,7 @@ type Destination = {
 
 export function DestinationCard({ destination }: { destination: Destination }) {
     const locale = useLocale();
-    const t = useTranslations('DashboardPage');
+    const t = useTranslations('DestinationPage');
 
     return (
         <Link href={`/${locale}/destinations/${destination.id}`} className="block">
@@ -39,7 +39,7 @@ export function DestinationCard({ destination }: { destination: Destination }) {
                         <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
                         <span>{destination.rating}</span>
                         <span className='mx-1'>·</span>
-                        <span>{destination.reviewers} {t('DashboardPage.reviews')}</span>
+                        <span>{destination.reviewers} {t('reviews')}</span>
                     </div>
                 </CardContent>
             </Card>
