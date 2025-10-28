@@ -7,21 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
     Plane, Train, Bus, Leaf,
-    Bike, TramFront, Car, Footprints, Clock, MapPin, Info
+    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront
 } from "lucide-react";
 import type { PlanTripOutput, TransportSegment, BookingOption } from '@/ai/flows/plan-trip.types';
 
 const transportIcons: { [key: string]: React.ReactNode } = {
     Walk: <Footprints className="h-5 w-5 text-green-500" />,
+    Walking: <Footprints className="h-5 w-5 text-green-500" />,
     Metro: <TramFront className="h-5 w-5 text-blue-500" />,
     Bus: <Bus className="h-5 w-5 text-orange-500" />,
     Taxi: <Car className="h-5 w-5 text-yellow-500" />,
     'E-bike': <Bike className="h-5 w-5 text-green-500" />,
+    Bicycling: <Bike className="h-5 w-5 text-green-500" />,
     Train: <Train className="h-5 w-5 text-purple-500" />,
     flight: <Plane className="h-5 w-5 text-sky-500" />,
     train: <Train className="h-5 w-5 text-purple-500" />,
     bus: <Bus className="h-5 w-5 text-orange-500" />,
     "Auto-rickshaw": <Car className="h-5 w-5 text-yellow-500" />,
+    Driving: <CarFront className="h-5 w-5 text-gray-500" />,
+    driving: <CarFront className="h-5 w-5 text-gray-500" />,
+    Transit: <TramFront className="h-5 w-5 text-blue-500" />,
 };
 
 function TransportSegmentDisplay({ segment }: { segment: TransportSegment }) {

@@ -1,3 +1,4 @@
+
 import { z } from 'zod';
 
 export const PlanTripInputSchema = z.object({
@@ -14,10 +15,10 @@ export const PlanTripInputSchema = z.object({
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
 
-const TransportSegmentSchema = z.object({
-  mode: z.string().describe('e.g., Walk, Metro, Bus, Taxi, E-bike.'),
+export const TransportSegmentSchema = z.object({
+  mode: z.string().describe('e.g., Walk, Metro, Bus, Taxi, E-bike, Driving.'),
   duration: z.string().describe('e.g., "15 minutes".'),
-  description: z.string().describe('Route description, e.g., "Metro Line 10 to Plaza de España".'),
+  description: z.string().describe('Route description, e.g., "Via I-95 N".'),
   ecoFriendly: z.boolean().describe('Whether this is an eco-friendly travel option.'),
 });
 export type TransportSegment = z.infer<typeof TransportSegmentSchema>;
@@ -39,9 +40,9 @@ const DayPlanSchema = z.object({
 });
 
 const BookingOptionSchema = z.object({
-    type: z.enum(['flight', 'train', 'bus']).describe('Type of transport.'),
-    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa"'),
-    details: z.string().describe('e.g., "Flight IB388, Non-stop"'),
+    type: z.enum(['flight', 'train', 'bus', 'driving']).describe('Type of transport.'),
+    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive"'),
+    details: z.string().describe('e.g., "Flight IB388, Non-stop" or "Via I-90 E"'),
     duration: z.string().describe('e.g., "2h 30m"'),
     price: z.string().describe('e.g., "€120"'),
     ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
