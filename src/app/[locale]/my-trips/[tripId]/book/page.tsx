@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -13,7 +13,6 @@ import { Label } from '@/components/ui/label';
 import { ArrowLeft, Loader2, CreditCard, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
-import React from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { BookingOption } from '@/ai/flows/plan-trip.types';
 
@@ -172,11 +171,16 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
                                         <span>${calculateTotalCost()}</span>
                                     </div>
 
-                                    <Button type="submit" className="w-full" size="lg" disabled={isProcessing}>
+                                    <Button type="submit" className="w-full" size="lg" disabled={isProcessing || trip.status === 'Booked'}>
                                         {isProcessing ? (
                                             <>
                                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                                                 Processing...
+                                            </>
+                                        ) : trip.status === 'Booked' ? (
+                                            <>
+                                                <CheckCircle className="mr-2 h-4 w-4" />
+                                                Already Booked
                                             </>
                                         ) : (
                                             <>
@@ -194,3 +198,5 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
         </main>
     )
 }
+
+    

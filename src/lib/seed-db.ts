@@ -27,7 +27,13 @@ async function seedDatabase() {
                 location: "Madrid, Spain",
                 languages: ["Spanish", "English"],
                 avatarUrl: "https://i.pravatar.cc/150?u=maria",
-                response_time: "Within a few hours"
+                response_time: "Within a few hours",
+                availability: [
+                    { day: 'Monday', time: '10:00 AM', booked: false },
+                    { day: 'Monday', time: '2:00 PM', booked: false },
+                    { day: 'Wednesday', time: '5:00 PM', booked: false },
+                    { day: 'Friday', time: '11:00 AM', booked: true },
+                ]
             },
             {
                 id: "supporter-kenji",
@@ -36,7 +42,12 @@ async function seedDatabase() {
                 location: "Tokyo, Japan",
                 languages: ["Japanese", "English"],
                 avatarUrl: "https://i.pravatar.cc/150?u=kenji",
-                response_time: "Usually in the evening"
+                response_time: "Usually in the evening",
+                availability: [
+                    { day: 'Tuesday', time: '6:00 PM', booked: false },
+                    { day: 'Thursday', time: '7:00 PM', booked: false },
+                    { day: 'Saturday', time: '2:00 PM', booked: false },
+                ]
             },
             {
                 id: "supporter-aisha",
@@ -45,7 +56,14 @@ async function seedDatabase() {
                 location: "Mumbai, India",
                 languages: ["Hindi", "English", "Marathi"],
                 avatarUrl: "https://i.pravatar.cc/150?u=aisha",
-                response_time: "Within an hour"
+                response_time: "Within an hour",
+                availability: [
+                    { day: 'Monday', time: '1:00 PM', booked: false },
+                    { day: 'Tuesday', time: '1:00 PM', booked: false },
+                    { day: 'Wednesday', time: '1:00 PM', booked: false },
+                    { day: 'Thursday', time: '1:00 PM', booked: false },
+                    { day: 'Friday', time: '1:00 PM', booked: false },
+                ]
             },
         ];
 
@@ -66,3 +84,5 @@ async function seedDatabase() {
 }
 
 seedDatabase();
+
+    

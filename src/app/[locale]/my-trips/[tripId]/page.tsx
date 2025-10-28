@@ -1,6 +1,7 @@
 
 'use client';
 
+import React from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,7 +12,6 @@ import { ArrowLeft, Briefcase, ShoppingCart, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useLocale } from 'next-intl';
-import React from 'react';
 
 
 export default function TripDetailsPage({ params }: { params: { tripId: string } }) {
@@ -97,3 +97,5 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
         </main>
     )
 }
+
+    

@@ -1,16 +1,32 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
+import { collection, query, where, orderBy, doc, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Clock, MapPin, Users, Search } from 'lucide-react';
+import { MessageSquare, Clock, MapPin, Users, Search, Check, Loader2, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { useToast } from '@/hooks/use-toast';
+import { AuthDialog } from '@/components/auth-dialog';
+
+type AvailabilitySlot = {
+    day: string;
+    time: string;
+    booked: boolean;
+};
 
 type LocalSupporter = {
     id: string;
@@ -20,6 +36,7 @@ type LocalSupporter = {
     languages: string[];
     avatarUrl: string;
     response_time: string;
+    availability: AvailabilitySlot[];
 };
 
 type GeoState = 'idle' | 'getting_location' | 'fetching_supporters' | 'error' | 'success';
@@ -27,10 +44,20 @@ type GeoState = 'idle' | 'getting_location' | 'fetching_supporters' | 'error' | 
 export default function LocalSupportersPage() {
     const t = useTranslations('LocalSupportersPage');
     const firestore = useFirestore();
+    const { user } = useUser();
+    const { toast } = useToast();
+
     const [searchLocation, setSearchLocation] = useState('');
     const [searchedCity, setSearchedCity] = useState('');
     const [geoState, setGeoState] = useState<GeoState>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+    
+    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+    const [selectedSupporter, setSelectedSupporter] = useState<LocalSupporter | null>(null);
+    const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
+    const [isProcessingBooking, setIsProcessingBooking] = useState(false);
+    const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
+
 
     useEffect(() => {
         if ('geolocation' in navigator) {
@@ -76,7 +103,7 @@ export default function LocalSupportersPage() {
         );
     }, [firestore, searchedCity]);
 
-    const { data: supporters, isLoading: isLoadingSupporters } = useCollection<LocalSupporter>(supportersQuery);
+    const { data: supporters, isLoading: isLoadingSupporters, forceRefetch } = useCollection<LocalSupporter>(supportersQuery);
     
     useEffect(() => {
         if (!isLoadingSupporters && searchedCity) {
@@ -91,6 +118,71 @@ export default function LocalSupportersPage() {
         setSearchedCity(searchLocation);
         setGeoState('fetching_supporters');
     }
+
+    const openBookingModal = (supporter: LocalSupporter, slot: AvailabilitySlot) => {
+        if (!user) {
+            setIsAuthDialogOpen(true);
+            return;
+        }
+        setSelectedSupporter(supporter);
+        setSelectedSlot(slot);
+        setIsBookingModalOpen(true);
+    };
+
+    const handleConfirmBooking = async () => {
+        if (!firestore || !user || !selectedSupporter || !selectedSlot) return;
+
+        setIsProcessingBooking(true);
+
+        try {
+            const batch = writeBatch(firestore);
+
+            // 1. Create a new booking document
+            const bookingRef = doc(collection(firestore, 'bookings'));
+            batch.set(bookingRef, {
+                id: bookingRef.id,
+                userId: user.uid,
+                userName: user.displayName,
+                supporterId: selectedSupporter.id,
+                supporterName: selectedSupporter.name,
+                experience: "Welcome Walk & Chat",
+                day: selectedSlot.day,
+                time: selectedSlot.time,
+                bookedAt: serverTimestamp(),
+            });
+
+            // 2. Update the supporter's availability
+            const supporterRef = doc(firestore, 'supporters', selectedSupporter.id);
+            const updatedAvailability = selectedSupporter.availability.map(slot => 
+                (slot.day === selectedSlot.day && slot.time === selectedSlot.time)
+                ? { ...slot, booked: true }
+                : slot
+            );
+            batch.update(supporterRef, { availability: updatedAvailability });
+
+            await batch.commit();
+
+            toast({
+                title: 'Booking Confirmed!',
+                description: `Your meeting with ${selectedSupporter.name} is set.`,
+            });
+            
+            // Force a refetch of the supporters data to show updated availability
+            if (forceRefetch) forceRefetch();
+
+        } catch (error) {
+            console.error("Booking failed:", error);
+            toast({
+                title: 'Booking Failed',
+                description: 'Could not complete the booking. Please try again.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsProcessingBooking(false);
+            setIsBookingModalOpen(false);
+        }
+    };
+
 
     const renderContent = () => {
         if (isLoading) {
@@ -170,10 +262,24 @@ export default function LocalSupportersPage() {
                                 </div>
                                 
                             </CardContent>
-                            <CardFooter className="flex-col gap-2">
-                                <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-                                    <Clock className="w-3 h-3"/> {t('responds')} {supporter.response_time}
-                                </div>
+                            <CardFooter className="flex-col gap-4">
+                                 <div className="w-full text-left">
+                                     <h4 className="font-bold text-sm mb-2">Book an Experience</h4>
+                                     <div className="flex flex-wrap gap-2">
+                                         {supporter.availability?.map((slot, index) => (
+                                            <Button 
+                                                key={index}
+                                                variant={slot.booked ? "secondary" : "outline"}
+                                                size="sm"
+                                                disabled={slot.booked}
+                                                onClick={() => openBookingModal(supporter, slot)}
+                                                className="text-xs"
+                                            >
+                                                {slot.day}, {slot.time}
+                                            </Button>
+                                         ))}
+                                     </div>
+                                 </div>
                                 <Button className="w-full">
                                     <MessageSquare className="mr-2 h-4 w-4" />
                                     {t('messageButton')}
@@ -197,35 +303,60 @@ export default function LocalSupportersPage() {
     };
 
     return (
-        <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
-            <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
-                <p className="text-muted-foreground max-w-2xl">
-                    {t('description')}
-                </p>
-            </div>
-
-             <Card>
-                <CardHeader>
-                    <CardTitle>{t('findSupporterTitle')}</CardTitle>
-                    <CardDescription>{t('findSupporterDescription')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleSearch} className="flex gap-2">
-                        <Input 
-                            placeholder={t('searchPlaceholder')}
-                            value={searchLocation}
-                            onChange={(e) => setSearchLocation(e.target.value)}
-                        />
-                        <Button type="submit">
-                            <Search className="mr-2 h-4 w-4" />
-                            {t('searchButton')}
+        <>
+            <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
+            <Dialog open={isBookingModalOpen} onOpenChange={setIsBookingModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Confirm Your Booking</DialogTitle>
+                        <DialogDescription>
+                            You are booking a "Welcome Walk & Chat" with <span className="font-bold">{selectedSupporter?.name}</span> for <span className="font-bold">{selectedSlot?.day} at {selectedSlot?.time}</span>.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsBookingModalOpen(false)} disabled={isProcessingBooking}>Cancel</Button>
+                        <Button onClick={handleConfirmBooking} disabled={isProcessingBooking}>
+                            {isProcessingBooking ? (
+                                <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Confirming...</>
+                            ) : (
+                                <><Check className="mr-2 h-4 w-4" /> Confirm Booking</>
+                            )}
                         </Button>
-                    </form>
-                </CardContent>
-            </Card>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-            {renderContent()}
-        </main>
+            <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
+                <div className="space-y-2">
+                    <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+                    <p className="text-muted-foreground max-w-2xl">
+                        {t('description')}
+                    </p>
+                </div>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('findSupporterTitle')}</CardTitle>
+                        <CardDescription>{t('findSupporterDescription')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSearch} className="flex gap-2">
+                            <Input 
+                                placeholder={t('searchPlaceholder')}
+                                value={searchLocation}
+                                onChange={(e) => setSearchLocation(e.target.value)}
+                            />
+                            <Button type="submit">
+                                <Search className="mr-2 h-4 w-4" />
+                                {t('searchButton')}
+                            </Button>
+                        </form>
+                    </CardContent>
+                </Card>
+
+                {renderContent()}
+            </main>
+        </>
     );
 }
+    
