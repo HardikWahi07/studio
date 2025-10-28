@@ -369,6 +369,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedOutNavItems = [
     { href: "/", label: t('home') },
     { href: "/about", label: t('about') },
+    { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "#", label: t('helpCenter') },
     { href: "#", label: t('contactUs') },
   ];
