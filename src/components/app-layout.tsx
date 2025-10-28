@@ -178,7 +178,7 @@ const currencies = [
     { code: "SZL", label: "SZL (L)" },
     { code: "THB", label: "THB (฿)" },
     { code: "TJS", label: "TJS (SM)" },
-    { code: "TMT", label: "TMT (T)" },
+    { code: "TMT", label: "T (T)" },
     { code: "TND", label: "TND (DT)" },
     { code: "TOP", label: "TOP (T$)" },
     { code: "TRY", label: "TRY (₺)" },
@@ -385,6 +385,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       { href: '#', label: t('contactUs') },
     ]] : loggedOutNavItems;
 
+  const footerQuickLinks = [
+    { href: `/${locale}/trip-planner`, label: t('planTrip') },
+    { href: `/${locale}/local-artisans`, label: t('localConnect') },
+    { href: `/${locale}/hidden-gems`, label: t('hiddenGems') },
+  ];
+
+  const footerCompanyLinks = [
+    { href: `/${locale}/about`, label: t('aboutUs') },
+    { href: "#", label: t('blog') },
+    { href: "#", label: t('workWithUs') },
+  ];
+
+  const footerSupportLinks = [
+    { href: "#", label: t('helpCenter') },
+    { href: "#", label: t('faq') },
+    { href: "#", label: t('contactUs') },
+    { href: "#", label: t('termsOfService') },
+  ];
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className={cn(
@@ -398,7 +417,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           {!isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
               {navItems.map((item) => (
-                <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
+                <NavLink key={`${item.label}-${item.href}`} href={item.href}>{item.label}</NavLink>
               ))}
               {user && <TravelToolsDropdown />}
             </nav>
@@ -419,7 +438,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <nav className="grid gap-6 text-lg font-medium mt-8">
                     {allNavItems.map((item) => (
                       <Link
-                        key={item.label}
+                        key={`${item.label}-${item.href}`}
                         href={item.href === '#' ? '#' : `/${locale}${item.href}`}
                         className="flex items-center gap-4 text-muted-foreground hover:text-foreground"
                       >
@@ -446,26 +465,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div>
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('quickLinks')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
-                <li><Link href={`/${locale}/trip-planner`} className="hover:text-white transition-colors">{t('planTrip')}</Link></li>
-                <li><Link href={`/${locale}/local-artisans`} className="hover:text-white transition-colors">{t('localConnect')}</Link></li>
-                <li><Link href={`/${locale}/hidden-gems`} className="hover:text-white transition-colors">{t('hiddenGems')}</Link></li>
+                {footerQuickLinks.map(link => (
+                    <li key={link.href}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                ))}
               </ul>
             </div>
             <div>
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('company')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
-                <li><Link href={`/${locale}/about`} className="hover:text-white transition-colors">{t('aboutUs')}</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">{t('blog')}</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">{t('workWithUs')}</Link></li>
+                {footerCompanyLinks.map(link => (
+                    <li key={link.href}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                ))}
               </ul>
             </div>
             <div>
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('support')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
-                <li><Link href="#" className="hover:text-white transition-colors">{t('helpCenter')}</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">{t('faq')}</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">{t('contactUs')}</Link></li>
-                <li><Link href="#" className="hover:text-white transition-colors">{t('termsOfService')}</Link></li>
+                {footerSupportLinks.map(link => (
+                    <li key={link.href}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                ))}
               </ul>
             </div>
           </div>
@@ -477,3 +495,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+    
