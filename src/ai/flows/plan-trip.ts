@@ -35,7 +35,11 @@ const prompt = ai.definePrompt({
 
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
 
-  2.  **Generate Mock Booking Options:** Create a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination. Include a mix of flights, trains, or buses where appropriate. For each option, provide a provider, details, duration, price (in the requested currency), and a fake booking URL.
+  2.  **Generate Mock Booking Options:**
+      - **First, analyze the origin.** If the user's origin (e.g., 'Vapi, India') is not a major city with an international airport, your first step is to determine the best route to the nearest major transport hub (e.g., 'Mumbai, India').
+      - **Then, create booking options for the main journey.** These options should be from the identified transport hub to the final destination.
+      - Create a list of 3-4 realistic but *mock* booking options for this main journey. Include a mix of flights, trains, or buses where appropriate.
+      - For each option, provide a provider, details, duration, price (in the requested currency), and a fake booking URL.
 
   3.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.
