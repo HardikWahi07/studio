@@ -11,13 +11,14 @@ import { ArrowLeft, Briefcase } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useLocale } from 'next-intl';
+import React from 'react';
 
 
 export default function TripDetailsPage({ params }: { params: { tripId: string } }) {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const locale = useLocale();
-    const tripId = params.tripId;
+    const tripId = React.use(params).tripId;
 
     const tripDocRef = useMemoFirebase(() => {
         if (!user || !firestore || !tripId) return null;
