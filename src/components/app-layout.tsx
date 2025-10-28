@@ -23,6 +23,7 @@ import {
   LifeBuoy,
   HelpCircle,
   Mail,
+  Book,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -360,6 +361,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedInNavItems = [
     { href: "/", label: t('home') },
     { href: "/my-trips", label: t('myTrips') },
+    { href: "/booking", label: t('booking') },
     { href: "/about", label: t('about') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "/local-artisans", label: t('localConnect') },
@@ -495,5 +497,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+    
 
     
