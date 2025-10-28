@@ -5,45 +5,40 @@ export const PlanTripInputSchema = z.object({
   origin: z.string().describe('The starting point of the journey.'),
   destination: z.string().describe('The travel destination.'),
   departureDate: z.string().describe('The date of departure.'),
+  tripDuration: z.number().describe('The duration of the trip in days.'),
   travelers: z.number().describe('The number of people traveling.'),
-  currency: z.string().describe('The currency to be used for all costs (e.g., USD, EUR, INR).'),
+  currency: z.string().describe('The currency for costs (e.g., USD, EUR, INR).'),
+  tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']).describe('The desired pace of the trip.'),
+  travelStyle: z.enum(['solo', 'couple', 'family', 'group']).describe('The style of travel.'),
+  accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']).describe('Preferred accommodation type.'),
+  interests: z.string().describe('Detailed interests of the traveler(s).'),
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
 
-export const HotelSchema = z.object({
-    name: z.string().describe('Name of the hotel.'),
-    location: z.string().describe('City of the hotel.'),
-    rating: z.number(),
-    reviews: z.string(),
-    pricePerNight: z.string().describe('Price per night including currency symbol/code, e.g., ₹8,000 or $100.'),
-    recommendationType: z.enum(["Luxury", "Budget", "Value"]).describe("The type of hotel recommendation."),
+const TransportSegmentSchema = z.object({
+  mode: z.string().describe('e.g., Walk, Metro, Bus, Taxi, E-bike.'),
+  duration: z.string().describe('e.g., "15 minutes".'),
+  description: z.string().describe('Route description, e.g., "Metro Line 10 to Plaza de España".'),
+  ecoFriendly: z.boolean().describe('Whether this is an eco-friendly travel option.'),
 });
-export type Hotel = z.infer<typeof HotelSchema>;
 
-export const TransportOptionSchema = z.object({
-  mode: z.string().describe('Transport mode (e.g., Flight, Train, Bus).'),
-  duration: z.string(),
-  cost: z.string().describe('Cost including currency symbol/code, e.g., ₹12,000 or $150.'),
-  carbonValue: z.number().min(1).max(3).describe('An integer from 1 (low) to 3 (high).'),
-  recommendation: z.string().optional(),
+const ActivitySchema = z.object({
+  time: z.string().describe('e.g., "09:00 AM".'),
+  description: z.string().describe('e.g., "Visit the Santiago Bernabéu Stadium".'),
+  location: z.string().describe('e.g., "Paseo de la Castellana, 142".'),
+  details: z.string().describe('More details about the activity, like booking info or tips.'),
+  transportToNext: TransportSegmentSchema.optional().describe('Transportation to the next activity.'),
 });
-export type TransportOption = z.infer<typeof TransportOptionSchema>;
 
-export const EcoMixSchema = z.object({
-  title: z.string(),
-  description: z.string(),
-  duration: z.string(),
-  cost: z.string().describe('Cost including currency symbol/code, e.g., ₹12,000 or $150.'),
-  carbonValue: z.number().min(1).max(3),
+const DayPlanSchema = z.object({
+  day: z.number().describe('The day number of the itinerary (e.g., 1, 2, 3).'),
+  title: z.string().describe('A catchy title for the day, e.g., "Historic Heart & Royal Splendor".'),
+  summary: z.string().describe('A brief summary of the day\'s plan.'),
+  activities: z.array(ActivitySchema),
 });
-export type EcoMix = z.infer<typeof EcoMixSchema>;
-
 
 export const PlanTripOutputSchema = z.object({
-  ecoMix: EcoMixSchema.optional(),
-  transportOptions: z.array(TransportOptionSchema),
-  recommendedStayLuxury: HotelSchema.optional(),
-  recommendedStayBudget: HotelSchema.optional(),
-  recommendedStayValue: HotelSchema.optional(),
+  tripTitle: z.string().describe('A creative and exciting title for the whole trip.'),
+  itinerary: z.array(DayPlanSchema),
 });
 export type PlanTripOutput = z.infer<typeof PlanTripOutputSchema>;

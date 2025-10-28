@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -5,71 +6,74 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search, CheckCircle } from "lucide-react";
-import { PexelsImage } from "@/components/pexels-image";
+import { 
+    Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search, CheckCircle, 
+    Bike, TramFront, Car, Walking, Footprints, Clock, MapPin, Ticket, Info
+} from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
-import type { PlanTripOutput, Hotel } from '@/ai/flows/plan-trip.types';
+import type { PlanTripOutput, PlanTripInput } from '@/ai/flows/plan-trip.types';
 import { CityCombobox } from '@/components/city-combobox';
 import { useSettings } from '@/context/settings-context';
 import { useUser, useFirestore } from '@/firebase';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { useTranslations } from 'next-intl';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const formSchema = z.object({
     from: z.string().min(1, 'Origin is required.'),
     to: z.string().min(1, 'Destination is required.'),
     departure: z.string().min(1, 'Departure date is required.'),
+    tripDuration: z.coerce.number().min(1, 'Duration must be at least 1 day.').max(14, 'Duration cannot exceed 14 days.'),
     travelers: z.coerce.number().min(1, "Please enter at least 1 traveler.").positive(),
+    tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']),
+    travelStyle: z.enum(['solo', 'couple', 'family', 'group']),
+    accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']),
+    interests: z.string().min(10, 'Please tell us a bit more about your interests.'),
 });
 
 const transportIcons: { [key: string]: React.ReactNode } = {
-    Flight: <Plane className="h-6 w-6 text-primary" />,
-    Train: <Train className="h-6 w-6 text-primary" />,
-    Bus: <Bus className="h-6 w-6 text-primary" />,
+    Walk: <Footprints className="h-5 w-5 text-green-500" />,
+    Metro: <TramFront className="h-5 w-5 text-blue-500" />,
+    Bus: <Bus className="h-5 w-5 text-orange-500" />,
+    Taxi: <Car className="h-5 w-5 text-yellow-500" />,
+    'E-bike': <Bike className="h-5 w-5 text-green-500" />,
+    Train: <Train className="h-5 w-5 text-purple-500" />,
 };
-
-const CarbonFootprint = ({ value }: { value: number }) => (
-    <div className="flex items-center gap-1">
-        {[...Array(3)].map((_, i) => (
-            <Leaf
-                key={i}
-                className={`h-4 w-4 ${i < value ? 'text-green-500 fill-current' : 'text-gray-300 dark:text-gray-600'}`}
-            />
-        ))}
-    </div>
-);
 
 export default function TripPlannerPage() {
     const t = useTranslations('TripPlannerPage');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
-    const [tripId, setTripId] = useState<string | null>(null);
-    const [selectedItems, setSelectedItems] = useState<{ transport: string | null, hotel: string | null }>({ transport: null, hotel: null });
-    const { toast } = useToast();
     const { currency } = useSettings();
     const { user } = useUser();
     const firestore = useFirestore();
+    const { toast } = useToast();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            from: '',
-            to: '',
-            departure: new Date().toISOString().split('T')[0],
-            travelers: 1,
+            from: 'New York, USA',
+            to: 'Madrid, Spain',
+            departure: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            tripDuration: 3,
+            travelers: 2,
+            tripPace: 'moderate',
+            travelStyle: 'couple',
+            accommodationType: 'hotel',
+            interests: 'We love historical sites, amazing food (especially tapas!), and maybe seeing a football match.',
         },
     });
 
     async function handleSearch(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setResults(null);
-        setTripId(null);
-        setSelectedItems({ transport: null, hotel: null });
         if (!user || !firestore) {
             toast({ title: t('toastLoginTitle'), description: t('toastLoginDescription'), variant: "destructive" });
             setIsLoading(false);
@@ -77,34 +81,41 @@ export default function TripPlannerPage() {
         }
 
         try {
-            const newTripId = doc(doc(firestore, 'users', user.uid), 'trips', 'temp').id;
-            setTripId(newTripId);
-
-            const response = await planTrip({
+            const planTripInput: PlanTripInput = {
                 origin: values.from,
                 destination: values.to,
                 departureDate: values.departure,
+                tripDuration: values.tripDuration,
                 travelers: values.travelers,
                 currency: currency,
-            });
+                tripPace: values.tripPace,
+                travelStyle: values.travelStyle,
+                accommodationType: values.accommodationType,
+                interests: values.interests,
+            };
+            
+            const response = await planTrip(planTripInput);
+            setResults(response);
 
-            const tripData = {
-                id: newTripId,
+            // Save the generated trip
+            const tripId = doc(collection(firestore, `users/${user.uid}/trips`)).id;
+            const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
+            await setDoc(tripRef, {
+                id: tripId,
                 userId: user.uid,
                 destination: values.to,
                 origin: values.from,
                 startDate: values.departure,
-                endDate: values.departure, // Placeholder
                 travelers: values.travelers,
+                itinerary: response.itinerary,
                 createdAt: serverTimestamp(),
                 updatedAt: serverTimestamp(),
-                transport: null,
-                hotel: null,
-            };
-            const tripRef = doc(firestore, 'users', user.uid, 'trips', newTripId);
-            await setDoc(tripRef, tripData);
+            });
+             toast({
+                title: "Itinerary Saved!",
+                description: `Your trip to ${values.to} has been saved to 'My Trips'.`,
+            });
 
-            setResults(response);
         } catch (error) {
             console.error('Failed to plan trip:', error);
             toast({
@@ -116,36 +127,6 @@ export default function TripPlannerPage() {
             setIsLoading(false);
         }
     };
-    
-    async function handleSelectItem(itemType: 'transport' | 'hotel', item: any) {
-        if (!user || !firestore || !tripId) return;
-
-        const tripRef = doc(firestore, 'users', user.uid, 'trips', tripId);
-        const key = itemType === 'transport' ? 'transport' : 'hotel';
-        
-        try {
-            await setDoc(tripRef, { [key]: item, updatedAt: serverTimestamp() }, { merge: true });
-            setSelectedItems(prev => ({ ...prev, [itemType]: item.mode || item.name }));
-            toast({
-                title: t('toastItemSelected', { itemType: itemType.charAt(0).toUpperCase() + itemType.slice(1) }),
-                description: t('toastItemSaved', { itemName: item.mode || item.name }),
-            });
-        } catch (error) {
-            console.error(`Failed to save ${itemType}:`, error);
-            toast({
-                title: t('toastSaveError'),
-                description: t('toastSaveErrorDescription', { itemType }),
-                variant: "destructive",
-            });
-        }
-    }
-
-
-    const recommendedStays = results ? [
-        results.recommendedStayLuxury,
-        results.recommendedStayBudget,
-        results.recommendedStayValue
-    ].filter((stay): stay is Hotel => !!stay) : [];
 
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
@@ -157,164 +138,113 @@ export default function TripPlannerPage() {
             </div>
 
             <Card>
-                <CardContent className="p-6">
+                <CardHeader>
+                    <CardTitle>{t('formTitle')}</CardTitle>
+                    <CardDescription>{t('formDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
                     <Form {...form}>
-                        <form onSubmit={form.handleSubmit(handleSearch)}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                                <FormField
-                                    control={form.control}
-                                    name="from"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <Label>{t('fromLabel')}</Label>
-                                            <CityCombobox
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                                placeholder={t('fromPlaceholder')}
-                                            />
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="to"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col">
-                                            <Label>{t('toLabel')}</Label>
-                                            <CityCombobox
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                                placeholder={t('toPlaceholder')}
-                                            />
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
+                        <form onSubmit={form.handleSubmit(handleSearch)} className="space-y-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <FormField control={form.control} name="from" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('fromPlaceholder')} /><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={form.control} name="to" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('toPlaceholder')} /><FormMessage /></FormItem>
+                                )} />
                                 <div className="grid grid-cols-2 gap-4">
-                                     <FormField
-                                        control={form.control}
-                                        name="departure"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <Label>{t('departureLabel')}</Label>
-                                                <FormControl>
-                                                    <Input type="date" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                    <FormField
-                                        control={form.control}
-                                        name="travelers"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <Label>{t('travelersLabel')}</Label>
-                                                 <FormControl>
-                                                    <Input type="number" min="1" {...field} />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                                    <FormField control={form.control} name="departure" render={({ field }) => (
+                                        <FormItem><FormLabel>{t('departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                    <FormField control={form.control} name="tripDuration" render={({ field }) => (
+                                        <FormItem><FormLabel>{t('durationLabel')}</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
                                 </div>
-                                <Button type="submit" disabled={isLoading || !user} className="w-full lg:w-auto">
-                                    {isLoading ? <Loader2 className="animate-spin" /> : <Search />}
-                                    <span className="ml-2">{isLoading ? t('searchingButton') : t('searchButton')}</span>
-                                </Button>
+                                <FormField control={form.control} name="tripPace" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('paceLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('pacePlaceholder')} /></SelectTrigger></FormControl>
+                                        <SelectContent><SelectItem value="relaxed">{t('paceRelaxed')}</SelectItem><SelectItem value="moderate">{t('paceModerate')}</SelectItem><SelectItem value="fast-paced">{t('paceFast')}</SelectItem></SelectContent>
+                                    </Select><FormMessage /></FormItem>
+                                )}/>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="travelStyle" render={({ field }) => (
+                                        <FormItem><FormLabel>{t('styleLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder={t('stylePlaceholder')} /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="solo">{t('styleSolo')}</SelectItem><SelectItem value="couple">{t('styleCouple')}</SelectItem><SelectItem value="family">{t('styleFamily')}</SelectItem><SelectItem value="group">{t('styleGroup')}</SelectItem></SelectContent>
+                                        </Select><FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="travelers" render={({ field }) => (
+                                        <FormItem><FormLabel>{t('travelersLabel')}</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl><FormMessage /></FormItem>
+                                    )} />
+                                </div>
+                                <FormField control={form.control} name="accommodationType" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('accommodationLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('accommodationPlaceholder')} /></SelectTrigger></FormControl>
+                                        <SelectContent><SelectItem value="hotel">{t('accommodationHotel')}</SelectItem><SelectItem value="hostel">{t('accommodationHostel')}</SelectItem><SelectItem value="vacation-rental">{t('accommodationRental')}</SelectItem></SelectContent>
+                                    </Select><FormMessage /></FormItem>
+                                )}/>
                             </div>
-                             {!user && <p className="text-sm text-destructive mt-2">{t('loginToPlan')}</p>}
+                            <FormField control={form.control} name="interests" render={({ field }) => (
+                                <FormItem><FormLabel>{t('interestsLabel')}</FormLabel><FormControl><Textarea placeholder={t('interestsPlaceholder')} rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <Button type="submit" disabled={isLoading || !user} className="w-full sm:w-auto">
+                                {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('searchButton')}</span></>}
+                            </Button>
+                            {!user && <p className="text-sm text-destructive mt-2">{t('loginToPlan')}</p>}
                         </form>
                     </Form>
                 </CardContent>
             </Card>
 
             {isLoading && (
-                <div className="flex items-center justify-center pt-10">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <p className="ml-4 text-muted-foreground">{t('loadingMessage')}</p>
+                <div className="flex flex-col items-center justify-center pt-10 text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                    <p className="mt-4 text-lg font-semibold text-muted-foreground">{t('loadingMessage')}</p>
+                    <p className="text-sm text-muted-foreground">Crafting your perfect journey to {form.getValues('to')}...</p>
                 </div>
             )}
 
             {results && !isLoading && (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-6">
-                    <div className="lg:col-span-2 space-y-6">
-                        <h2 className="font-headline text-2xl font-bold">{t('transportOptionsTitle')}</h2>
-                        
-                        {results.ecoMix && (
-                            <Card className="bg-primary/10 border-primary">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2 text-primary">
-                                        <Sparkles className="h-6 w-6" />
-                                        {results.ecoMix.title}
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                                    <p className="md:col-span-3 text-muted-foreground text-left">
-                                        {results.ecoMix.description}
-                                    </p>
-                                    <div className="font-semibold">{results.ecoMix.duration}</div>
-                                    <div className="font-semibold">{results.ecoMix.cost}</div>
-                                    <div className="flex justify-center"><CarbonFootprint value={results.ecoMix.carbonValue} /></div>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        {results.transportOptions.map((option, index) => (
-                            <Card key={`${option.mode}-${index}`}>
-                                <CardContent className="p-4 flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                        {transportIcons[option.mode] || <Plane className="h-6 w-6 text-primary" />}
-                                        <div>
-                                            <h3 className="font-bold">{option.mode}</h3>
-                                            {option.recommendation && <p className="text-sm text-muted-foreground max-w-xs">{option.recommendation}</p>}
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-6 text-sm text-center">
-                                        <div>
-                                            <p className="font-bold">{option.duration}</p>
-                                            <p className="text-muted-foreground">Duration</p>
-                                        </div>
-                                        <div>
-                                            <p className="font-bold">{option.cost}</p>
-                                            <p className="text-muted-foreground">Cost</p>
-                                        </div>
-                                        <div className="hidden sm:block">
-                                            <CarbonFootprint value={option.carbonValue} />
-                                            <p className="text-muted-foreground">Carbon</p>
-                                        </div>
-                                    </div>
-                                    <Button variant="outline" onClick={() => handleSelectItem('transport', option)} disabled={selectedItems.transport === option.mode}>
-                                        {selectedItems.transport === option.mode ? <CheckCircle className="text-green-500" /> : t('selectButton')}
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-
-                    <div className="lg:col-span-1 space-y-6">
-                        <h2 className="font-headline text-2xl font-bold">{t('recommendedStaysTitle')}</h2>
-                        {recommendedStays.map((stay, index) => (
-                            <Card key={index}>
-                                <div className="aspect-video w-full overflow-hidden rounded-t-lg bg-muted">
-                                    <PexelsImage query={`${stay.name}, ${stay.location}`} alt={stay.name} className="w-full h-full object-cover" width={400} height={225} />
+                <div className="pt-6 space-y-6">
+                    <h2 className="font-headline text-3xl md:text-4xl font-bold text-center">{results.tripTitle}</h2>
+                    <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
+                        {results.itinerary.map((day, dayIndex) => (
+                        <AccordionItem value={`item-${dayIndex}`} key={dayIndex}>
+                            <AccordionTrigger className="text-lg font-bold hover:no-underline">
+                                <div className="flex items-center gap-3">
+                                    <span className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-sans">{day.day}</span>
+                                    {day.title}
                                 </div>
-                                <CardContent className="p-4">
-                                    <h3 className="font-bold">{stay.name}</h3>
-                                    <p className='text-xs font-semibold uppercase text-primary'>{stay.recommendationType}</p>
-                                    <div className="flex items-center text-sm text-muted-foreground mt-1">
-                                        <Star className="w-4 h-4 mr-1 text-yellow-400 fill-yellow-400" />
-                                        <span>{stay.rating} ({stay.reviews} {t('reviews')})</span>
+                            </AccordionTrigger>
+                            <AccordionContent className="border-l-2 border-primary/20 ml-4 pl-8 pt-4 space-y-6">
+                               <p className="text-muted-foreground italic">{day.summary}</p>
+                                {day.activities.map((activity, activityIndex) => (
+                                    <div key={activityIndex} className="relative">
+                                         <div className="absolute -left-[43px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
+                                        <p className="font-bold text-base">{activity.time} - {activity.description}</p>
+                                        <div className="text-sm text-muted-foreground space-y-2 mt-1">
+                                           <p className='flex items-start gap-2'><MapPin className='mt-0.5' /> {activity.location}</p>
+                                           <p className='flex items-start gap-2'><Info className='mt-0.5' /> {activity.details}</p>
+                                        </div>
+                                        {activity.transportToNext && (
+                                            <div className="mt-4 flex items-center gap-3 bg-secondary p-2 rounded-md">
+                                                <div className="flex items-center gap-2">
+                                                    {transportIcons[activity.transportToNext.mode] || <Car className="h-5 w-5" />}
+                                                    <span className="font-semibold text-sm">{activity.transportToNext.mode}</span>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                    <Clock className="h-4 w-4" />
+                                                    {activity.transportToNext.duration}
+                                                </div>
+                                                {activity.transportToNext.ecoFriendly && <Leaf className="h-4 w-4 text-green-500" title="Eco-friendly"/>}
+                                            </div>
+                                        )}
                                     </div>
-                                    <p className="text-lg font-semibold mt-2">{stay.pricePerNight} {t('pricePerNight')}</p>
-                                    <Button className="w-full mt-4" onClick={() => handleSelectItem('hotel', stay)} disabled={selectedItems.hotel === stay.name}>
-                                        {selectedItems.hotel === stay.name ? <><CheckCircle className="mr-2"/> {t('selectedButton')}</> : t('selectHotelButton')}
-                                    </Button>
-                                </CardContent>
-                            </Card>
+                                ))}
+                            </AccordionContent>
+                        </AccordionItem>
                         ))}
-                    </div>
+                    </Accordion>
                 </div>
             )}
         </main>
