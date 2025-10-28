@@ -8,12 +8,11 @@ import { z } from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { 
     Plane, Train, Bus, Leaf, Sparkles, Star, Loader2, Search, CheckCircle, 
     Bike, TramFront, Car, Walking, Footprints, Clock, MapPin, Ticket, Info
 } from "lucide-react";
-import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
 import type { PlanTripOutput, PlanTripInput } from '@/ai/flows/plan-trip.types';
