@@ -38,7 +38,7 @@ const prompt = ai.definePrompt({
   2.  **Plan Journey to Hub (if necessary):**
       - **Analyze the Origin:** First, check if the user's origin (e.g., 'Avadh Heliconia Homes, Vapi, India') is a major city with its own international airport.
       - **If NOT a Major Hub:** Your first step is to create a detailed, multi-modal plan to get from the user's specific origin to the nearest major transport hub (e.g., 'Chhatrapati Shivaji Maharaj International Airport, Mumbai').
-      - **Provide Detailed Segments:** Populate the 'journeyToHub' field with a step-by-step guide. For example: "Take a 15-min auto-rickshaw to Vapi Railway Station. Then, take the 2h 30m Gujarat Express train to Mumbai Central. Finally, take a 45-min taxi to the airport."
+      - **Provide Detailed Segments:** Populate the 'journeyToHub' field with a step-by-step guide. For example: "Take a 15-min auto-rickshaw to Vapi Railway Station. Then, take the Gujarat Express train to Mumbai Central. Finally, take a 45-min taxi to the airport." Make sure the travel times are realistic.
       - The 'journeyToHub' field should only be used if this preliminary travel is necessary.
 
   3.  **Generate Mock Booking Options:**
@@ -75,7 +75,7 @@ const planTripFlow = ai.defineFlow(
   async (input) => {
     const { output } = await prompt({
       ...input,
-      model: 'googleai/gemini-2.5-flash-latest',
+      model: 'googleai/gemini-pro',
     });
     return output!;
   }
