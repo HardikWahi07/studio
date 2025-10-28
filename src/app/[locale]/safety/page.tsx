@@ -13,7 +13,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Shield, AlertTriangle, Hospital, LifeBuoy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { APIProvider, Map } from '@vis.gl/react-google-maps';
 import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
@@ -68,8 +67,8 @@ export default function SafetyPage() {
         </p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="space-y-8">
           <Card>
             <CardHeader>
               <CardTitle>{t('formTitle')}</CardTitle>
@@ -127,49 +126,11 @@ export default function SafetyPage() {
             </CardContent>
           </Card>
 
-          {assistance && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <AlertTriangle className="text-yellow-500" /> {t('alertsTitle')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">{assistance.safetyAlert}</p>
-              </CardContent>
-            </Card>
-          )}
-
-          {assistance && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Hospital className="text-red-500" /> {t('hospitalsTitle')}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <pre className="text-sm whitespace-pre-wrap font-sans text-muted-foreground">{assistance.nearbyHospitals}</pre>
-              </CardContent>
-            </Card>
-          )}
-
         </div>
 
-        <div className="lg:col-span-2">
-           <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
-            <Card className="h-full min-h-[400px] lg:min-h-0">
-                <Map
-                  defaultCenter={{ lat: 51.5072, lng: -0.1276 }}
-                  defaultZoom={10}
-                  gestureHandling={'greedy'}
-                  disableDefaultUI={true}
-                  className='h-full w-full rounded-lg'
-                />
-            </Card>
-           </APIProvider>
-            
+        <div className="space-y-8">
             {(isLoading || assistance) && (
-            <Card className="mt-8">
+            <Card>
               <CardHeader>
                 <CardTitle>{t('resultsTitle')}</CardTitle>
               </CardHeader>
@@ -182,9 +143,19 @@ export default function SafetyPage() {
                   </div>
                 )}
                 {assistance && (
-                  <div>
-                    <h3 className="font-bold flex items-center gap-2 mb-2"><LifeBuoy className="text-primary"/>{t('guidanceTitle')}</h3>
-                    <p className="text-muted-foreground whitespace-pre-wrap">{assistance.assistanceMessage}</p>
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="font-bold flex items-center gap-2 mb-2"><AlertTriangle className="text-yellow-500" />{t('alertsTitle')}</h3>
+                      <p className="text-muted-foreground">{assistance.safetyAlert}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-bold flex items-center gap-2 mb-2"><Hospital className="text-red-500" />{t('hospitalsTitle')}</h3>
+                      <pre className="text-sm whitespace-pre-wrap font-sans text-muted-foreground">{assistance.nearbyHospitals}</pre>
+                    </div>
+                    <div>
+                      <h3 className="font-bold flex items-center gap-2 mb-2"><LifeBuoy className="text-primary"/>{t('guidanceTitle')}</h3>
+                      <p className="text-muted-foreground whitespace-pre-wrap">{assistance.assistanceMessage}</p>
+                    </div>
                   </div>
                 )}
               </CardContent>
@@ -192,7 +163,7 @@ export default function SafetyPage() {
             )}
 
             {!isLoading && !assistance && (
-              <Card className="mt-8 flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg min-h-[200px]">
+              <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg min-h-[400px]">
                 <Shield className="h-12 w-12 text-muted-foreground" />
                 <p className="mt-4 text-muted-foreground">{t('waitingMessage')}</p>
               </Card>
