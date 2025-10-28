@@ -31,12 +31,20 @@ const prompt = ai.definePrompt({
   name: 'findCitiesPrompt',
   input: { schema: FindCitiesInputSchema },
   output: { schema: FindCitiesOutputSchema },
-  prompt: `You are a helpful location search assistant. You suggest locations based on a user's search query, including cities, neighborhoods, airports, and points of interest.
+  prompt: `You are a powerful geocoding assistant. Your job is to take a user's search query and return a list of precise, well-formatted location suggestions. You can handle a wide range of inputs, from specific addresses and building names to neighborhoods, cities, and airports.
 
-  The user is searching for: {{{query}}}
+  **User's Search Query:** "{{{query}}}"
 
-  Provide a list of up to 10 matching locations. For each location, provide a descriptive name including the city, state/province, and country.
-  For example, if the query is "lohegaon", you might suggest "Lohegaon, Pune, India" or "Pune International Airport (PNQ), Pune, India".
+  **Your Task:**
+
+  1.  **Analyze the Query:** Understand the user's input, whether it's a full address, a point of interest, a neighborhood, or just a city.
+  2.  **Generate Suggestions:** Provide a list of up to 10 relevant location suggestions.
+  3.  **Format Correctly:** For each suggestion, provide a clear, descriptive name. Include as much detail as is relevant, such as the point of interest, neighborhood, city, state/province, and country.
+
+  **Examples:**
+  - If the query is "avadh heliconia vapi", you should suggest "Avadh Heliconia Homes, Tukwada, Vapi, Gujarat, India".
+  - If the query is "eiffel tower", you should suggest "Eiffel Tower, Paris, France".
+  - If the query is "lohegaon", you could suggest both "Lohegaon, Pune, Maharashtra, India" and "Pune International Airport (PNQ), Pune, India".
 
   Return the result in the requested JSON format.
   `,
