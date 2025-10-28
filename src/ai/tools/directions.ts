@@ -42,7 +42,7 @@ export const getDirections = ai.defineTool(
   async (input) => {
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
-      throw new Error('GOOGLE_MAPS_API_KEY environment variable is not set.');
+      throw new Error('GOOGLE_MAPS_API_KEY environment variable is not set. Please add it to your .env file.');
     }
     
     const url = `https://maps.googleapis.com/maps/api/directions/json?origin=${encodeURIComponent(input.origin)}&destination=${encodeURIComponent(input.destination)}&mode=${input.mode}&key=${apiKey}`;
