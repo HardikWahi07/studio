@@ -252,7 +252,7 @@ function TravelToolsDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {travelTools.map(tool => (
-          <DropdownMenuItem key={tool.href} asChild>
+          <DropdownMenuItem key={tool.label} asChild>
             <Link href={`/${locale}${tool.href}`} className="flex items-center gap-2">
               <tool.icon className="w-4 h-4"/>
               {tool.label}
@@ -261,7 +261,7 @@ function TravelToolsDropdown() {
         ))}
          <DropdownMenuSeparator />
           {supportLinks.map(link => (
-            <DropdownMenuItem key={link.href} asChild>
+            <DropdownMenuItem key={link.label} asChild>
               <Link href={link.href} className="flex items-center gap-2">
                 <link.icon className="w-4 h-4"/>
                 {link.label}
@@ -466,7 +466,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('quickLinks')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerQuickLinks.map(link => (
-                    <li key={link.href}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={`${link.label}-${link.href}`}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -474,7 +474,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('company')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerCompanyLinks.map(link => (
-                    <li key={link.href}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={`${link.label}-${link.href}`}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -482,7 +482,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('support')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerSupportLinks.map(link => (
-                    <li key={link.href}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={`${link.label}-${link.href}`}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
