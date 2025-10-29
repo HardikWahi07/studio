@@ -8,6 +8,7 @@ import { useSettings } from "@/context/settings-context"
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
 import { useUser } from "@/firebase"
+import { useTheme } from "next-themes";
 
 import {
   Menu,
@@ -37,6 +38,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { cn } from "@/lib/utils"
 import { AuthButton } from "./auth-button"
+import { ThemeToggle } from "./theme-toggle";
+
 
 const languages = [
     { "code": "en", "label": "English" },
@@ -211,7 +214,9 @@ function NavLink({ href, children, className }: { href: string, children: React.
   const isActive = pathname === fullHref;
 
   const { isScrolled, isHomePage } = useScrollState();
-  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-foreground";
+  const { theme } = useTheme();
+
+  const linkColorClass = isHomePage && !isScrolled && theme !== 'dark' ? "text-white" : "text-foreground";
 
   return (
     <Link
@@ -228,7 +233,9 @@ function TravelToolsDropdown() {
   const locale = useLocale();
   const pathname = usePathname();
   const { isScrolled, isHomePage } = useScrollState();
-  const linkColorClass = isHomePage && !isScrolled ? "text-white" : "text-foreground";
+  const { theme } = useTheme();
+  
+  const linkColorClass = isHomePage && !isScrolled && theme !== 'dark' ? "text-white" : "text-foreground";
 
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('expenseSplitter') },
@@ -302,8 +309,9 @@ function useScrollState() {
 
 function LanguageSelector() {
     const { isScrolled, isHomePage } = useScrollState();
+    const { theme } = useTheme();
     const pathname = usePathname();
-    const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const buttonColorClass = isHomePage && !isScrolled && theme !== 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
     
     const handleLanguageChange = (langCode: string) => {
       // a regex to replace the current locale in the path
@@ -331,8 +339,9 @@ function LanguageSelector() {
 
 function CurrencySelector() {
     const { isScrolled, isHomePage } = useScrollState();
+    const { theme } = useTheme();
     const { setCurrency } = useSettings();
-    const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const buttonColorClass = isHomePage && !isScrolled && theme !== 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
 
     return (
         <DropdownMenu>
@@ -355,6 +364,7 @@ function CurrencySelector() {
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const { isScrolled, isHomePage } = useScrollState();
+  const { theme } = useTheme();
   const t = useTranslations('AppLayout');
   const locale = useLocale();
 
@@ -388,43 +398,44 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     ]] : loggedOutNavItems;
 
   const footerQuickLinks = [
-    { href: `/${locale}/trip-planner`, label: t('planTrip') },
-    { href: `/${locale}/local-artisans`, label: t('localConnect') },
-    { href: `/${locale}/hidden-gems`, label: t('hiddenGems') },
+    { key: "plan", href: `/${locale}/trip-planner`, label: t('planTrip') },
+    { key: "connect", href: `/${locale}/local-artisans`, label: t('localConnect') },
+    { key: "gems", href: `/${locale}/hidden-gems`, label: t('hiddenGems') },
   ];
 
   const footerCompanyLinks = [
-    { href: `/${locale}/about`, label: t('aboutUs') },
-    { href: "#", label: t('blog') },
-    { href: "#", label: t('workWithUs') },
+    { key: "about", href: `/${locale}/about`, label: t('aboutUs') },
+    { key: "blog", href: "#", label: t('blog') },
+    { key: "work", href: "#", label: t('workWithUs') },
   ];
 
   const footerSupportLinks = [
-    { href: "#", label: t('helpCenter') },
-    { href: "#", label: t('faq') },
-    { href: "#", label: t('contactUs') },
-    { href: "#", label: t('termsOfService') },
+    { key: "help", href: "#", label: t('helpCenter') },
+    { key: "faq", href: "#", label: t('faq') },
+    { key: "contact", href: "#", label: t('contactUs') },
+    { key: "tos", href: "#", label: t('termsOfService') },
   ];
 
   return (
     <div className="flex min-h-screen flex-col">
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
-          isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm" : "bg-transparent"
+          isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm border-b" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-             <Logo className={cn(isHomePage && !isScrolled ? 'text-white' : 'text-primary')} />
+             <Logo className={cn(isHomePage && !isScrolled && theme !== 'dark' ? 'text-white' : 'text-primary')} />
           </Link>
           {!isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
               {navItems.map((item) => (
-                <NavLink key={`${item.label}-${item.href}`} href={item.href}>{item.label}</NavLink>
+                <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
               ))}
               {user && <TravelToolsDropdown />}
             </nav>
           )}
-          <div className="ml-auto flex items-center gap-2">
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle className={cn(isHomePage && !isScrolled && theme !== 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground')} />
             <LanguageSelector />
             <CurrencySelector />
             <AuthButton isScrolled={isScrolled} isHomePage={isHomePage} />
@@ -440,7 +451,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <nav className="grid gap-6 text-lg font-medium mt-8">
                     {allNavItems.map((item) => (
                       <Link
-                        key={`${item.label}-${item.href}`}
+                        key={item.label}
                         href={item.href === '#' ? '#' : `/${locale}${item.href}`}
                         className="flex items-center gap-4 text-muted-foreground hover:text-foreground"
                       >
@@ -468,7 +479,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('quickLinks')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerQuickLinks.map(link => (
-                    <li key={`${link.label}-${link.href}`}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -476,7 +487,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('company')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerCompanyLinks.map(link => (
-                    <li key={`${link.label}-${link.href}`}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -484,7 +495,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('support')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerSupportLinks.map(link => (
-                    <li key={`${link.label}-${link.href}`}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -497,5 +508,3 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-    

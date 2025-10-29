@@ -7,6 +7,7 @@ import { FirebaseClientProvider } from '@/firebase';
 import { SettingsProvider } from '@/context/settings-context';
 import {NextIntlClientProvider} from 'next-intl';
 import {getMessages} from 'next-intl/server';
+import { ThemeProvider } from '@/components/theme-provider';
  
 export const metadata: Metadata = {
   title: 'TripMind',
@@ -31,13 +32,20 @@ export default async function RootLayout({
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <SettingsProvider>
-            <FirebaseClientProvider>
-              <AppLayout>
-                {children}
-              </AppLayout>
-            </FirebaseClientProvider>
-          </SettingsProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SettingsProvider>
+              <FirebaseClientProvider>
+                <AppLayout>
+                  {children}
+                </AppLayout>
+              </FirebaseClientProvider>
+            </SettingsProvider>
+          </ThemeProvider>
         </NextIntlClientProvider>
         <Toaster />
       </body>
