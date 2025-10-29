@@ -285,14 +285,11 @@ function TravelToolsDropdown() {
 function useScrollState() {
   const pathname = usePathname();
   const locale = useLocale();
-  const [isMounted, setIsMounted] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
 
   const isHomePage = pathname === `/${locale}`;
 
   React.useEffect(() => {
-    setIsMounted(true);
-
     if (!isHomePage) {
       setIsScrolled(true);
       return;
@@ -303,13 +300,12 @@ function useScrollState() {
     };
     
     window.addEventListener("scroll", handleScroll);
-    handleScroll(); // Check on initial load
+    handleScroll();
     
     return () => window.removeEventListener("scroll", handleScroll);
   }, [pathname, locale, isHomePage]);
 
-  // Return a stable "scrolled" state on the server to prevent mismatch
-  return { isScrolled: isMounted ? isScrolled : !isHomePage, isHomePage };
+  return { isScrolled, isHomePage };
 }
 
 function LanguageSelector() {
@@ -319,7 +315,6 @@ function LanguageSelector() {
     const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
     
     const handleLanguageChange = (langCode: string) => {
-      // a regex to replace the current locale in the path
       const newPath = pathname.replace(/^\/[a-z]{2}/, `/${langCode}`);
       window.location.href = newPath;
     }
@@ -372,6 +367,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
   const t = useTranslations('AppLayout');
   const locale = useLocale();
+
+  // FIX: Hydration error fix
+  // We use a state to track if the component has mounted.
+  // We only render the theme-dependent and scroll-dependent parts of the UI on the client, after mounting.
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const loggedInNavItems = [
     { href: "/", label: t('home') },
@@ -430,10 +433,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm border-b" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
-          <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-             <Logo className={logoColor} />
-          </Link>
-          {!isUserLoading && (
+           {isMounted ? (
+            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
+               <Logo className={logoColor} />
+            </Link>
+           ) : (
+            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
+              <Logo className="text-primary" />
+            </Link>
+           )}
+          {isMounted && !isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
               {navItems.map((item) => (
                 <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
@@ -442,19 +451,25 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </nav>
           )}
           <div className="ml-auto flex items-center gap-1">
-            <ThemeToggle className={cn(isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground')} />
-            <LanguageSelector />
-            <CurrencySelector />
-            <AuthButton isScrolled={isScrolled} isHomePage={isHomePage} />
+             {isMounted ? (
+              <>
+                <ThemeToggle className={cn(isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground')} />
+                <LanguageSelector />
+                <CurrencySelector />
+                <AuthButton isScrolled={isScrolled} isHomePage={isHomePage} />
+              </>
+             ) : (
+              <div className="h-10 w-[140px]" /> 
+             )}
             <Sheet>
               <SheetTrigger asChild>
-                <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
+                <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isMounted && isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">{t('toggleNavigation')}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left">
-                {!isUserLoading && (
+                {isMounted && !isUserLoading && (
                   <nav className="grid gap-6 text-lg font-medium mt-8">
                     {allNavItems.map((item) => (
                       <Link
