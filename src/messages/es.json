@@ -27,8 +27,7 @@
     "termsOfService": "Términos de Servicio",
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
-    "contactUs": "Contáctanos",
-    "login": "Iniciar Sesión"
+    "contactUs": "Contáctanos"
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
@@ -328,5 +327,3 @@
     "successDescription": "Tu historia de viaje ya está disponible para que todos la vean."
   }
 }
-
-    

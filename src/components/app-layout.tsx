@@ -236,6 +236,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
 
 function TravelToolsDropdown() {
   const t = useTranslations('AppLayout');
+  const authT = useTranslations('AuthButton');
   const locale = useLocale();
   const pathname = usePathname();
   const { isScrolled, isHomePage } = useScrollState();
@@ -372,6 +373,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   const t = useTranslations('AppLayout');
+  const authT = useTranslations('AuthButton');
   const locale = useLocale();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
 
@@ -494,7 +496,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                     ) : (
                        <Button onClick={() => setIsAuthDialogOpen(true)} className="flex items-center gap-4 justify-start" variant="outline">
                           <LogIn />
-                          {t('login')}
+                          {authT('login')}
                        </Button>
                     )}
                     <DropdownMenuSeparator />
@@ -557,5 +559,3 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-    

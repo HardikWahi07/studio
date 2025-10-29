@@ -27,8 +27,7 @@
     "termsOfService": "Terms of Service",
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
-    "contactUs": "Contact Us",
-    "login": "Login"
+    "contactUs": "Contact Us"
   },
   "AuthButton": {
     "login": "Login",
@@ -328,5 +327,3 @@
     "successDescription": "Your travel story is now live for everyone to see."
   }
 }
-
-    
