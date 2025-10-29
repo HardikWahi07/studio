@@ -32,6 +32,7 @@ const ActivitySchema = z.object({
   description: z.string().describe('e.g., "Visit the Santiago Bernabéu Stadium" or "Lunch".'),
   location: z.string().describe('The name and address of the location (e.g., "Paseo de la Castellana, 142" or "Sobrino de Botín, C. de Cuchilleros, 17").'),
   details: z.string().describe('More details about the activity, like booking info, why it was chosen, or tips.'),
+  cost: z.string().optional().describe('Estimated cost for the activity in the desired currency, e.g., "€15" or "Free".'),
   transportToNext: TransportSegmentSchema.optional().nullable().describe('Transportation to the next activity.'),
 });
 

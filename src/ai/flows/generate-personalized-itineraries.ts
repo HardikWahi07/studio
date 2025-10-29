@@ -52,6 +52,7 @@ const generatePersonalizedItineraryPrompt = ai.definePrompt({
         - **Time:** A specific start time (e.g., "09:00 AM").
         - **Description:** A clear description of the activity (e.g., "Guided tour of the Louvre Museum").
         - **Location:** The address or name of the place.
+        - **Cost:** An estimated cost for the activity (e.g., "€25", "$50", "Free").
         - **Details:** Practical tips, booking information, or why it's a great spot.
       - **CRITICAL: For activities like "Lunch," "Dinner," or "Coffee," you MUST suggest a specific, real business.** Base your suggestion on the user's interests.
       - **MANDATORY: Include Detailed Transportation:** Between each activity, you MUST add a 'transportToNext' segment with estimated travel times, mode of transport, and a route description.

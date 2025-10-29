@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
     Plane, Train, Bus, Leaf, Star, Hotel,
-    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront
+    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront, DollarSign
 } from "lucide-react";
 import type { PlanTripOutput, TransportSegment, BookingOption, HotelOption } from '@/ai/flows/plan-trip.types';
 
@@ -106,7 +106,15 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
                 {day.activities.map((activity, activityIndex) => (
                     <div key={activityIndex} className="relative">
                           <div className="absolute -left-[43px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
-                        <p className="font-bold text-base">{activity.time} - {activity.description}</p>
+                        <div className="flex items-center justify-between">
+                            <p className="font-bold text-base">{activity.time} - {activity.description}</p>
+                            {activity.cost && (
+                                <div className="flex items-center gap-1 text-sm font-semibold text-muted-foreground">
+                                    <DollarSign className="w-4 h-4" />
+                                    {activity.cost}
+                                </div>
+                            )}
+                        </div>
                         <div className="text-sm text-muted-foreground space-y-2 mt-1">
                             <p className='flex items-start gap-2'><MapPin className='mt-0.5' /> {activity.location}</p>
                             <p className='flex items-start gap-2'><Info className='mt-0.5' /> {activity.details}</p>

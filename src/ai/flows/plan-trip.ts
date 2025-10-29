@@ -64,6 +64,7 @@ const prompt = ai.definePrompt({
         - **Description:** A clear description of the activity (e.g., "Guided tour of the Prado Museum").
         - **Location:** The address or name of the place.
         - **Details:** Practical tips, booking information, or why it's a great spot.
+        - **Cost:** An estimated cost for the activity in the specified {{{currency}}} (e.g., "€25", "$50", "Free").
       - **CRITICAL: For activities like "Lunch," "Dinner," "Coffee," or "Rest," you MUST suggest a specific, real business.** Base your suggestion on the user's interests (e.g., if they like "street food," find a highly-rated street food vendor; if they prefer "fine dining," find a suitable restaurant). For the 'location' field of that activity, provide the real name and address of the business. In the 'details' field, briefly explain why you chose it.
       - **MANDATORY: Include Detailed Transportation:** Between each activity, you MUST add a 'transportToNext' segment.
         - **Estimate travel times.** Be specific and multi-modal. Instead of just "Take the metro", suggest a specific route and line.
