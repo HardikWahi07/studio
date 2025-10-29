@@ -45,6 +45,7 @@ import { AuthButton } from "./auth-button"
 import { ThemeToggle } from "./theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { AuthDialog } from "./auth-dialog"
+import { ScrollArea } from "./ui/scroll-area"
 
 
 const languages = [
@@ -479,38 +480,40 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <span className="sr-only">{t('toggleNavigation')}</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left">
-                {isMounted && !isUserLoading && (
-                  <nav className="grid gap-6 text-lg font-medium mt-8">
-                     {user ? (
-                        <div className="flex items-center gap-4 px-2.5 text-muted-foreground">
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
-                                <AvatarFallback><User /></AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col space-y-1">
-                                <p className="text-sm font-medium leading-none text-foreground">{user.displayName}</p>
-                                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
-                            </div>
-                        </div>
-                    ) : (
-                       <Button onClick={() => setIsAuthDialogOpen(true)} className="flex items-center gap-4 justify-start" variant="outline">
-                          <LogIn />
-                          {authT('login')}
-                       </Button>
-                    )}
-                    <DropdownMenuSeparator />
-                    {allNavItems.map((item) => (
-                      <Link
-                        key={item.label}
-                        href={item.href === '#' ? '#' : `/${locale}${item.href}`}
-                        className="flex items-center gap-4 text-muted-foreground hover:text-foreground"
-                      >
-                        {item.label}
-                      </Link>
-                    ))}
-                  </nav>
-                )}
+              <SheetContent side="left" className="flex flex-col">
+                <ScrollArea className="flex-1">
+                  {isMounted && !isUserLoading && (
+                    <nav className="grid gap-6 text-lg font-medium mt-8 pr-6">
+                      {user ? (
+                          <div className="flex items-center gap-4 px-2.5 text-muted-foreground">
+                              <Avatar className="h-10 w-10">
+                                  <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+                                  <AvatarFallback><User /></AvatarFallback>
+                              </Avatar>
+                              <div className="flex flex-col space-y-1">
+                                  <p className="text-sm font-medium leading-none text-foreground">{user.displayName}</p>
+                                  <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                              </div>
+                          </div>
+                      ) : (
+                        <Button onClick={() => setIsAuthDialogOpen(true)} className="flex items-center gap-4 justify-start" variant="outline">
+                           <LogIn />
+                           {authT('login')}
+                        </Button>
+                      )}
+                      <DropdownMenuSeparator />
+                      {allNavItems.map((item) => (
+                        <Link
+                          key={item.label}
+                          href={item.href === '#' ? '#' : `/${locale}${item.href}`}
+                          className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                        >
+                          {item.label}
+                        </Link>
+                      ))}
+                    </nav>
+                  )}
+                </ScrollArea>
               </SheetContent>
             </Sheet>
           </div>
