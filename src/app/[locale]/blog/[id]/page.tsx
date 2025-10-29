@@ -42,11 +42,11 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
     notFound();
   }
 
-  const getCreatedAtDate = () => {
-    if (blog.createdAt.toDate) { // It's a Firestore Timestamp
+  const getCreatedAtDate = (blog: Blog) => {
+    if (blog.createdAt?.toDate) { // It's a Firestore Timestamp from client-side fetch
       return blog.createdAt.toDate();
     }
-    return new Date(blog.createdAt); // It's likely an ISO string from server-side rendering
+    return new Date(blog.createdAt); // It's an ISO string from server-side rendering
   };
 
 
@@ -77,7 +77,7 @@ export default function BlogPostPage({ params }: { params: { id: string } }) {
                     </div>
                     <div className="flex items-center gap-2">
                         <Calendar className="w-4 h-4"/>
-                        <span>{format(getCreatedAtDate(), 'PPP')}</span>
+                        <span>{format(getCreatedAtDate(blog), 'PPP')}</span>
                     </div>
                 </div>
 
