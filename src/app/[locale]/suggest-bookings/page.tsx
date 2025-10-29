@@ -11,9 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
-import { suggestTransportOptions } from "@/ai/flows/suggest-transport-options";
-import type { SuggestTransportOptionsOutput, BookingOption, HotelOption, LocalTransportOption } from "@/ai/flows/suggest-transport-options.types";
+import type { PlanTripOutput, BookingOption, HotelOption, LocalTransportOption } from '@/ai/flows/plan-trip.types';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/context/settings-context";
@@ -28,8 +26,8 @@ type Trip = PlanTripOutput & {
     travelers: number;
     status?: 'Booked' | 'Pending';
     createdAt: any;
-    accommodationType: 'hotel' | 'hostel' | 'vacation-rental';
-    accommodationBudget: 'budget' | 'moderate' | 'luxury';
+    accommodationType: 'hotel' | 'hostel' | 'vacation-rental' | 'none';
+    accommodationBudget?: 'budget' | 'moderate' | 'luxury';
     interests: string;
     tripPace: 'relaxed' | 'moderate' | 'fast-paced';
     travelStyle: 'solo' | 'couple' | 'family' | 'group';
@@ -50,6 +48,7 @@ const localTransportIcons: { [key: string]: React.ReactNode } = {
     rideshare: <CarFront className="h-5 w-5 text-purple-500" />,
     bike: <Bike className="h-5 w-5 text-green-500" />,
     scooter: <Bike className="h-5 w-5 text-teal-500" />,
+    'auto-rickshaw': <CarFront className="h-5 w-5 text-indigo-500" />,
 }
 
 const recommendationBadges: { [key: string]: React.ReactNode } = {
@@ -186,7 +185,10 @@ export default function SuggestBookingsPage() {
                 tripPace: selectedTrip.tripPace,
                 travelStyle: selectedTrip.travelStyle,
                 departureDate: selectedTrip.startDate,
-                tripDuration: selectedTrip.tripDuration
+                tripDuration: selectedTrip.tripDuration,
+                // These are optional, so we can pass undefined
+                planeClass: undefined,
+                trainClass: undefined,
             });
             setSuggestions(result);
         } catch (error) {

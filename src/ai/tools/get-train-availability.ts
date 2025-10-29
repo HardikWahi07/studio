@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A tool for fetching real-time train availability.
@@ -32,10 +33,11 @@ export const getTrainAvailability = ai.defineTool(
     
     //
     // 🚨 DEVELOPER ACTION REQUIRED 🚨
-    // This is where you would integrate with a real train API (e.g., IRCTC, RailYatri).
-    // The response below is MOCK DATA for demonstration purposes.
+    // This is MOCK DATA. For a production application, you must replace this
+    // with a real integration to a train booking API (e.g., IRCTC, RailYatri, etc.)
+    // to provide live, accurate train availability.
     //
-    
+
     // Returning more realistic mock data for a Pune to Lucknow route:
     if (input.origin.toLowerCase().includes('pune') && input.destination.toLowerCase().includes('lucknow')) {
       return {
@@ -80,11 +82,11 @@ export const getTrainAvailability = ai.defineTool(
       };
     }
 
-    // Default mock data for other routes
+    // Default mock data for other routes to make the tool more robust
     return {
       trains: [
         {
-          trainName: 'Rajdhani Express',
+          trainName: 'Capital Express',
           trainNumber: '12301',
           departureTime: '17:00',
           arrivalTime: '09:55',
@@ -93,22 +95,31 @@ export const getTrainAvailability = ai.defineTool(
           price: '₹4,800'
         },
         {
-          trainName: 'Duronto Express',
+          trainName: 'Capital Express',
+          trainNumber: '12301',
+          departureTime: '17:00',
+          arrivalTime: '09:55',
+          travelClass: 'Sleeper (SL)',
+          availability: 'Waitlist',
+          price: '₹850'
+        },
+        {
+          trainName: 'City Hopper',
           trainNumber: '12259',
           departureTime: '20:00',
           arrivalTime: '15:55',
           travelClass: 'AC 2 Tier (2A)',
-          availability: 'Waitlist',
+          availability: 'Available',
           price: '₹2,900'
         },
         {
-            trainName: 'Sampark Kranti',
+            trainName: 'Intercity Fast',
             trainNumber: '12907',
             departureTime: '21:30',
             arrivalTime: '18:45',
-            travelClass: 'Sleeper (SL)',
-            availability: 'Available',
-            price: '₹850'
+            travelClass: 'AC Chair Car (CC)',
+            availability: 'Sold Out',
+            price: '₹1100'
         },
       ],
     };
