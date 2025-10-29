@@ -44,29 +44,6 @@ function TransportSegmentDisplay({ segment }: { segment: TransportSegment }) {
     )
 }
 
-function BookingOptionDisplay({ opt }: { opt: BookingOption }) {
-     return (
-        <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 gap-4">
-            <div className="flex items-center gap-4">
-                {transportIcons[opt.type]}
-                <div>
-                    <p className="font-bold">{opt.provider} <span className="font-normal text-muted-foreground text-sm">{opt.details}</span></p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3"/>{opt.duration}</span>
-                        {opt.ecoFriendly && <span className="flex items-center gap-1 text-green-600"><Leaf className="w-3 h-3"/>Eco-Friendly</span>}
-                    </div>
-                </div>
-            </div>
-            <div className="flex items-center gap-4 w-full sm:w-auto">
-                <p className="font-bold text-lg">{opt.price}</p>
-                <Button asChild className="w-full sm:w-auto">
-                    <Link href={opt.bookingLink} target="_blank">Book Now</Link>
-                </Button>
-            </div>
-        </Card>
-    )
-}
-
 function HotelOptionDisplay({ opt }: { opt: HotelOption }) {
      return (
         <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 gap-4">
@@ -99,17 +76,6 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
             <CardContent className="space-y-4">
                 {results.journeyToHub.map((segment, idx) => (
                     <TransportSegmentDisplay key={idx} segment={segment} />
-                ))}
-            </CardContent>
-        </Card>
-      )}
-      
-      {results.bookingOptions?.length > 0 && (
-        <Card>
-            <CardHeader><CardTitle>Transport Options</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                {results.bookingOptions.map((opt, idx) => (
-                    <BookingOptionDisplay key={idx} opt={opt} />
                 ))}
             </CardContent>
         </Card>

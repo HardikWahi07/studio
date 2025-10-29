@@ -11,6 +11,7 @@ export const PlanTripInputSchema = z.object({
   tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']).describe('The desired pace of the trip.'),
   travelStyle: z.enum(['solo', 'couple', 'family', 'group']).describe('The style of travel.'),
   accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']).describe('Preferred accommodation type.'),
+  accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).describe('The budget for accommodation.'),
   interests: z.string().describe('Detailed interests of the traveler(s), including food preferences (e.g., "local street food", "vegan restaurants", "fine dining").'),
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
@@ -57,13 +58,24 @@ const HotelOptionSchema = z.object({
   bookingLink: z.string().url().describe("A mock URL to a hotel booking page."),
 });
 
+const LocalTransportOptionSchema = z.object({
+    type: z.enum(['metro', 'bus', 'taxi', 'rideshare', 'bike', 'scooter']).describe('Type of local transport.'),
+    provider: z.string().describe('e.g., "City Metro", "Uber", "Lime"'),
+    details: z.string().describe('e.g., "Line 10", "UberX", "Shared e-bike"'),
+    averageCost: z.string().describe('e.g., "€2 per trip", "$10-15 per ride"'),
+    tip: z.string().describe('A helpful tip about using this mode of transport in the destination.'),
+});
+
+
 export const PlanTripOutputSchema = z.object({
   tripTitle: z.string().describe('A creative and exciting title for the whole trip.'),
   journeyToHub: z.array(TransportSegmentSchema).optional().describe("A detailed, multi-modal plan to get from the user's origin to the nearest major transport hub (airport/train station). This should only be populated if the origin is not itself a major hub."),
   itinerary: z.array(DayPlanSchema),
   bookingOptions: z.array(BookingOptionSchema).optional().describe("A list of mock booking options for the main journey from origin to destination."),
   hotelOptions: z.array(HotelOptionSchema).optional().describe("A list of 3-4 mock hotel suggestions based on user preferences."),
+  localTransportOptions: z.array(LocalTransportOptionSchema).optional().describe("A list of recommended local transport options for getting around the destination city."),
 });
 export type PlanTripOutput = z.infer<typeof PlanTripOutputSchema>;
 export type BookingOption = z.infer<typeof BookingOptionSchema>;
 export type HotelOption = z.infer<typeof HotelOptionSchema>;
+export type LocalTransportOption = z.infer<typeof LocalTransportOptionSchema>;

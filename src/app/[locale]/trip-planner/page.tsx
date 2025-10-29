@@ -32,6 +32,7 @@ const formSchema = z.object({
     tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']),
     travelStyle: z.enum(['solo', 'couple', 'family', 'group']),
     accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']),
+    accommodationBudget: z.enum(['budget', 'moderate', 'luxury']),
     interests: z.string().min(10, 'Please tell us a bit more about your interests.'),
 });
 
@@ -49,7 +50,7 @@ export default function TripPlannerPage() {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: { from: '', to: '', departure: '', tripDuration: 7, travelers: 1, tripPace: 'moderate', travelStyle: 'solo', accommodationType: 'hotel', interests: '' },
+        defaultValues: { from: '', to: '', departure: '', tripDuration: 7, travelers: 1, tripPace: 'moderate', travelStyle: 'solo', accommodationType: 'hotel', accommodationBudget: 'moderate', interests: '' },
     });
 
     async function handleSearch(values: z.infer<typeof formSchema>) {
@@ -59,7 +60,8 @@ export default function TripPlannerPage() {
 
         try {
             const planTripInput: PlanTripInput = {
-                origin: values.from, destination: values.to, departureDate: values.departure, tripDuration: values.tripDuration, travelers: values.travelers, currency: currency, tripPace: values.tripPace, travelStyle: values.travelStyle, accommodationType: values.accommodationType, interests: values.interests,
+                ...values,
+                currency: currency,
             };
             const response = await planTrip(planTripInput);
             setResults(response);
@@ -83,7 +85,7 @@ export default function TripPlannerPage() {
             const values = form.getValues();
             const tripRef = doc(collection(firestore, `users/${user.uid}/trips`));
             await setDoc(tripRef, {
-                id: tripRef.id, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, hotelOptions: results.hotelOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(),
+                id: tripRef.id, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, hotelOptions: results.hotelOptions, localTransportOptions: results.localTransportOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(), ...values
             });
             toast({ title: "Itinerary Saved!", description: `Your trip to ${values.to} has been saved to 'My Trips'.`, });
             setTripSaved(true);
@@ -143,12 +145,20 @@ export default function TripPlannerPage() {
                                         <FormItem><FormLabel>{t('travelersLabel')}</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
-                                <FormField control={form.control} name="accommodationType" render={({ field }) => (
-                                    <FormItem><FormLabel>{t('accommodationLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder={t('accommodationPlaceholder')} /></SelectTrigger></FormControl>
-                                        <SelectContent><SelectItem value="hotel">{t('accommodationHotel')}</SelectItem><SelectItem value="hostel">{t('accommodationHostel')}</SelectItem><SelectItem value="vacation-rental">{t('accommodationRental')}</SelectItem></SelectContent>
-                                    </Select><FormMessage /></FormItem>
-                                )}/>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField control={form.control} name="accommodationType" render={({ field }) => (
+                                        <FormItem><FormLabel>{t('accommodationLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder={t('accommodationPlaceholder')} /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="hotel">{t('accommodationHotel')}</SelectItem><SelectItem value="hostel">{t('accommodationHostel')}</SelectItem><SelectItem value="vacation-rental">{t('accommodationRental')}</SelectItem></SelectContent>
+                                        </Select><FormMessage /></FormItem>
+                                    )}/>
+                                    <FormField control={form.control} name="accommodationBudget" render={({ field }) => (
+                                        <FormItem><FormLabel>Stay Budget</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder="Select budget..." /></SelectTrigger></FormControl>
+                                            <SelectContent><SelectItem value="budget">Budget</SelectItem><SelectItem value="moderate">Moderate</SelectItem><SelectItem value="luxury">Luxury</SelectItem></SelectContent>
+                                        </Select><FormMessage /></FormItem>
+                                    )}/>
+                                </div>
                             </div>
                             <FormField control={form.control} name="interests" render={({ field }) => (
                                 <FormItem><FormLabel>{t('interestsLabel')}</FormLabel><FormControl><Textarea placeholder={t('interestsPlaceholder')} rows={3} {...field} /></FormControl><FormMessage /></FormItem>

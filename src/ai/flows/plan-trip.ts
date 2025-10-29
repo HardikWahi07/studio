@@ -29,6 +29,7 @@ const prompt = ai.definePrompt({
   - **Travel Style:** {{{travelStyle}}}
   - **Trip Pace:** {{{tripPace}}}
   - **Accommodation Preference:** {{{accommodationType}}}
+  - **Accommodation Budget:** {{{accommodationBudget}}}
   - **Interests & Food Preferences:** {{{interests}}}
   - **Desired Currency for Costs (if mentioned):** {{{currency}}}
 
@@ -36,14 +37,13 @@ const prompt = ai.definePrompt({
 
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
 
-  2.  **Plan Journey to Hub (if necessary):**
-      - **Analyze the Origin:** First, check if the user's origin is a major city with its own international airport.
-      - **If NOT a Major Hub:** Your first step is to create a plan to get from the user's specific origin to the nearest major transport hub. Estimate the travel times for each leg of this journey (e.g., taxi, train). Populate the 'journeyToHub' field with these steps.
-      - The 'journeyToHub' field should only be used if this preliminary travel is necessary.
-  
-  3.  **Generate Mock Hotel Options:**
-      - Based on the user's accommodation preference ({{{accommodationType}}}) and interests (e.g., luxury, budget-friendly), suggest 3-4 realistic but *mock* hotel options in the destination.
+  2.  **Generate Mock Hotel Options:**
+      - Based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
       - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
+  
+  3.  **Generate Local Transport Options:**
+      - Recommend 3-4 common and useful local transport options for getting around the destination city (e.g., metro, bus, taxi, rideshare like Uber, bike rentals).
+      - For each option, provide the type, a provider name, details, an estimated average cost, and a helpful tip for travelers.
 
   4.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.
@@ -59,7 +59,7 @@ const prompt = ai.definePrompt({
       - **Be Realistic:** Ensure the plan is logical for the chosen tripPace. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
       - **Incorporate User Interests:** If the user mentions specific places, be sure to include them in the itinerary on different days.
 
-  You are NOT responsible for generating booking options. That will be handled by another service. Do not populate the 'bookingOptions' field.
+  You are NOT responsible for generating main booking options (flights, etc.). That will be handled by another service. Do not populate the 'bookingOptions' field.
   
   Produce the final output in the required JSON format.
   `,
