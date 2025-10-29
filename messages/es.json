@@ -239,7 +239,7 @@
     "description": "Compara tus opciones de viaje por costo, tiempo e impacto ambiental. Elige la forma más inteligente y ecológica de llegar.",
     "mockDataNotice": "(Esta es una demostración conceptual con datos de prueba)",
     "routeTitle": "Tu Ruta",
-fromLocation": "Nueva York",
+    "fromLocation": "Nueva York",
     "toLocation": "Chicago",
     "to": "a",
     "duration": "Duración",

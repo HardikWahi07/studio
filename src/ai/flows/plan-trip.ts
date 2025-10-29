@@ -28,7 +28,7 @@ const prompt = ai.definePrompt({
   - **Travel Style:** {{{travelStyle}}}
   - **Trip Pace:** {{{tripPace}}}
   - **Accommodation Preference:** {{{accommodationType}}}
-  - **Interests:** {{{interests}}}
+  - **Interests & Food Preferences:** {{{interests}}}
   - **Desired Currency for Costs (if mentioned):** {{{currency}}}
 
   **Your Task:**
@@ -52,6 +52,7 @@ const prompt = ai.definePrompt({
         - **Description:** A clear description of the activity (e.g., "Guided tour of the Prado Museum").
         - **Location:** The address or name of the place.
         - **Details:** Practical tips, booking information, or why it's a great spot.
+      - **CRITICAL: For activities like "Lunch," "Dinner," "Coffee," or "Rest," you MUST suggest a specific, real business.** Base your suggestion on the user's interests (e.g., if they like "street food," find a highly-rated street food vendor; if they prefer "fine dining," find a suitable restaurant). For the 'location' field of that activity, provide the real name and address of the business. In the 'details' field, briefly explain why you chose it.
       - **Include Detailed Transportation:** Between each activity, add a 'transportToNext' segment.
         - **Estimate travel times.** Be specific and multi-modal. Instead of just "Take the metro", suggest a route.
         - **Prioritize Eco-Friendly & Cost-Effective Options:** Mark walking, cycling, or public transport as 'ecoFriendly: true'. Suggest taxis or ride-shares only when necessary.

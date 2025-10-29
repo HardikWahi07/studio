@@ -1,4 +1,3 @@
-
 import { z } from 'zod';
 
 export const PlanTripInputSchema = z.object({
@@ -11,7 +10,7 @@ export const PlanTripInputSchema = z.object({
   tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']).describe('The desired pace of the trip.'),
   travelStyle: z.enum(['solo', 'couple', 'family', 'group']).describe('The style of travel.'),
   accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']).describe('Preferred accommodation type.'),
-  interests: z.string().describe('Detailed interests of the traveler(s).'),
+  interests: z.string().describe('Detailed interests of the traveler(s), including food preferences (e.g., "local street food", "vegan restaurants", "fine dining").'),
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
 
@@ -26,9 +25,9 @@ export type TransportSegment = z.infer<typeof TransportSegmentSchema>;
 
 const ActivitySchema = z.object({
   time: z.string().describe('e.g., "09:00 AM".'),
-  description: z.string().describe('e.g., "Visit the Santiago Bernabéu Stadium".'),
-  location: z.string().describe('e.g., "Paseo de la Castellana, 142".'),
-  details: z.string().describe('More details about the activity, like booking info or tips.'),
+  description: z.string().describe('e.g., "Visit the Santiago Bernabéu Stadium" or "Lunch".'),
+  location: z.string().describe('The name and address of the location (e.g., "Paseo de la Castellana, 142" or "Sobrino de Botín, C. de Cuchilleros, 17").'),
+  details: z.string().describe('More details about the activity, like booking info, why it was chosen, or tips.'),
   transportToNext: TransportSegmentSchema.optional().describe('Transportation to the next activity.'),
 });
 
