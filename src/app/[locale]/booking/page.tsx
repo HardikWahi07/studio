@@ -110,10 +110,10 @@ export default function BookingPage() {
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
                 <h1 className="font-headline text-3xl md:text-4xl font-bold flex items-center gap-2">
-                    <Briefcase /> {t('BookingPage:title', { defaultMessage: 'My Bookings' })}
+                    <Briefcase /> {t('title')}
                 </h1>
                 <p className="text-muted-foreground max-w-2xl">
-                    {t('BookingPage:description', { defaultMessage: 'Manage all your confirmed rides and experiences with local supporters.' })}
+                    {t('description')}
                 </p>
             </div>
             {renderContent()}
