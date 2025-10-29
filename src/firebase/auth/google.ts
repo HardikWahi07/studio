@@ -1,3 +1,4 @@
+
 'use client';
 
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
@@ -14,7 +15,7 @@ export async function handleGoogleSignIn() {
     console.error('Error during Google sign-in:', error);
     if (error instanceof FirebaseError) {
       if (error.code === 'auth/operation-not-allowed') {
-        throw new Error('Google Sign-In is not enabled. Please enable it in your Firebase console.');
+        throw new Error('Google Sign-In is not enabled. Please enable it in your Firebase console and add your domain to the list of authorized domains.');
       }
       throw new Error(error.message);
     }
