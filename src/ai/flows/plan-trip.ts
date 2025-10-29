@@ -8,6 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type PlanTripOutput } from './plan-trip.types';
+import { suggestTransportOptions } from './suggest-transport-options';
 
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
@@ -39,17 +40,12 @@ const prompt = ai.definePrompt({
       - **Analyze the Origin:** First, check if the user's origin is a major city with its own international airport.
       - **If NOT a Major Hub:** Your first step is to create a plan to get from the user's specific origin to the nearest major transport hub. Estimate the travel times for each leg of this journey (e.g., taxi, train). Populate the 'journeyToHub' field with these steps.
       - The 'journeyToHub' field should only be used if this preliminary travel is necessary.
-
-  3.  **Generate Mock Booking Options:**
-      - These options should be for the main journey from the identified transport hub to the final destination.
-      - Create a list of 3-4 realistic but *mock* booking options. Include a mix of flights, trains, buses, and driving/cab options where appropriate.
-      - For each option, provide a provider (e.g., "British Airways", "Uber", "National Express"), details, duration, price (in the requested currency), and a fake booking URL.
-
-  4.  **Generate Mock Hotel Options:**
+  
+  3.  **Generate Mock Hotel Options:**
       - Based on the user's accommodation preference ({{{accommodationType}}}) and interests (e.g., luxury, budget-friendly), suggest 3-4 realistic but *mock* hotel options in the destination.
       - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
 
-  5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
+  4.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.
       - For each activity, provide:
         - **Time:** A specific start time (e.g., "09:00 AM").
@@ -63,6 +59,8 @@ const prompt = ai.definePrompt({
       - **Be Realistic:** Ensure the plan is logical for the chosen tripPace. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
       - **Incorporate User Interests:** If the user mentions specific places, be sure to include them in the itinerary on different days.
 
+  You are NOT responsible for generating booking options. That will be handled by another service. Do not populate the 'bookingOptions' field.
+  
   Produce the final output in the required JSON format.
   `,
 });
@@ -74,7 +72,32 @@ const planTripFlow = ai.defineFlow(
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    return output!;
+    // Generate the main itinerary and hotel options
+    const itineraryPromise = prompt(input);
+    
+    // Concurrently, generate the transport booking options
+    const transportPromise = suggestTransportOptions({
+      origin: input.origin,
+      destination: input.destination,
+      currency: input.currency
+    });
+
+    const [{ output: itineraryOutput }, transportOutput] = await Promise.all([itineraryPromise, transportPromise]);
+
+    if (!itineraryOutput) {
+      throw new Error("Failed to generate itinerary.");
+    }
+
+    const bookingOptions = [];
+    if (transportOutput.best) bookingOptions.push(transportOutput.best);
+    if (transportOutput.cheapest) bookingOptions.push(transportOutput.cheapest);
+    if (transportOutput.eco) bookingOptions.push(transportOutput.eco);
+    bookingOptions.push(...transportOutput.other);
+    
+    // Combine the results
+    return {
+      ...itineraryOutput,
+      bookingOptions,
+    };
   }
 );

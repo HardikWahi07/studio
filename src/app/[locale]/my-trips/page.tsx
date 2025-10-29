@@ -177,7 +177,7 @@ export default function MyTripsPage() {
                                         <Link href={`/${locale}/my-trips/${trip.id}`}>View Itinerary</Link>
                                     </Button>
                                      <Button asChild variant="outline" className="flex-1">
-                                        <Link href={`/${locale}/my-trips/${trip.id}/book`}>Book Now</Link>
+                                        <Link href={`/${locale}/my-trips/${trip.id}/book`}>Suggest Bookings</Link>
                                     </Button>
                                 </div>
                             </CardContent>

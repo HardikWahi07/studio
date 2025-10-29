@@ -235,19 +235,6 @@
     "hospitalsTitle": "Nearby Hospitals",
     "waitingMessage": "Your safety guidance will appear here."
   },
-  "TransportPage": {
-    "title": "Smart Transport Recommender",
-    "description": "Compare your travel options by cost, time, and environmental impact. Choose the smarter, greener way to get there.",
-    "mockDataNotice": "(This is a concept demonstration with mock data)",
-    "routeTitle": "Your Route",
-    "fromLocation": "Origin",
-    "toLocation": "Destination",
-    "to": "to",
-    "from": "From",
-    "duration": "Duration",
-    "cost": "Est. Cost",
-    "carbon": "Carbon"
-  },
   "SuggestBookingsPage": {
     "title": "Suggest Transport Bookings",
     "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
@@ -298,5 +285,3 @@
     "noCityFound": "No city found."
   }
 }
-
-    

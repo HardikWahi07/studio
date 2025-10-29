@@ -61,7 +61,7 @@ export const PlanTripOutputSchema = z.object({
   tripTitle: z.string().describe('A creative and exciting title for the whole trip.'),
   journeyToHub: z.array(TransportSegmentSchema).optional().describe("A detailed, multi-modal plan to get from the user's origin to the nearest major transport hub (airport/train station). This should only be populated if the origin is not itself a major hub."),
   itinerary: z.array(DayPlanSchema),
-  bookingOptions: z.array(BookingOptionSchema).describe("A list of mock booking options for the main journey from origin to destination."),
+  bookingOptions: z.array(BookingOptionSchema).optional().describe("A list of mock booking options for the main journey from origin to destination."),
   hotelOptions: z.array(HotelOptionSchema).optional().describe("A list of 3-4 mock hotel suggestions based on user preferences."),
 });
 export type PlanTripOutput = z.infer<typeof PlanTripOutputSchema>;
