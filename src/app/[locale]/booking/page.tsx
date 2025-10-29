@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Calendar, CheckCircle, Users } from 'lucide-react';
@@ -27,7 +28,8 @@ export default function BookingPage() {
         if (!user || !firestore) return null;
         return query(
             collection(firestore, 'bookings'),
-            where('userId', '==', user.uid)
+            where('userId', '==', user.uid),
+            orderBy('bookedAt', 'desc')
         );
     }, [user, firestore]);
 
@@ -99,3 +101,5 @@ export default function BookingPage() {
         </main>
     );
 }
+
+    
