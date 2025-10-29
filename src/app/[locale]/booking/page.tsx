@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Calendar, CheckCircle, Users, Plane, Train, Bus, Hotel, ShoppingCart, ArrowRight, Wallet, Leaf, Clock, Star, CarFront } from 'lucide-react';
@@ -32,6 +32,7 @@ type Trip = PlanTripOutput & {
     destination: string;
     tripTitle: string;
     status?: 'Booked' | 'Pending';
+    createdAt: any;
 };
 
 const transportIcons: { [key: string]: React.ReactNode } = {
@@ -120,6 +121,7 @@ export default function BookingPage() {
             orderBy('createdAt', 'desc')
         );
     }, [user, firestore]);
+
     const { data: trips, isLoading: isLoadingTrips, forceRefetch: forceRefetchTrips } = useCollection<Trip>(tripsQuery);
     
     const selectedTrip = useMemo(() => {
@@ -131,14 +133,15 @@ export default function BookingPage() {
         if (!user || !firestore) return null;
         return query(
             collection(firestore, 'bookings'),
-            where('userId', '==', user.uid)
+            where('userId', '==', user.uid),
+            orderBy('bookedAt', 'desc')
         );
     }, [user, firestore]);
     const { data: localBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
 
     const sortedBookings = useMemo(() => {
         if (!localBookings) return [];
-        return [...localBookings].sort((a, b) => b.bookedAt.toDate().getTime() - a.bookedAt.toDate().getTime());
+        return localBookings;
     }, [localBookings]);
 
     const sortedBookingOptions = useMemo(() => {
@@ -244,6 +247,7 @@ export default function BookingPage() {
                                         <h3 className="text-sm font-semibold mb-2 text-muted-foreground tracking-wider uppercase">Cheapest</h3>
                                         <BookingOptionCard opt={sortedBookingOptions.cheapest} />
                                     </div>
+
                                 )}
                             </div>
                         </CardContent>
@@ -374,6 +378,3 @@ export default function BookingPage() {
         </main>
     );
 }
-
-
-    
