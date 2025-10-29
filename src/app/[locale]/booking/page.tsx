@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Briefcase, Calendar, CheckCircle, Users, Plane, Train, Bus, Hotel, ShoppingCart, ArrowRight, Wallet, Leaf, Clock, Star, CarFront } from 'lucide-react';
+import { Briefcase, Calendar, CheckCircle, Users, Plane, Train, Bus, Hotel, ShoppingCart, Wallet, Leaf, Clock, Star, CarFront } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -132,19 +132,15 @@ export default function BookingPage() {
 
     const bookingsQuery = useMemoFirebase(() => {
         if (!user || !firestore) return null;
-        // Fetch all bookings and filter on the client
+        // This query now fetches only the bookings belonging to the current user.
         return query(
             collection(firestore, 'bookings'),
+            where('userId', '==', user.uid),
             orderBy('bookedAt', 'desc')
         );
     }, [user, firestore]);
 
-    const { data: allBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
-
-    const userBookings = useMemo(() => {
-        if (!allBookings || !user) return [];
-        return allBookings.filter(booking => booking.userId === user.uid);
-    }, [allBookings, user]);
+    const { data: userBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
 
     const sortedBookingOptions = useMemo(() => {
         if (!selectedTrip?.bookingOptions) return { best: null, cheapest: null, eco: null };
@@ -283,7 +279,7 @@ export default function BookingPage() {
             );
         }
 
-        if (!userBookings.length) {
+        if (!userBookings || userBookings.length === 0) {
             return (
                 <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed">
                     <Briefcase className="h-16 w-16 text-muted-foreground/50" />
