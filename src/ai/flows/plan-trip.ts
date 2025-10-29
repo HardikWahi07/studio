@@ -65,8 +65,8 @@ const prompt = ai.definePrompt({
         - **Location:** The address or name of the place.
         - **Details:** Practical tips, booking information, or why it's a great spot.
       - **CRITICAL: For activities like "Lunch," "Dinner," "Coffee," or "Rest," you MUST suggest a specific, real business.** Base your suggestion on the user's interests (e.g., if they like "street food," find a highly-rated street food vendor; if they prefer "fine dining," find a suitable restaurant). For the 'location' field of that activity, provide the real name and address of the business. In the 'details' field, briefly explain why you chose it.
-      - **Include Detailed Transportation:** Between each activity, add a 'transportToNext' segment.
-        - **Estimate travel times.** Be specific and multi-modal. Instead of just "Take the metro", suggest a route.
+      - **MANDATORY: Include Detailed Transportation:** Between each activity, you MUST add a 'transportToNext' segment.
+        - **Estimate travel times.** Be specific and multi-modal. Instead of just "Take the metro", suggest a specific route and line.
         - **Prioritize Eco-Friendly & Cost-Effective Options:** Mark walking, cycling, or public transport as 'ecoFriendly: true'. Suggest taxis or ride-shares only when necessary.
       - **Be Realistic:** Ensure the plan is logical for the chosen tripPace. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
       - **Incorporate User Interests:** If the user mentions specific places, be sure to include them in the itinerary on different days.
