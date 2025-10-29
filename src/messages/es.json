@@ -27,7 +27,8 @@
     "termsOfService": "Términos de Servicio",
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
-    "contactUs": "Contáctanos"
+    "contactUs": "Contáctanos",
+    "login": "Iniciar Sesión"
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
@@ -302,5 +303,30 @@
     "selectPlaceholder": "Seleccionar ciudad...",
     "searchPlaceholder": "Buscar ciudad...",
     "noCityFound": "No se encontró la ciudad."
+  },
+  "BlogPage": {
+    "title": "Historias y Consejos de Viaje",
+    "description": "Ideas e inspiración de nuestra comunidad de viajeros.",
+    "searchPlaceholder": "Buscar historias...",
+    "createButton": "Crear Publicación",
+    "noPosts": "No se encontraron historias. ¿Por qué no ser el primero en compartir una?",
+    "readMore": "Leer Más"
+  },
+  "CreateBlogPage": {
+    "title": "Crea una Nueva Historia",
+    "description": "Comparte tus experiencias de viaje y consejos con la comunidad.",
+    "titleLabel": "Título",
+    "titlePlaceholder": "ej., Mi Semana Increíble en los Alpes",
+    "contentLabel": "Tu Historia",
+    "imageHintLabel": "Pista para la Imagen",
+    "imageHintPlaceholder": "ej., montañas nevadas",
+    "publishButton": "Publicar Historia",
+    "publishingButton": "Publicando...",
+    "errorTitle": "Fallo al Publicar",
+    "errorDescription": "No se pudo guardar tu historia. Por favor, inténtalo de nuevo.",
+    "successTitle": "¡Historia Publicada!",
+    "successDescription": "Tu historia de viaje ya está disponible para que todos la vean."
   }
 }
+
+    

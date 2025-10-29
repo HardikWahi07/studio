@@ -17,9 +17,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 import { DestinationCard } from '@/components/destination-card';
 import { getTranslations } from 'next-intl/server';
+import { getBlogs } from '@/lib/blog';
+import { format } from 'date-fns';
+import type { Blog } from '@/lib/types';
+
 
 export default async function DashboardPage() {
   const t = await getTranslations('DashboardPage');
+  const blogs = await getBlogs();
 
   const features = [
     {
@@ -42,30 +47,6 @@ export default async function DashboardPage() {
     },
   ];
 
-  const stories = [
-      {
-          id: 'story-solo',
-          title: t('story1Title'),
-          description: t('story1Description'),
-          readTime: t('story1ReadTime'),
-          imageHint: 'solo traveler'
-      },
-      {
-          id: 'story-budget',
-          title: t('story2Title'),
-          description: t('story2Description'),
-          readTime: t('story2ReadTime'),
-          imageHint: 'asia market'
-      },
-      {
-          id: 'story-cafes',
-          title: t('story3Title'),
-          description: t('story3Description'),
-          readTime: t('story3ReadTime'),
-          imageHint: 'european cafe'
-      }
-  ]
-
   const moreFeatures = [
     {
       icon: <Wallet className="h-8 w-8 text-primary" />,
@@ -86,6 +67,14 @@ export default async function DashboardPage() {
       link: '/transport',
     },
   ];
+
+  const getCreatedAtDate = (blog: Blog) => {
+    if (blog.createdAt?.toDate) { // It's a Firestore Timestamp
+      return blog.createdAt.toDate();
+    }
+    return new Date(blog.createdAt); // It's likely an ISO string from server-side rendering
+  };
+
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -108,7 +97,7 @@ export default async function DashboardPage() {
                 <Link href="/itinerary-planner">{t('startPlanning')}</Link>
               </Button>
                <Button asChild size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black text-lg px-8 py-6 rounded-full">
-                <Link href="#">{t('learnMore')}</Link>
+                <Link href="/about">{t('learnMore')}</Link>
               </Button>
             </div>
              <div className="mt-8 flex gap-4">
@@ -178,25 +167,31 @@ export default async function DashboardPage() {
                 </p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8 mt-12">
-                {stories.map(story => {
+                {blogs.slice(0,3).map(blog => {
+                    const readTime = Math.ceil(blog.content.split(' ').length / 200);
                     return (
-                    <Link href="#" key={story.id}>
+                    <Link href={`/blog/${blog.id}`} key={blog.id}>
                       <Card className="overflow-hidden group h-full">
                           <div className="aspect-video w-full overflow-hidden">
-                          <PexelsImage query={story.imageHint} alt={story.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
+                          <PexelsImage query={blog.imageHint || 'travel'} alt={blog.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
                           </div>
                           <CardContent className="p-6">
-                          <h3 className="font-bold text-lg">{story.title}</h3>
-                          <p className="text-muted-foreground text-sm mt-2">{story.description}</p>
+                          <h3 className="font-bold text-lg">{blog.title}</h3>
+                          <p className="text-muted-foreground text-sm mt-2 line-clamp-2">{blog.content}</p>
                           <div className="flex items-center text-sm text-muted-foreground mt-4">
                               <BookOpen className="w-4 h-4 mr-2" />
-                              <span>{story.readTime}</span>
+                              <span>{readTime} min read</span>
                           </div>
                           </CardContent>
                       </Card>
                     </Link>
                     )
                 })}
+                </div>
+                 <div className="text-center mt-12">
+                    <Button asChild>
+                        <Link href="/blog">Read More Stories</Link>
+                    </Button>
                 </div>
             </div>
         </section>

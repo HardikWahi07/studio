@@ -27,6 +27,8 @@ import {
   Mail,
   Book,
   Ticket,
+  User,
+  LogIn,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -41,6 +43,8 @@ import {
 import { cn } from "@/lib/utils"
 import { AuthButton } from "./auth-button"
 import { ThemeToggle } from "./theme-toggle";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import { AuthDialog } from "./auth-dialog"
 
 
 const languages = [
@@ -288,7 +292,7 @@ function useScrollState() {
   const locale = useLocale();
   const [isScrolled, setIsScrolled] = React.useState(false);
 
-  const isHomePage = pathname === `/${locale}`;
+  const isHomePage = pathname === `/${locale}` || pathname === '/';
 
   React.useEffect(() => {
     if (!isHomePage) {
@@ -369,10 +373,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
   const t = useTranslations('AppLayout');
   const locale = useLocale();
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
 
-  // FIX: Hydration error fix
-  // We use a state to track if the component has mounted.
-  // We only render the theme-dependent and scroll-dependent parts of the UI on the client, after mounting.
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => {
     setIsMounted(true);
@@ -383,6 +385,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/my-trips", label: t('myTrips') },
     { href: "/suggest-bookings", label: t('suggestBookings') },
     { href: "/booking", label: t('booking') },
+    { href: "/blog", label: t('blog') },
     { href: "/about", label: t('about') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "/local-artisans", label: t('localConnect') },
@@ -392,6 +395,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedOutNavItems = [
     { href: "/", label: t('home') },
     { href: "/about", label: t('about') },
+    { href: "/blog", label: t('blog') },
     { href: "/suggest-bookings", label: t('suggestBookings') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "#", label: t('helpCenter') },
@@ -417,7 +421,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const footerCompanyLinks = [
     { key: "about", href: `/${locale}/about`, label: t('aboutUs') },
-    { key: "blog", href: "#", label: t('blog') },
+    { key: "blog", href: `/${locale}/blog`, label: t('blog') },
     { key: "work", href: "#", label: t('workWithUs') },
   ];
 
@@ -432,6 +436,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
+       <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
       <header className={cn(
           "sticky top-0 z-50 w-full transition-all duration-300",
           isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm border-b" : "bg-transparent"
@@ -475,6 +480,24 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <SheetContent side="left">
                 {isMounted && !isUserLoading && (
                   <nav className="grid gap-6 text-lg font-medium mt-8">
+                     {user ? (
+                        <div className="flex items-center gap-4 px-2.5 text-muted-foreground">
+                            <Avatar className="h-10 w-10">
+                                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
+                                <AvatarFallback><User /></AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none text-foreground">{user.displayName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                            </div>
+                        </div>
+                    ) : (
+                       <Button onClick={() => setIsAuthDialogOpen(true)} className="flex items-center gap-4 justify-start" variant="outline">
+                          <LogIn />
+                          {t('login')}
+                       </Button>
+                    )}
+                    <DropdownMenuSeparator />
                     {allNavItems.map((item) => (
                       <Link
                         key={item.label}
@@ -534,3 +557,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+    
