@@ -11,15 +11,15 @@ export async function handleGoogleSignIn() {
   try {
     const result = await signInWithPopup(auth, provider);
     return result.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error during Google sign-in:', error);
     if (error instanceof FirebaseError) {
       if (error.code === 'auth/operation-not-allowed') {
         throw new Error('Google Sign-In is not enabled. Please enable it in your Firebase console and add your domain to the list of authorized domains.');
       }
-      throw new Error(error.message);
     }
-    throw new Error('An unknown error occurred during sign-in.');
+    // Always throw the original error message for better debugging
+    throw new Error(error.message || 'An unknown error occurred during sign-in.');
   }
 }
 
@@ -30,7 +30,7 @@ export async function handleEmailSignUp(email: string, password: string, display
     if (auth.currentUser) {
       await updateProfile(auth.currentUser, { displayName });
     }
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error during Email sign-up:', error);
     if (error instanceof FirebaseError) {
       if (error.code === 'auth/operation-not-allowed') {
@@ -39,9 +39,8 @@ export async function handleEmailSignUp(email: string, password: string, display
       if (error.code === 'auth/email-already-in-use') {
         throw new Error('This email is already in use. Please sign in or use a different email.');
       }
-      throw new Error(error.message);
     }
-    throw new Error('An unknown error occurred during sign-up.');
+    throw new Error(error.message || 'An unknown error occurred during sign-up.');
   }
 }
 
@@ -49,7 +48,7 @@ export async function handleEmailSignIn(email: string, password: string): Promis
   const auth = getAuth();
   try {
     await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error during Email sign-in:', error);
     if (error instanceof FirebaseError) {
        if (error.code === 'auth/operation-not-allowed') {
@@ -58,9 +57,8 @@ export async function handleEmailSignIn(email: string, password: string): Promis
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
         throw new Error('Invalid email or password. Please try again.');
       }
-      throw new Error(error.message);
     }
-    throw new Error('An unknown error occurred during sign-in.');
+    throw new Error(error.message || 'An unknown error occurred during sign-in.');
   }
 }
 
