@@ -45,7 +45,7 @@ const DayPlanSchema = z.object({
 const BookingOptionSchema = z.object({
     type: z.enum(['flight', 'train', 'bus', 'driving']).describe('Type of transport.'),
     provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive", "IRCTC"'),
-    details: z.string().describe('e.g., "Flight IB388, Non-stop" or "Via I-90 E" or "AC First Class (1A)"'),
+    details: z.string().describe('e.g., "Dep: 08:30, Arr: 11:00, Flight IB388" or "Dep: 14:00, Arr: 18:30, AC First Class"'),
     duration: z.string().describe('e.g., "2h 30m"'),
     price: z.string().describe('e.g., "€120"'),
     ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),

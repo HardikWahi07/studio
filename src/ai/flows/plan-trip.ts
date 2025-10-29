@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   2.  **Generate Main Booking Options:**
       - **CRITICAL:** You MUST generate a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.
       - Include a mix of flights, trains, and buses where appropriate for the distance.
-      - For each option, provide a provider, details, duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
+      - For each option, provide a provider, details (including realistic mock departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
       - For train options, especially in India, include different travel classes like "AC First Class (1A)", "AC 2 Tier (2A)", "Shatabdi Express (CC)", or "Vande Bharat (EC)" in the details field. If the user specified a trainClass preference, prioritize suggestions in that class.
       - For flights, use providers like 'IndiGo', 'Vistara', 'Air India', etc. If the user specified a planeClass preference, prioritize suggestions in that class.
 
