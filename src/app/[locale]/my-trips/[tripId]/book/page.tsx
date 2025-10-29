@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useMemo } from 'react';
@@ -9,10 +10,12 @@ import type { PlanTripOutput, BookingOption, HotelOption } from '@/ai/flows/plan
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Briefcase, Plane, Train, Bus, Leaf, Hotel, Star, Clock, CarFront, CheckCircle, ShoppingCart } from 'lucide-react';
 import Link from 'next/link';
-import { useLocale, useTranslations } from 'next-intl';
+import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+
+type TripData = PlanTripOutput & { tripTitle: string; destination: string; status?: 'Booked' | 'Pending' };
 
 const transportIcons: { [key: string]: React.ReactNode } = {
     flight: <Plane className="h-6 w-6 text-sky-500" />,
@@ -98,21 +101,21 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
         return doc(firestore, 'users', user.uid, 'trips', tripId);
     }, [user, firestore, tripId]);
 
-    const { data: trip, isLoading: isLoadingTrip } = useDoc<PlanTripOutput & { tripTitle: string, status?: string }>(tripDocRef);
+    const { data: trip, isLoading: isLoadingTrip, forceRefetch } = useDoc<TripData>(tripDocRef);
 
     const isLoading = isUserLoading || isLoadingTrip;
 
     const sortedBookingOptions = useMemo(() => {
         if (!trip?.bookingOptions) return { best: null, cheapest: null, eco: null };
-
+        const parsePrice = (price: string) => parseFloat(price.replace(/[^0-9.]/g, ''));
+        
+        const sortedByPrice = [...trip.bookingOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+        
         const flights = trip.bookingOptions.filter(o => o.type === 'flight');
         const trains = trip.bookingOptions.filter(o => o.type === 'train');
         
         const eco = trains.length > 0 ? trains[0] : trip.bookingOptions.find(o => o.ecoFriendly);
-        
-        const parsePrice = (price: string) => parseFloat(price.replace(/[^0-9.]/g, ''));
-        const cheapest = [...trip.bookingOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price))[0];
-
+        const cheapest = sortedByPrice[0];
         const best = flights.length > 0 ? flights[0] : cheapest;
 
         return { best, cheapest, eco };
@@ -121,13 +124,12 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
     const handleConfirmBooking = async () => {
         if (!tripDocRef) return;
         try {
-            await updateDoc(tripDocRef, {
-                status: 'Booked'
-            });
+            await updateDoc(tripDocRef, { status: 'Booked' });
             toast({
                 title: "Trip Booked!",
                 description: "Your trip status has been updated.",
             });
+            if (forceRefetch) forceRefetch();
             router.push(`/${locale}/my-trips`);
         } catch(e) {
             toast({
@@ -163,7 +165,7 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
                         <Briefcase className="h-16 w-16 text-muted-foreground/50" />
                         <h3 className="mt-4 font-bold text-lg">Trip Not Found</h3>
                         <p className="mt-2 text-muted-foreground max-w-sm">
-                            We couldn't find the trip you're looking for. It might have been moved or deleted.
+                            We couldn't find the trip you're looking for.
                         </p>
                     </Card>
                 </div>
