@@ -8,6 +8,7 @@
 
 import { ai } from '@/ai/genkit';
 import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type PlanTripOutput } from './plan-trip.types';
+import { getTrainAvailability } from '../tools/get-train-availability';
 
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
@@ -17,6 +18,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: PlanTripInputSchema },
   output: { schema: PlanTripOutputSchema },
+  tools: [getTrainAvailability],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -39,11 +41,12 @@ const prompt = ai.definePrompt({
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
   
   2.  **Generate Main Booking Options:**
-      - **CRITICAL:** You MUST generate a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.
+      - **CRITICAL: You MUST generate a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.**
       - Include a mix of flights, trains, and buses where appropriate for the distance.
+      - **For train options, you MUST use the 'getTrainAvailability' tool** to check for real-time seat availability. Use the user's origin, destination, and departure date. If the tool returns results, integrate them into your suggestions and set the 'availability' status accordingly. Do not show sold-out trains.
       - For each option, provide a provider, details (including realistic mock departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
       - For train options, especially in India, include different travel classes like "AC First Class (1A)", "AC 2 Tier (2A)", "Shatabdi Express (CC)", or "Vande Bharat (EC)" in the details field. If the user specified a trainClass preference, prioritize suggestions in that class.
-      - For flights, use providers like 'IndiGo', 'Vistara', 'Air India', etc. If the user specified a planeClass preference, prioritize suggestions in that class.
+      - For flights, use providers like 'IndiGo', 'Vistara', 'Air India', etc. If the user specified a planeClass preference, prioritize suggestions in that class. Set flight availability to 'N/A'.
 
   3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely and return an empty array for 'hotelOptions'.

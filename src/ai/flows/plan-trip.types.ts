@@ -50,6 +50,7 @@ const BookingOptionSchema = z.object({
     price: z.string().describe('e.g., "€120"'),
     ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
     bookingLink: z.string().url().describe('A mock URL to a booking page.'),
+    availability: z.enum(['Available', 'Waitlist', 'Sold Out', 'N/A']).optional().describe('The real-time availability status for this option.'),
 });
 
 const HotelOptionSchema = z.object({
