@@ -87,11 +87,11 @@ export default function TripDetailsPage({ params: paramsPromise }: { params: Pro
                             Back to My Trips
                         </Link>
                     </Button>
-                    {trip && trip.status !== 'Booked' && (
+                    {trip && (
                         <Button asChild>
                             <Link href={`/${locale}/my-trips/${tripId}/book`}>
                                 <ShoppingCart className="mr-2" />
-                                Book Trip
+                                Suggest Bookings
                             </Link>
                         </Button>
                     )}

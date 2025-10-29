@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PlanTripOutput, BookingOption, HotelOption } from '@/ai/flows/plan-trip.types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Briefcase, Plane, Train, Bus, Leaf, Hotel, Star, Clock, CarFront, CheckCircle, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Briefcase, Plane, Train, Bus, Leaf, Hotel, Star, Clock, CarFront, CheckCircle, ShoppingCart, Award, BadgeEuro, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
@@ -24,7 +24,7 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     driving: <CarFront className="h-6 w-6 text-gray-500" />,
 };
 
-function BookingOptionCard({ opt }: { opt: BookingOption }) {
+function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recommendation?: 'Best' | 'Cheapest' | 'Eco-Friendly' }) {
     const { toast } = useToast();
     
     const handleBook = () => {
@@ -34,15 +34,25 @@ function BookingOptionCard({ opt }: { opt: BookingOption }) {
         });
     }
 
+    const recommendationBadges = {
+        'Best': <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200"><Sparkles className="w-3 h-3 mr-1"/>Best Option</Badge>,
+        'Cheapest': <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200"><BadgeEuro className="w-3 h-3 mr-1"/>Cheapest</Badge>,
+        'Eco-Friendly': <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>,
+    }
+
     return (
         <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 gap-4 transition-shadow hover:shadow-md">
             <div className="flex items-center gap-4">
                 {transportIcons[opt.type]}
                 <div>
-                    <p className="font-bold">{opt.provider} <span className="font-normal text-muted-foreground text-sm">{opt.details}</span></p>
+                    <div className="flex items-center gap-2">
+                        <p className="font-bold">{opt.provider}</p>
+                        {recommendation && recommendationBadges[recommendation]}
+                    </div>
+                    <p className="font-normal text-muted-foreground text-sm">{opt.details}</p>
                     <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3"/>{opt.duration}</span>
-                        {opt.ecoFriendly && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800/50"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>}
+                        {opt.ecoFriendly && !recommendation && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-800/50"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>}
                     </div>
                 </div>
             </div>
@@ -106,19 +116,22 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
     const isLoading = isUserLoading || isLoadingTrip;
 
     const sortedBookingOptions = useMemo(() => {
-        if (!trip?.bookingOptions) return { best: null, cheapest: null, eco: null };
+        if (!trip?.bookingOptions) return { best: null, cheapest: null, eco: null, other: [] };
         const parsePrice = (price: string) => parseFloat(price.replace(/[^0-9.]/g, ''));
-        
-        const sortedByPrice = [...trip.bookingOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-        
-        const flights = trip.bookingOptions.filter(o => o.type === 'flight');
-        const trains = trip.bookingOptions.filter(o => o.type === 'train');
-        
-        const eco = trains.length > 0 ? trains[0] : trip.bookingOptions.find(o => o.ecoFriendly);
-        const cheapest = sortedByPrice[0];
-        const best = flights.length > 0 ? flights[0] : cheapest;
 
-        return { best, cheapest, eco };
+        const sortedByPrice = [...trip.bookingOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+
+        const cheapest = sortedByPrice[0];
+        const eco = trip.bookingOptions.find(o => o.ecoFriendly && o.provider !== cheapest.provider);
+        
+        let best = trip.bookingOptions.find(o => o.type === 'flight' && o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
+        if (!best) {
+            best = trip.bookingOptions.find(o => o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
+        }
+
+        const other = trip.bookingOptions.filter(o => o.provider !== best?.provider && o.provider !== cheapest.provider && o.provider !== eco?.provider);
+
+        return { best, cheapest, eco, other };
     }, [trip?.bookingOptions]);
     
     const handleConfirmBooking = async () => {
@@ -199,7 +212,7 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
 
                 <div className="space-y-2">
                     <h1 className="font-headline text-3xl md:text-4xl font-bold flex items-center gap-2">
-                        <ShoppingCart /> Book Your Trip to {trip.destination}
+                        <ShoppingCart /> Suggested Bookings for {trip.destination}
                     </h1>
                     <p className="text-muted-foreground max-w-2xl">
                         Here are the AI-suggested options for your trip. Click "Book" to visit the provider's site.
@@ -214,26 +227,10 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
                                 <CardDescription>Our AI has found these options for your main travel leg.</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                {sortedBookingOptions.best && (
-                                     <div>
-                                        <h3 className="text-sm font-semibold mb-2 text-muted-foreground tracking-wider uppercase">Best Option</h3>
-                                        <BookingOptionCard opt={sortedBookingOptions.best} />
-                                     </div>
-                                )}
-                                <div className="grid md:grid-cols-2 gap-4 pt-4">
-                                    {sortedBookingOptions.eco && (
-                                        <div>
-                                            <h3 className="text-sm font-semibold mb-2 text-muted-foreground tracking-wider uppercase">Eco-Friendly</h3>
-                                            <BookingOptionCard opt={sortedBookingOptions.eco} />
-                                        </div>
-                                    )}
-                                    {sortedBookingOptions.cheapest && (
-                                        <div>
-                                            <h3 className="text-sm font-semibold mb-2 text-muted-foreground tracking-wider uppercase">Cheapest</h3>
-                                            <BookingOptionCard opt={sortedBookingOptions.cheapest} />
-                                        </div>
-                                    )}
-                                </div>
+                                {sortedBookingOptions.cheapest && <BookingOptionCard opt={sortedBookingOptions.cheapest} recommendation="Cheapest" />}
+                                {sortedBookingOptions.best && <BookingOptionCard opt={sortedBookingOptions.best} recommendation="Best" />}
+                                {sortedBookingOptions.eco && <BookingOptionCard opt={sortedBookingOptions.eco} recommendation="Eco-Friendly" />}
+                                {sortedBookingOptions.other.map((opt, idx) => <BookingOptionCard key={idx} opt={opt} />)}
                             </CardContent>
                         </Card>
                     )}
