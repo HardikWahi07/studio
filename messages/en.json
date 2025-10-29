@@ -115,6 +115,10 @@
     "happyTravelers": "Happy Travelers",
     "destinations": "Destinations"
   },
+  "BookingPage": {
+    "title": "My Bookings",
+    "description": "Manage all your confirmed rides and experiences with local supporters."
+  },
   "DestinationPage": {
     "reviews": "reviews",
     "about": "About {destinationName}",
