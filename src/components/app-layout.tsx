@@ -4,7 +4,7 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useSettings } from "@/context/settings-context"
 import { useTranslations } from 'next-intl';
 import { useLocale } from 'next-intl';
@@ -313,11 +313,12 @@ function LanguageSelector() {
     const { isScrolled, isHomePage } = useScrollState();
     const { theme } = useTheme();
     const pathname = usePathname();
+    const router = useRouter();
     const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
     
     const handleLanguageChange = (langCode: string) => {
       const newPath = pathname.replace(/^\/[a-z]{2}/, `/${langCode}`);
-      window.location.href = newPath;
+      router.push(newPath);
     }
 
     return (
