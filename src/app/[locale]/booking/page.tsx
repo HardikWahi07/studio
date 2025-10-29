@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -26,14 +26,13 @@ export default function BookingPage() {
     const firestore = useFirestore();
 
     const bookingsQuery = useMemoFirebase(() => {
-        // This is the critical fix: Do not create the query if the user is loading or not present.
-        if (isUserLoading || !user || !firestore) return null;
+        if (!user || !firestore) return null;
         
         return query(
             collection(firestore, 'bookings'),
             where('userId', '==', user.uid)
         );
-    }, [user, isUserLoading, firestore]);
+    }, [user, firestore]);
 
     const { data: localBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
 
@@ -42,7 +41,6 @@ export default function BookingPage() {
         return [...localBookings].sort((a, b) => b.bookedAt.toDate().getTime() - a.bookedAt.toDate().getTime());
     }, [localBookings]);
 
-    // The page is only truly loading if auth is still checking OR if we have a user but bookings aren't loaded yet.
     const isLoading = isUserLoading || (!!user && isLoadingBookings);
 
     const renderContent = () => {
