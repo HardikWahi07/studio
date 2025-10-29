@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -19,6 +20,7 @@ import { LogIn, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AuthDialog } from './auth-dialog';
 import { useTranslations } from 'next-intl';
+import { useTheme } from 'next-themes';
 
 interface AuthButtonProps {
   isHomePage: boolean;
@@ -29,7 +31,12 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
   const { user, isUserLoading } = useUser();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const t = useTranslations('AuthButton');
-  const buttonColorClass = isHomePage && !isScrolled ? 'text-white hover:text-white' : 'text-foreground hover:text-primary';
+  const { theme } = useTheme();
+
+  const buttonColorClass = isHomePage && !isScrolled && theme === 'dark'
+    ? 'text-white hover:text-white'
+    : 'text-foreground hover:text-primary';
+
 
   if (isUserLoading) {
     return <Skeleton className="h-10 w-24" />;
@@ -75,3 +82,5 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
     </>
   );
 }
+
+    

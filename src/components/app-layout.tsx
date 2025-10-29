@@ -1,4 +1,5 @@
 
+
 "use client"
 
 import * as React from "react"
@@ -216,7 +217,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
 
-  const linkColorClass = isHomePage && !isScrolled && theme !== 'dark' ? "text-white" : "text-foreground";
+  const linkColorClass = isHomePage && !isScrolled && theme === 'dark' ? "text-white" : "text-foreground";
 
   return (
     <Link
@@ -235,7 +236,7 @@ function TravelToolsDropdown() {
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   
-  const linkColorClass = isHomePage && !isScrolled && theme !== 'dark' ? "text-white" : "text-foreground";
+  const linkColorClass = isHomePage && !isScrolled && theme === 'dark' ? "text-white" : "text-foreground";
 
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('expenseSplitter') },
@@ -311,7 +312,7 @@ function LanguageSelector() {
     const { isScrolled, isHomePage } = useScrollState();
     const { theme } = useTheme();
     const pathname = usePathname();
-    const buttonColorClass = isHomePage && !isScrolled && theme !== 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
     
     const handleLanguageChange = (langCode: string) => {
       // a regex to replace the current locale in the path
@@ -341,7 +342,7 @@ function CurrencySelector() {
     const { isScrolled, isHomePage } = useScrollState();
     const { theme } = useTheme();
     const { setCurrency } = useSettings();
-    const buttonColorClass = isHomePage && !isScrolled && theme !== 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
 
     return (
         <DropdownMenu>
@@ -416,6 +417,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { key: "tos", href: "#", label: t('termsOfService') },
   ];
 
+  const logoColor = isHomePage && !isScrolled && theme === 'dark' ? 'text-white' : 'text-primary';
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className={cn(
@@ -424,7 +427,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
           <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-             <Logo className={cn(isHomePage && !isScrolled && theme !== 'dark' ? 'text-white' : 'text-primary')} />
+             <Logo className={logoColor} />
           </Link>
           {!isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
@@ -435,7 +438,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </nav>
           )}
           <div className="ml-auto flex items-center gap-1">
-            <ThemeToggle className={cn(isHomePage && !isScrolled && theme !== 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground')} />
+            <ThemeToggle className={cn(isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground')} />
             <LanguageSelector />
             <CurrencySelector />
             <AuthButton isScrolled={isScrolled} isHomePage={isHomePage} />
@@ -508,3 +511,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+    
