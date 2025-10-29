@@ -27,7 +27,10 @@ async function seedDatabase() {
                 location: "Madrid, Spain",
                 languages: ["Spanish", "English"],
                 avatarUrl: "https://i.pravatar.cc/150?u=maria",
-                response_time: "Within a few hours",
+                services: [
+                    { name: 'Welcome Walk & Chat', description: 'A 1-hour introductory walk.', icon: 'Coffee' },
+                    { name: 'Airport Welcome Ride', description: 'Pickup from MAD airport.', icon: 'Car' }
+                ],
                 availability: [
                     { day: 'Monday', time: '10:00 AM', booked: false },
                     { day: 'Monday', time: '2:00 PM', booked: false },
@@ -42,7 +45,9 @@ async function seedDatabase() {
                 location: "Tokyo, Japan",
                 languages: ["Japanese", "English"],
                 avatarUrl: "https://i.pravatar.cc/150?u=kenji",
-                response_time: "Usually in the evening",
+                services: [
+                    { name: 'Shibuya Crossing Tour', description: 'A guided tour of the famous crossing.', icon: 'Coffee' },
+                ],
                 availability: [
                     { day: 'Tuesday', time: '6:00 PM', booked: false },
                     { day: 'Thursday', time: '7:00 PM', booked: false },
@@ -56,7 +61,9 @@ async function seedDatabase() {
                 location: "Mumbai, India",
                 languages: ["Hindi", "English", "Marathi"],
                 avatarUrl: "https://i.pravatar.cc/150?u=aisha",
-                response_time: "Within an hour",
+                 services: [
+                    { name: 'Welcome Ride', description: 'Pickup from your hotel.', icon: 'Car' }
+                ],
                 availability: [
                     { day: 'Monday', time: '1:00 PM', booked: false },
                     { day: 'Tuesday', time: '1:00 PM', booked: false },

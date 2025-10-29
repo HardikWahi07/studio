@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MessageSquare, Clock, MapPin, Users, Search, Check, Loader2, X } from 'lucide-react';
+import { MessageSquare, MapPin, Users, Search, Check, Loader2, Car, Coffee } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useTranslations } from 'next-intl';
 import {
@@ -28,6 +28,12 @@ type AvailabilitySlot = {
     booked: boolean;
 };
 
+type SupporterService = {
+    name: string;
+    description: string;
+    icon: 'Car' | 'Coffee';
+}
+
 type LocalSupporter = {
     id: string;
     name: string;
@@ -35,11 +41,16 @@ type LocalSupporter = {
     location: string;
     languages: string[];
     avatarUrl: string;
-    response_time: string;
+    services: SupporterService[];
     availability: AvailabilitySlot[];
 };
 
 type GeoState = 'idle' | 'getting_location' | 'fetching_supporters' | 'error' | 'success';
+
+const serviceIcons = {
+    Car: <Car className="w-4 h-4" />,
+    Coffee: <Coffee className="w-4 h-4" />,
+}
 
 export default function LocalSupportersPage() {
     const t = useTranslations('LocalSupportersPage');
@@ -55,6 +66,7 @@ export default function LocalSupportersPage() {
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [selectedSupporter, setSelectedSupporter] = useState<LocalSupporter | null>(null);
     const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
+    const [selectedService, setSelectedService] = useState<SupporterService | null>(null);
     const [isProcessingBooking, setIsProcessingBooking] = useState(false);
     const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
@@ -119,25 +131,25 @@ export default function LocalSupportersPage() {
         setGeoState('fetching_supporters');
     }
 
-    const openBookingModal = (supporter: LocalSupporter, slot: AvailabilitySlot) => {
+    const openBookingModal = (supporter: LocalSupporter, service: SupporterService, slot: AvailabilitySlot) => {
         if (!user) {
             setIsAuthDialogOpen(true);
             return;
         }
         setSelectedSupporter(supporter);
+        setSelectedService(service);
         setSelectedSlot(slot);
         setIsBookingModalOpen(true);
     };
 
     const handleConfirmBooking = async () => {
-        if (!firestore || !user || !selectedSupporter || !selectedSlot) return;
+        if (!firestore || !user || !selectedSupporter || !selectedSlot || !selectedService) return;
 
         setIsProcessingBooking(true);
 
         try {
             const batch = writeBatch(firestore);
 
-            // 1. Create a new booking document
             const bookingRef = doc(collection(firestore, 'bookings'));
             batch.set(bookingRef, {
                 id: bookingRef.id,
@@ -145,13 +157,12 @@ export default function LocalSupportersPage() {
                 userName: user.displayName,
                 supporterId: selectedSupporter.id,
                 supporterName: selectedSupporter.name,
-                experience: "Welcome Walk & Chat",
+                experience: selectedService.name,
                 day: selectedSlot.day,
                 time: selectedSlot.time,
                 bookedAt: serverTimestamp(),
             });
 
-            // 2. Update the supporter's availability
             const supporterRef = doc(firestore, 'supporters', selectedSupporter.id);
             const updatedAvailability = selectedSupporter.availability.map(slot => 
                 (slot.day === selectedSlot.day && slot.time === selectedSlot.time)
@@ -164,10 +175,9 @@ export default function LocalSupportersPage() {
 
             toast({
                 title: 'Booking Confirmed!',
-                description: `Your meeting with ${selectedSupporter.name} is set.`,
+                description: `Your ${selectedService.name} with ${selectedSupporter.name} is set.`,
             });
             
-            // Force a refetch of the supporters data to show updated availability
             if (forceRefetch) forceRefetch();
 
         } catch (error) {
@@ -262,25 +272,48 @@ export default function LocalSupportersPage() {
                                 </div>
                                 
                             </CardContent>
-                            <CardFooter className="flex-col gap-4">
-                                 <div className="w-full text-left">
-                                     <h4 className="font-bold text-sm mb-2">Book an Experience</h4>
-                                     <div className="flex flex-wrap gap-2">
-                                         {supporter.availability?.map((slot, index) => (
-                                            <Button 
-                                                key={index}
-                                                variant={slot.booked ? "secondary" : "outline"}
-                                                size="sm"
-                                                disabled={slot.booked}
-                                                onClick={() => openBookingModal(supporter, slot)}
-                                                className="text-xs"
-                                            >
-                                                {slot.day}, {slot.time}
-                                            </Button>
-                                         ))}
-                                     </div>
+                            <CardFooter className="flex-col gap-4 items-start">
+                                 <div className="w-full">
+                                     <h4 className="font-bold text-sm mb-2">Book a Service</h4>
+                                      {supporter.services?.map((service) => (
+                                        <div key={service.name} className="p-3 rounded-md bg-secondary mb-2">
+                                            <div className="flex justify-between items-center">
+                                                <div>
+                                                    <p className='font-semibold text-foreground flex items-center gap-2'>
+                                                        {serviceIcons[service.icon]}
+                                                        {service.name}
+                                                    </p>
+                                                    <p className='text-xs text-muted-foreground mt-1'>{service.description}</p>
+                                                </div>
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                         <Button size="sm">Book</Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent>
+                                                        <DialogHeader>
+                                                            <DialogTitle>Book "{service.name}" with {supporter.name}</DialogTitle>
+                                                            <DialogDescription>Select an available time slot below.</DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4">
+                                                            {supporter.availability?.map((slot, index) => (
+                                                                <Button 
+                                                                    key={index}
+                                                                    variant={slot.booked ? "secondary" : "outline"}
+                                                                    disabled={slot.booked}
+                                                                    onClick={() => openBookingModal(supporter, service, slot)}
+                                                                    className="text-xs"
+                                                                >
+                                                                    {slot.day.substring(0,3)}, {slot.time}
+                                                                </Button>
+                                                            ))}
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+                                            </div>
+                                        </div>
+                                     ))}
                                  </div>
-                                <Button className="w-full">
+                                <Button className="w-full" variant="outline">
                                     <MessageSquare className="mr-2 h-4 w-4" />
                                     {t('messageButton')}
                                 </Button>
@@ -310,7 +343,7 @@ export default function LocalSupportersPage() {
                     <DialogHeader>
                         <DialogTitle>Confirm Your Booking</DialogTitle>
                         <DialogDescription>
-                            You are booking a "Welcome Walk & Chat" with <span className="font-bold">{selectedSupporter?.name}</span> for <span className="font-bold">{selectedSlot?.day} at {selectedSlot?.time}</span>.
+                            You are booking a "{selectedService?.name}" with <span className="font-bold">{selectedSupporter?.name}</span> for <span className="font-bold">{selectedSlot?.day} at {selectedSlot?.time}</span>.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
@@ -359,4 +392,3 @@ export default function LocalSupportersPage() {
         </>
     );
 }
-    
