@@ -1,7 +1,7 @@
 
 'use client';
 
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getAuth, signInWithPopup, signInWithRedirect, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
 const provider = new GoogleAuthProvider();
@@ -13,13 +13,18 @@ export async function handleGoogleSignIn() {
     return result.user;
   } catch (error: any) {
     console.error('Error during Google sign-in:', error);
-    if (error instanceof FirebaseError) {
-      if (error.code === 'auth/operation-not-allowed') {
-        throw new Error('Google Sign-In is not enabled. Please enable it in your Firebase console and add your domain to the list of authorized domains.');
-      }
+    if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+      // If popup is blocked, fall back to redirect method.
+      // This will navigate the user to the Google sign-in page
+      // and then redirect back to your app.
+      console.log('Popup blocked, falling back to redirect sign-in.');
+      await signInWithRedirect(auth, provider);
+      // No need to return anything here, as the page will redirect.
+      // Firebase auth state observer will handle the user session on return.
+    } else {
+      // For other errors, throw the original message for debugging.
+      throw new Error(error.message || 'An unknown error occurred during sign-in.');
     }
-    // Always throw the original error message for better debugging
-    throw new Error(error.message || 'An unknown error occurred during sign-in.');
   }
 }
 
