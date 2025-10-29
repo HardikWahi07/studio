@@ -18,7 +18,7 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const locale = useLocale();
-    const tripId = React.use(params).tripId;
+    const tripId = params.tripId;
 
     const tripDocRef = useMemoFirebase(() => {
         if (!user || !firestore || !tripId) return null;

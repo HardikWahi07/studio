@@ -45,7 +45,11 @@ const prompt = ai.definePrompt({
       - Create a list of 3-4 realistic but *mock* booking options. Include a mix of flights, trains, buses, and driving/cab options where appropriate.
       - For each option, provide a provider (e.g., "British Airways", "Uber", "National Express"), details, duration, price (in the requested currency), and a fake booking URL.
 
-  4.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
+  4.  **Generate Mock Hotel Options:**
+      - Based on the user's accommodation preference ({{{accommodationType}}}) and interests (e.g., luxury, budget-friendly), suggest 3-4 realistic but *mock* hotel options in the destination.
+      - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
+
+  5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.
       - For each activity, provide:
         - **Time:** A specific start time (e.g., "09:00 AM").

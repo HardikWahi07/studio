@@ -6,10 +6,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
-    Plane, Train, Bus, Leaf,
+    Plane, Train, Bus, Leaf, Star, Hotel,
     Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront
 } from "lucide-react";
-import type { PlanTripOutput, TransportSegment, BookingOption } from '@/ai/flows/plan-trip.types';
+import type { PlanTripOutput, TransportSegment, BookingOption, HotelOption } from '@/ai/flows/plan-trip.types';
 
 const transportIcons: { [key: string]: React.ReactNode } = {
     Walk: <Footprints className="h-5 w-5 text-green-500" />,
@@ -67,6 +67,28 @@ function BookingOptionDisplay({ opt }: { opt: BookingOption }) {
     )
 }
 
+function HotelOptionDisplay({ opt }: { opt: HotelOption }) {
+     return (
+        <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 gap-4">
+            <div className="flex items-center gap-4">
+                <Hotel className="h-5 w-5 text-blue-500" />
+                <div>
+                    <p className="font-bold">{opt.name} <span className="font-normal text-muted-foreground text-sm">{opt.style}</span></p>
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1"><Star className="w-3 h-3 text-yellow-500 fill-yellow-500"/>{opt.rating}</span>
+                    </div>
+                </div>
+            </div>
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+                <p className="font-bold text-lg">{opt.pricePerNight}<span className="text-sm font-normal text-muted-foreground">/night</span></p>
+                <Button asChild className="w-full sm:w-auto">
+                    <Link href={opt.bookingLink} target="_blank">Book Now</Link>
+                </Button>
+            </div>
+        </Card>
+    )
+}
+
 
 export function TripItinerary({ results }: { results: PlanTripOutput }) {
   return (
@@ -84,10 +106,21 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
       
       {results.bookingOptions?.length > 0 && (
         <Card>
-            <CardHeader><CardTitle>Booking Options</CardTitle></CardHeader>
+            <CardHeader><CardTitle>Transport Options</CardTitle></CardHeader>
             <CardContent className="space-y-4">
                 {results.bookingOptions.map((opt, idx) => (
                     <BookingOptionDisplay key={idx} opt={opt} />
+                ))}
+            </CardContent>
+        </Card>
+      )}
+
+      {results.hotelOptions?.length > 0 && (
+        <Card>
+            <CardHeader><CardTitle>Hotel Suggestions</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+                {results.hotelOptions.map((opt, idx) => (
+                    <HotelOptionDisplay key={idx} opt={opt} />
                 ))}
             </CardContent>
         </Card>

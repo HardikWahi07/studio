@@ -83,7 +83,7 @@ export default function TripPlannerPage() {
             const values = form.getValues();
             const tripRef = doc(collection(firestore, `users/${user.uid}/trips`));
             await setDoc(tripRef, {
-                id: tripRef.id, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(),
+                id: tripRef.id, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, hotelOptions: results.hotelOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(),
             });
             toast({ title: "Itinerary Saved!", description: `Your trip to ${values.to} has been saved to 'My Trips'.`, });
             setTripSaved(true);
