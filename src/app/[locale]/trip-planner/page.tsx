@@ -60,7 +60,16 @@ export default function TripPlannerPage() {
 
         try {
             const planTripInput: PlanTripInput = {
-                ...values,
+                origin: values.from,
+                destination: values.to,
+                departureDate: values.departure,
+                tripDuration: values.tripDuration,
+                travelers: values.travelers,
+                tripPace: values.tripPace,
+                travelStyle: values.travelStyle,
+                accommodationType: values.accommodationType,
+                accommodationBudget: values.accommodationBudget,
+                interests: values.interests,
                 currency: currency,
             };
             const response = await planTrip(planTripInput);
