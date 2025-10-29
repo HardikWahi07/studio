@@ -1,109 +1,112 @@
 /**
- * @file Firestore Security Rules
- * @description This ruleset enforces a strict user-ownership model for user-related data (profiles, trips, expenses, itinerary items).
- *  It allows public read access to local business and app statistics data.
- *  The bookings collection implements role-based access, allowing both users and supporters to access booking information.
+ * @file Firestore Security Rules for TripMind Application
  *
- *  Data Structure:
- *  - /users/{userId}: Stores user profile data, trips, expenses, and itinerary items.
- *  - /local_businesses/{localBusinessId}: Stores data for local businesses (publicly readable).
- *  - /app-stats/{statId}: Stores global application statistics (publicly readable).
- *  - /supporters/{supporterId}: Stores profiles of local supporters (publicly readable).
- *  - /bookings/{bookingId}: Stores booking data, accessible to the user or supporter involved.
- *
- *  Key Security Decisions:
- *  - User data is strictly controlled by the user's ID in the path.
- *  - Listing all users is disallowed.
- *  - Local business and app statistics data are publicly readable.
- *  - Bookings can be listed only with a query for the user's own userId.
- *
- *  Denormalization for Authorization:
- *  The rules leverage path-based ownership, eliminating the need for `get()` calls to determine ownership.
- *  The bookings collection uses the 'userId' and 'supporterId' fields for authorization, allowing either the user or the supporter to read a booking.
+ * @core_philosophy: This ruleset enforces a strict user-ownership model for user-specific data (profiles, trips, expenses, itinerary items).
+ *   Public read access is granted for application statistics and local supporter profiles. Bookings have specific read and list access controls.
+ * @data_structure:
+ *   - /users/{userId}: User profile data.
+ *   - /users/{userId}/trips/{tripId}: Trip details owned by the user.
+ *   - /users/{userId}/trips/{tripId}/expenses/{expenseId}: Expenses associated with a specific trip.
+ *   - /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}: Itinerary items for a trip.
+ *   - /local_businesses/{localBusinessId}: Publicly accessible data for local businesses.
+ *   - /app-stats/{statId}: Publicly accessible application statistics.
+ *   - /supporters/{supporterId}: Publicly accessible profiles of local supporters.
+ *   - /bookings/{bookingId}: Bookings between users and supporters, with access control based on participation.
+ * @key_security_decisions:
+ *   - User data is strictly private and only accessible to the authenticated user.
+ *   - Local business and supporter data are publicly readable.
+ *   - App statistics are publicly readable.
+ *   - Listing of user documents is allowed only within their own subcollections (trips, expenses, itinerary items).
+ *   - Bookings can only be listed with a query that matches the user's ID.
+ * @denormalization_for_authorization:
+ *   - Bookings denormalize userId and supporterId to allow for efficient read authorization.
+ * @structural_segregation:
+ *   - User-specific data is stored under /users/{userId} to enforce ownership.
+ *   - Public data (local businesses, app stats, supporters) is stored in top-level collections.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces path-based ownership for user profiles. Only the user can read/write their own data.
+     * @description Manages user profile data, ensuring only the authenticated user can access their own profile.
      * @path /users/{userId}
-     * @allow (create) - Authenticated user with ID matching the userId in the path.
-     * @allow (get, update, delete) - Authenticated user with ID matching the userId in the path.
-     * @deny (create) - Authenticated user with ID not matching the userId in the path.
-     * @deny (get, update, delete) - Authenticated user with ID not matching the userId in the path.
-     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
       function isOwner(userId) {
         return request.auth != null && request.auth.uid == userId;
       }
+      function isExistingOwner(userId) {
+          return isOwner(userId) && resource.data.id == userId;
+      }
+
       allow get: if isOwner(userId);
       allow list: if false;
       allow create: if isOwner(userId);
-      allow update: if isOwner(userId);
-      allow delete: if isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.id == userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces path-based ownership for trips. Only the user can manage their trips.
+     * @description Manages trips associated with a specific user, ensuring only the owner can access their trips.
      * @path /users/{userId}/trips/{tripId}
-     * @allow (create, get, update, delete) - Authenticated user with ID matching the userId in the path.
-     * @deny (create, get, update, delete) - Authenticated user with ID not matching the userId in the path.
-     * @principle Restricts access to a user's own data tree.
      */
     match /users/{userId}/trips/{tripId} {
-        function isOwner(userId) {
-            return request.auth != null && request.auth.uid == userId;
-        }
-        allow get: if isOwner(userId);
-        allow list: if false;
-        allow create: if isOwner(userId);
-        allow update: if isOwner(userId);
-        allow delete: if isOwner(userId);
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      function isExistingOwner(userId) {
+          return isOwner(userId) && resource.data.userId == userId;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces path-based ownership for expenses. Only the user can manage their expenses.
+     * @description Manages expenses associated with a specific trip and user, enforcing owner-only access.
      * @path /users/{userId}/trips/{tripId}/expenses/{expenseId}
-     * @allow (create, get, update, delete) - Authenticated user with ID matching the userId in the path.
-     * @deny (create, get, update, delete) - Authenticated user with ID not matching the userId in the path.
-     * @principle Restricts access to a user's own data tree.
      */
     match /users/{userId}/trips/{tripId}/expenses/{expenseId} {
-        function isOwner(userId) {
-            return request.auth != null && request.auth.uid == userId;
-        }
-        allow get: if isOwner(userId);
-        allow list: if false;
-        allow create: if isOwner(userId);
-        allow update: if isOwner(userId);
-        allow delete: if isOwner(userId);
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      function isExistingOwner(userId) {
+          return isOwner(userId) && resource.data.userId == userId;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Enforces path-based ownership for itinerary items. Only the user can manage their itinerary items.
+     * @description Manages itinerary items associated with a specific trip, ensuring only the owner can access them.
      * @path /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}
-     * @allow (create, get, update, delete) - Authenticated user with ID matching the userId in the path.
-     * @deny (create, get, update, delete) - Authenticated user with ID not matching the userId in the path.
-     * @principle Restricts access to a user's own data tree.
      */
     match /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId} {
-        function isOwner(userId) {
-            return request.auth != null && request.auth.uid == userId;
-        }
-        allow get: if isOwner(userId);
-        allow list: if false;
-        allow create: if isOwner(userId);
-        allow update: if isOwner(userId);
-        allow delete: if isOwner(userId);
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
+      function isExistingOwner(userId) {
+          return isOwner(userId) && resource.data.userId == userId;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId) && request.resource.data.userId == userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to local business data. Write operations are not permitted.
+     * @description Provides public read access to local business data.
      * @path /local_businesses/{localBusinessId}
-     * @allow (get, list) - Any user, authenticated or not.
-     * @deny (create, update, delete) - Any user.
      */
     match /local_businesses/{localBusinessId} {
       allow get: if true;
@@ -114,10 +117,8 @@ service cloud.firestore {
     }
 
     /**
-     * @description Allows public read access to application statistics. Write operations are not permitted.
+     * @description Provides public read access to application statistics.
      * @path /app-stats/{statId}
-     * @allow (get, list) - Any user, authenticated or not.
-     * @deny (create, update, delete) - Any user.
      */
     match /app-stats/{statId} {
       allow get: if true;
@@ -128,10 +129,8 @@ service cloud.firestore {
     }
 
     /**
-     * @description Allows public read access to local supporter profiles. Write operations are not permitted.
+     * @description Provides public read access to local supporter profiles.
      * @path /supporters/{supporterId}
-     * @allow (get, list) - Any user, authenticated or not.
-     * @deny (create, update, delete) - Any user.
      */
     match /supporters/{supporterId} {
       allow get: if true;
@@ -142,24 +141,14 @@ service cloud.firestore {
     }
 
     /**
-     * @description Stores confirmed bookings. Users can only query bookings where their userId matches the authenticated user's ID.
-     *  Individual reads are allowed by either the user or the supporter involved in the booking.
+     * @description Manages bookings, allowing reads for involved parties and secure, user-specific queries for lists.
      * @path /bookings/{bookingId}
-     * @allow (get) - Authenticated user or supporter with ID matching the userId or supporterId in the document.
-     * @allow (list) - Authenticated user querying for bookings with their own userId.
-     * @allow (create) - Authenticated user with ID matching the userId in the request data.
-     * @deny (get, list, create, update, delete) - Other cases.
-     * @principle Role-based access control using userId and supporterId.
      */
     match /bookings/{bookingId} {
-      function isRelatedUser(userId, supporterId) {
-        return request.auth != null && (request.auth.uid == userId || request.auth.uid == supporterId);
-      }
-
-      allow get: if request.auth != null && (request.auth.uid == resource.data.userId || request.auth.uid == resource.data.supporterId);
-      allow list: if request.auth != null && request.query.where("userId", "==", request.auth.uid).size() > 0;
+      allow get: if request.auth.uid != null && (resource.data.userId == request.auth.uid || resource.data.supporterId == request.auth.uid);
+      allow list: if request.auth.uid != null && request.query.where("userId", "==", request.auth.uid);
       allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-      allow update: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid);
       allow delete: if false;
     }
   }
