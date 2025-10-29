@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useToast } from '@/hooks/use-toast';
 import { AuthDialog } from '@/components/auth-dialog';
@@ -132,13 +133,15 @@ export default function LocalSupportersPage() {
     }
 
     const openBookingModal = (supporter: LocalSupporter, service: SupporterService, slot: AvailabilitySlot) => {
+        setSelectedSupporter(supporter);
+        setSelectedService(service);
+        setSelectedSlot(slot);
+        
         if (!user) {
             setIsAuthDialogOpen(true);
             return;
         }
-        setSelectedSupporter(supporter);
-        setSelectedService(service);
-        setSelectedSlot(slot);
+
         setIsBookingModalOpen(true);
     };
 
