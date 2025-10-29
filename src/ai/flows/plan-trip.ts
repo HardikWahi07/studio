@@ -8,7 +8,6 @@
 
 import { ai } from '@/ai/genkit';
 import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type PlanTripOutput } from './plan-trip.types';
-import { suggestTransportOptions } from './suggest-transport-options';
 
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
@@ -31,22 +30,27 @@ const prompt = ai.definePrompt({
   - **Accommodation Preference:** {{{accommodationType}}}
   - **Accommodation Budget:** {{{accommodationBudget}}}
   - **Interests & Food Preferences:** {{{interests}}}
-  - **Desired Currency for Costs (if mentioned):** {{{currency}}}
+  - **Desired Currency for Costs:** {{{currency}}}
 
   **Your Task:**
 
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
+  
+  2.  **Generate Main Booking Options:**
+      - Create a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.
+      - Include a mix of flights, trains, and buses where appropriate for the distance.
+      - For each option, provide a provider, details (e.g., "Flight IB388, Non-stop"), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL.
 
-  2.  **Generate Mock Hotel Options:**
+  3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely.
       - Otherwise, based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
       - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
   
-  3.  **Generate Local Transport Options:**
+  4.  **Generate Local Transport Options:**
       - Recommend 3-4 common and useful local transport options for getting around the destination city (e.g., metro, bus, taxi, rideshare like Uber, bike rentals).
       - For each option, provide the type, a provider name, details, an estimated average cost, and a helpful tip for travelers.
 
-  4.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
+  5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
       - Each day needs a **title** and a brief **summary**.
       - For each activity, provide:
         - **Time:** A specific start time (e.g., "09:00 AM").
@@ -60,8 +64,6 @@ const prompt = ai.definePrompt({
       - **Be Realistic:** Ensure the plan is logical for the chosen tripPace. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
       - **Incorporate User Interests:** If the user mentions specific places, be sure to include them in the itinerary on different days.
 
-  You are NOT responsible for generating main booking options (flights, etc.). That will be handled by another service. Do not populate the 'bookingOptions' field.
-  
   Produce the final output in the required JSON format.
   `,
 });
@@ -73,35 +75,12 @@ const planTripFlow = ai.defineFlow(
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
-    // Generate the main itinerary and hotel options
-    const itineraryPromise = prompt(input);
+    const { output } = await prompt(input);
     
-    // Concurrently, generate the transport booking options
-    const transportPromise = suggestTransportOptions({
-      origin: input.origin,
-      destination: input.destination,
-      currency: input.currency
-    });
-
-    // Wait for both promises to resolve
-    const [itineraryResult, transportOutput] = await Promise.all([itineraryPromise, transportPromise]);
-
-    const itineraryOutput = itineraryResult.output;
-    
-    if (!itineraryOutput) {
+    if (!output) {
       throw new Error("Failed to generate itinerary.");
     }
-
-    const bookingOptions = [];
-    if (transportOutput?.best) bookingOptions.push(transportOutput.best);
-    if (transportOutput?.cheapest) bookingOptions.push(transportOutput.cheapest);
-    if (transportOutput?.eco) bookingOptions.push(transportOutput.eco);
-    if (transportOutput?.other) bookingOptions.push(...transportOutput.other);
     
-    // Combine the results
-    return {
-      ...itineraryOutput,
-      bookingOptions,
-    };
+    return output;
   }
 );
