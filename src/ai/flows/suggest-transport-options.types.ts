@@ -1,5 +1,3 @@
-
-'use server';
 /**
  * @fileOverview Types and schemas for the transport options suggestion flow.
  */
