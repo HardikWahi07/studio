@@ -13,24 +13,16 @@ import Link from 'next/link';
 import { useLocale } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
 
-type BookingOption = {
-    type: 'flight' | 'train' | 'bus';
-    provider: string;
-    details: string;
-    duration: string;
-    price: string;
-};
+type BookingOption = PlanTripOutput['bookingOptions'][number];
 
-type Trip = {
+type Trip = PlanTripOutput & {
     id: string;
     destination: string;
     origin: string;
     startDate: string;
     travelers: number;
-    hotel?: { name: string; location: string; pricePerNight: string };
-    transport?: BookingOption;
-    bookingOptions?: BookingOption[];
     status?: 'Booked' | 'Pending';
 };
 
@@ -38,6 +30,7 @@ const transportIcons = {
     flight: <Plane className="w-4 h-4" />,
     train: <Train className="w-4 h-4" />,
     bus: <Bus className="w-4 h-4" />,
+    driving: <Bus className="w-4 h-4" />, // Fallback icon
 }
 
 export default function MyTripsPage() {
@@ -59,7 +52,6 @@ export default function MyTripsPage() {
     const isLoading = isUserLoading || isLoadingTrips;
     
     const getPrimaryTransport = (trip: Trip): BookingOption | undefined => {
-        if (trip.transport) return trip.transport;
         if (trip.bookingOptions && trip.bookingOptions.length > 0) {
             return trip.bookingOptions.find(opt => opt.type === 'flight') || trip.bookingOptions[0];
         }
@@ -138,10 +130,10 @@ export default function MyTripsPage() {
                                                     <span>{primaryTransport.provider} - {primaryTransport.price} ({primaryTransport.duration})</span>
                                                 </div>
                                             )}
-                                            {trip.hotel && (
+                                            {trip.hotelOptions && trip.hotelOptions[0] && (
                                                 <div className="flex items-center gap-2">
                                                     <Hotel className="w-4 h-4" />
-                                                    <span>{trip.hotel.name} - {trip.hotel.pricePerNight}</span>
+                                                    <span>{trip.hotelOptions[0].name} - {trip.hotelOptions[0].pricePerNight}</span>
                                                 </div>
                                             )}
                                         </div>
@@ -156,3 +148,6 @@ export default function MyTripsPage() {
         </main>
     );
 }
+
+
+    
