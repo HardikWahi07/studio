@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, where } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Calendar, CheckCircle, Users } from 'lucide-react';
@@ -25,7 +25,8 @@ export default function BookingPage() {
 
     const bookingsQuery = useMemoFirebase(() => {
         if (!user || !firestore) return null;
-        // Simplified query to avoid composite index requirement
+        // Simplified query to only filter by userId, which matches the security rule.
+        // Sorting will be handled on the client.
         return query(
             collection(firestore, 'bookings'),
             where('userId', '==', user.uid)
@@ -34,7 +35,7 @@ export default function BookingPage() {
 
     const { data: localBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
 
-    // Sort data on the client side
+    // Sort data on the client side to ensure newest bookings are first.
     const sortedBookings = useMemo(() => {
         if (!localBookings) return [];
         return [...localBookings].sort((a, b) => b.bookedAt.toDate().getTime() - a.bookedAt.toDate().getTime());
