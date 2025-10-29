@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -25,15 +25,20 @@ export default function BookingPage() {
 
     const bookingsQuery = useMemoFirebase(() => {
         if (!user || !firestore) return null;
+        // Simplified query to avoid composite index requirement
         return query(
             collection(firestore, 'bookings'),
-            where('userId', '==', user.uid),
-            orderBy('userId'), 
-            orderBy('bookedAt', 'desc')
+            where('userId', '==', user.uid)
         );
     }, [user, firestore]);
 
     const { data: localBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
+
+    // Sort data on the client side
+    const sortedBookings = useMemo(() => {
+        if (!localBookings) return [];
+        return [...localBookings].sort((a, b) => b.bookedAt.toDate().getTime() - a.bookedAt.toDate().getTime());
+    }, [localBookings]);
 
     const isLoading = isUserLoading || isLoadingBookings;
 
@@ -46,7 +51,7 @@ export default function BookingPage() {
             );
         }
 
-        if (!localBookings?.length) {
+        if (!sortedBookings.length) {
             return (
                 <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Briefcase className="h-16 w-16 text-muted-foreground/50" />
@@ -60,14 +65,14 @@ export default function BookingPage() {
 
         return (
             <div className="space-y-6">
-                {localBookings && localBookings.length > 0 && (
+                {sortedBookings.length > 0 && (
                     <Card>
                         <CardHeader>
                             <CardTitle>Your Booked Local Experiences</CardTitle>
                             <CardDescription>Here are the experiences and rides you've confirmed with local supporters.</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {localBookings.map(booking => (
+                            {sortedBookings.map(booking => (
                                 <div key={booking.id} className="flex items-center justify-between p-4 rounded-lg bg-secondary">
                                     <div className="space-y-1">
                                         <p className="font-bold text-primary">{booking.experience}</p>
