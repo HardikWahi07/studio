@@ -12,6 +12,8 @@ export const PlanTripInputSchema = z.object({
   travelStyle: z.enum(['solo', 'couple', 'family', 'group']).describe('The style of travel.'),
   accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental', 'none']).describe('Preferred accommodation type. "none" means the user has their own arrangements.'),
   accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).optional().describe('The budget for accommodation. This may be omitted if accommodationType is "none".'),
+  planeClass: z.enum(['economy', 'premium-economy', 'business', 'first']).optional().describe('Preferred airline travel class.'),
+  trainClass: z.enum(['sleeper', 'ac-3-tier', 'ac-2-tier', 'ac-first-class', 'chair-car']).optional().describe('Preferred train travel class.'),
   interests: z.string().describe('Detailed interests of the traveler(s), including food preferences (e.g., "local street food", "vegan restaurants", "fine dining").'),
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
@@ -43,7 +45,7 @@ const DayPlanSchema = z.object({
 const BookingOptionSchema = z.object({
     type: z.enum(['flight', 'train', 'bus', 'driving']).describe('Type of transport.'),
     provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive", "IRCTC"'),
-    details: z.string().describe('e.g., "Flight IB388, Non-stop" or "Via I-90 E"'),
+    details: z.string().describe('e.g., "Flight IB388, Non-stop" or "Via I-90 E" or "AC First Class (1A)"'),
     duration: z.string().describe('e.g., "2h 30m"'),
     price: z.string().describe('e.g., "€120"'),
     ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),

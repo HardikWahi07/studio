@@ -29,6 +29,8 @@ const prompt = ai.definePrompt({
   - **Trip Pace:** {{{tripPace}}}
   - **Accommodation Preference:** {{{accommodationType}}}
   - **Accommodation Budget:** {{{accommodationBudget}}}
+  - **Plane Class Preference:** {{{planeClass}}}
+  - **Train Class Preference:** {{{trainClass}}}
   - **Interests & Food Preferences:** {{{interests}}}
   - **Desired Currency for Costs:** {{{currency}}}
 
@@ -40,8 +42,8 @@ const prompt = ai.definePrompt({
       - **CRITICAL:** You MUST generate a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.
       - Include a mix of flights, trains, and buses where appropriate for the distance.
       - For each option, provide a provider, details, duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
-      - For train options, especially in India, include different travel classes like "AC First Class (1A)", "AC 2 Tier (2A)", "Shatabdi Express (CC)", or "Vande Bharat (EC)" in the details field to represent different comfort and price levels.
-      - For flights, use providers like 'IndiGo', 'Vistara', 'Air India', etc. For trains, use 'IRCTC'.
+      - For train options, especially in India, include different travel classes like "AC First Class (1A)", "AC 2 Tier (2A)", "Shatabdi Express (CC)", or "Vande Bharat (EC)" in the details field. If the user specified a trainClass preference, prioritize suggestions in that class.
+      - For flights, use providers like 'IndiGo', 'Vistara', 'Air India', etc. If the user specified a planeClass preference, prioritize suggestions in that class.
 
   3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely and return an empty array for 'hotelOptions'.

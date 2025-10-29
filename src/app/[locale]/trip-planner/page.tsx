@@ -33,6 +33,8 @@ const formSchema = z.object({
     travelStyle: z.enum(['solo', 'couple', 'family', 'group']),
     accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental', 'none']),
     accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).optional(),
+    planeClass: z.enum(['economy', 'premium-economy', 'business', 'first']).optional(),
+    trainClass: z.enum(['sleeper', 'ac-3-tier', 'ac-2-tier', 'ac-first-class', 'chair-car']).optional(),
     interests: z.string().min(10, 'Please tell us a bit more about your interests.'),
 });
 
@@ -63,6 +65,16 @@ export default function TripPlannerPage() {
         setResults(null);
         setTripSaved(false);
 
+        if (!user && !isUserLoading) {
+            toast({
+              title: t('toastLoginTitle'),
+              description: t('toastLoginDescription'),
+            });
+            setIsAuthDialogOpen(true);
+            setIsLoading(false);
+            return;
+        }
+
         try {
             const planTripInput: PlanTripInput = {
                 origin: values.origin,
@@ -74,6 +86,8 @@ export default function TripPlannerPage() {
                 travelStyle: values.travelStyle,
                 accommodationType: values.accommodationType,
                 accommodationBudget: values.accommodationBudget,
+                planeClass: values.planeClass,
+                trainClass: values.trainClass,
                 interests: values.interests,
                 currency: currency,
             };
@@ -180,6 +194,24 @@ export default function TripPlannerPage() {
                                       )}/>
                                     )}
                                 </div>
+                                 <FormField control={form.control} name="planeClass" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('planeClassLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('planeClassPlaceholder')} /></SelectTrigger></FormControl>
+                                        <SelectContent><SelectItem value="economy">{t('planeClassEconomy')}</SelectItem><SelectItem value="premium-economy">{t('planeClassPremiumEconomy')}</SelectItem><SelectItem value="business">{t('planeClassBusiness')}</SelectItem><SelectItem value="first">{t('planeClassFirst')}</SelectItem></SelectContent>
+                                    </Select><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name="trainClass" render={({ field }) => (
+                                    <FormItem><FormLabel>{t('trainClassLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('trainClassPlaceholder')} /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="sleeper">{t('trainClassSleeper')}</SelectItem>
+                                            <SelectItem value="ac-3-tier">{t('trainClassAC3')}</SelectItem>
+                                            <SelectItem value="ac-2-tier">{t('trainClassAC2')}</SelectItem>
+                                            <SelectItem value="ac-first-class">{t('trainClassACFirst')}</SelectItem>
+                                            <SelectItem value="chair-car">{t('trainClassChairCar')}</SelectItem>
+                                        </SelectContent>
+                                    </Select><FormMessage /></FormItem>
+                                )}/>
                             </div>
                             <FormField control={form.control} name="interests" render={({ field }) => (
                                 <FormItem><FormLabel>{t('interestsLabel')}</FormLabel><FormControl><Textarea placeholder={t('interestsPlaceholder')} rows={3} {...field} /></FormControl><FormMessage /></FormItem>
