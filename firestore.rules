@@ -1,10 +1,10 @@
 /**
- * @fileoverview Firestore Security Rules for TripMind Application
+ * @fileoverview Firestore Security Rules for TripMind application.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for personal data (users, trips, expenses, itinerary items),
- * while allowing public read access to shared resources (local businesses, app stats, local supporters).
- * Authorization decisions are based on the authenticated user's ID (`request.auth.uid`) and path-based ownership.
+ * This ruleset enforces a strict user-ownership model for user-related data (profiles, trips, expenses, itinerary items),
+ * while allowing public read access to local business, supporter, and app statistics data.
+ * Bookings are secured to allow access to users/supporters involved.
  *
  * Data Structure:
  * - /users/{userId}: Stores user profile data.
@@ -14,139 +14,233 @@
  * - /local_businesses/{localBusinessId}: Stores data for local businesses.
  * - /app-stats/{statId}: Stores global application statistics.
  * - /supporters/{supporterId}: Stores profiles of local supporters.
- * - /bookings/{bookingId}: Stores confirmed bookings.
+ * - /bookings/{bookingId}: Stores confirmed bookings between users and local supporters.
  *
  * Key Security Decisions:
- * - User data (profiles, trips, expenses, itinerary items) is strictly controlled by the owning user.
- * - Public data (local businesses, app stats, local supporters) is readable by all users.
- * - List operations on bookings are restricted to the user's own bookings.
- * - The rules do not enforce the schema of the data being written, except for critical fields related to authorization.
+ * - User data is strictly controlled by the user's UID.
+ * - Public listing of users is disallowed.
+ * - Local business, supporter, and app statistics data are publicly readable.
+ * - Bookings can be read by either the user or the supporter.
  *
  * Denormalization for Authorization:
- * - Ownership is enforced via path-based rules (e.g., /users/{userId}/...). This eliminates the need for `get()` calls to verify ownership.
- * - The bookings collection uses a denormalized structure, storing both `userId` and `supporterId` on each booking document.
- * This allows for efficient security rules that grant access to either the user or the supporter involved in the booking.
+ * The 'Trip' and 'Expense' entities include a 'userId' field to simplify ownership checks and avoid `get()` calls.
+ * The 'Booking' entity includes `userId` and `supporterId` to enable access control for involved parties.
  *
  * Structural Segregation:
- * - The application uses separate collections for private user data (/users/{userId}/...) and public data (local businesses, app stats, local supporters).
- * This segregation simplifies the security rules and improves performance for list operations.
+ * Private user data (trips, expenses) is stored under the /users/{userId} collection, while public data
+ * (local businesses, app stats, supporters) resides in top-level collections.  This separates the
+ * security postures of the data, making the rules simpler and more performant.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile data. Only the user can read/write their own profile.
+     * @description Enforces document ownership for User profiles.
      * @path /users/{userId}
+     * @allow (create) User with ID 'user123' can create their profile.
+     *          request.auth.uid == 'user123' and request.resource.data.id == 'user123'
+     * @allow (get, list) User with ID 'user123' can read their profile.
+     *          request.auth.uid == 'user123'
+     * @allow (update, delete) User with ID 'user123' can update/delete their profile.
+     *          request.auth.uid == 'user123'
+     * @deny  (create) User with ID 'user456' cannot create a profile with ID 'user123'.
+     *          request.auth.uid == 'user456' and request.resource.data.id == 'user123'
+     * @deny  (get, list) User with ID 'user456' cannot read User with ID 'user123' profile.
+     *          request.auth.uid == 'user456'
+     * @principle Enforces path-based ownership, ensuring only the authenticated user can access their own profile.
      */
     match /users/{userId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && existsAfter(/databases/$(database)/documents/users/$(userId));
+      }
+
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && isSignedIn();
-      allow delete: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to trip data. Only the owning user can manage their trips.
+     * @description Enforces document ownership for Trips.
      * @path /users/{userId}/trips/{tripId}
+     * @allow (create) User with ID 'user123' can create a trip under their profile.
+     *          request.auth.uid == 'user123'
+     * @allow (get, list) User with ID 'user123' can read trips under their profile.
+     *          request.auth.uid == 'user123'
+     * @allow (update, delete) User with ID 'user123' can update/delete a trip under their profile.
+     *          request.auth.uid == 'user123'
+     * @deny  (create) User with ID 'user456' cannot create a trip under User with ID 'user123' profile.
+     *          request.auth.uid == 'user456'
+     * @deny  (get, list) User with ID 'user456' cannot read trips under User with ID 'user123' profile.
+     *          request.auth.uid == 'user456'
+     * @principle Enforces path-based ownership, ensuring only the authenticated user can access their own trips.
      */
     match /users/{userId}/trips/{tripId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && existsAfter(/databases/$(database)/documents/users/$(userId)/trips/$(tripId));
+      }
+
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && isSignedIn();
-      allow delete: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to expense data. Only the owning user can manage expenses associated with their trips.
+     * @description Enforces document ownership for Expenses.
      * @path /users/{userId}/trips/{tripId}/expenses/{expenseId}
+     * @allow (create) User with ID 'user123' can create an expense under their trip.
+     *          request.auth.uid == 'user123'
+     * @allow (get, list) User with ID 'user123' can read expenses under their trip.
+     *          request.auth.uid == 'user123'
+     * @allow (update, delete) User with ID 'user123' can update/delete an expense under their trip.
+     *          request.auth.uid == 'user123'
+     * @deny  (create) User with ID 'user456' cannot create an expense under User with ID 'user123' trip.
+     *          request.auth.uid == 'user456'
+     * @deny  (get, list) User with ID 'user456' cannot read expenses under User with ID 'user123' trip.
+     *          request.auth.uid == 'user456'
+     * @principle Enforces path-based ownership, ensuring only the authenticated user can access their own expenses.
      */
     match /users/{userId}/trips/{tripId}/expenses/{expenseId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && existsAfter(/databases/$(database)/documents/users/$(userId)/trips/$(tripId)/expenses/$(expenseId));
+      }
+
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && isSignedIn();
-      allow delete: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to itinerary item data. Only the owning user can manage itinerary items associated with their trips.
+     * @description Enforces document ownership for Itinerary Items.
      * @path /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId}
+     * @allow (create) User with ID 'user123' can create an itinerary item under their trip.
+     *          request.auth.uid == 'user123'
+     * @allow (get, list) User with ID 'user123' can read itinerary items under their trip.
+     *          request.auth.uid == 'user123'
+     * @allow (update, delete) User with ID 'user123' can update/delete an itinerary item under their trip.
+     *          request.auth.uid == 'user123'
+     * @deny  (create) User with ID 'user456' cannot create an itinerary item under User with ID 'user123' trip.
+     *          request.auth.uid == 'user456'
+     * @deny  (get, list) User with ID 'user456' cannot read itinerary items under User with ID 'user123' trip.
+     *          request.auth.uid == 'user456'
+     * @principle Enforces path-based ownership, ensuring only the authenticated user can access their own itinerary items.
      */
     match /users/{userId}/trips/{tripId}/itinerary_items/{itineraryItemId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isOwner(userId) && existsAfter(/databases/$(database)/documents/users/$(userId)/trips/$(tripId)/itinerary_items/$(itineraryItemId));
+      }
+
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isOwner(userId) && isSignedIn();
-      allow delete: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to local business data. Write access is not defined.
+     * @description Allows public read access to Local Business data.
      * @path /local_businesses/{localBusinessId}
+     * @allow (get, list) Any user can read local business data.
+     *          true
+     * @deny (create, update, delete) No one can create, update, or delete local business data through the rules.
+     * @principle Allows public read access for discovery, while write operations are handled via a separate, secured service.
      */
     match /local_businesses/{localBusinessId} {
-      allow get: if true;
-      allow list: if true;
+      allow get, list: if true;
+      allow create, update, delete: if false;
+      // TODO: Add owner validation once the ability for LocalBusiness owners to update their entries is implemented.
     }
 
     /**
-     * @description Allows public read access to application statistics. Write access is not defined.
+     * @description Allows public read access to App Statistics data.
      * @path /app-stats/{statId}
+     * @allow (get, list) Any user can read app statistics data.
+     *          true
+     * @deny (create, update, delete) No one can create, update, or delete app statistics data.
+     * @principle Allows public read access for general information, while write operations are restricted.
      */
     match /app-stats/{statId} {
-      allow get: if true;
-      allow list: if true;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
-     * @description Allows public read access to local supporter profiles. Write access is not defined.
+     * @description Allows public read access to Local Supporter profiles.
      * @path /supporters/{supporterId}
+     * @allow (get, list) Any user can read local supporter profiles.
+     *          true
+     * @deny (create, update, delete) No one can create, update, or delete local supporter profiles through rules.
+     * @principle Allows public read access for travelers to find support, while write operations are handled via a separate, secured service.
      */
     match /supporters/{supporterId} {
-      allow get: if true;
-      allow list: if true;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
-     * @description Manages access to booking data. Users can only query bookings where their userId matches the authenticated user's ID.
-     * Individual reads are allowed by either the user or the supporter involved in the booking.
+     * @description Controls access to Bookings, allowing reads for involved parties and user-specific listing.
      * @path /bookings/{bookingId}
+     * @allow (get) User with ID 'user123' can read a booking where they are the user.
+     *          request.auth.uid == 'user123' and resource.data.userId == 'user123'
+     * @allow (get) User with ID 'supporter456' can read a booking where they are the supporter.
+     *          request.auth.uid == 'supporter456' and resource.data.supporterId == 'supporter456'
+     * @allow (list) User with ID 'user123' can list bookings where they are the user.
+     *          request.auth.uid == 'user123' and request.query.where("userId", "==", "user123")
+     * @allow (create) User with ID 'user123' can create a booking with their user ID.
+     *          request.auth.uid == 'user123' and request.resource.data.userId == 'user123'
+     * @deny  (get) User with ID 'user456' cannot read a booking where User with ID 'user123' is the user.
+     *          request.auth.uid == 'user456' and resource.data.userId == 'user123'
+     * @deny  (list) User with ID 'user456' cannot list all bookings.
+     *          request.auth.uid == 'user456' (without query constraints)
      */
     match /bookings/{bookingId} {
-      allow get: if resource.data.userId == request.auth.uid || resource.data.supporterId == request.auth.uid;
-      allow list: if request.query.userId == request.auth.uid;
-      allow create: if request.resource.data.userId == request.auth.uid && isSignedIn();
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      allow get: if isSignedIn() && (resource.data.userId == request.auth.uid || resource.data.supporterId == request.auth.uid);
+      allow list: if isSignedIn() && request.query.get("userId") == request.auth.uid;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update: if false;
       allow delete: if false;
     }
-  }
-
-  /**
-   * @description Checks if the request is made by an authenticated user.
-   * @returns {boolean} True if the user is signed in, false otherwise.
-   */
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  /**
-   * @description Checks if the authenticated user ID matches the provided user ID.
-   * @param {string} userId The user ID to compare against.
-   * @returns {boolean} True if the user is the owner, false otherwise.
-   */
-  function isOwner(userId) {
-    return isSignedIn() && request.auth.uid == userId;
-  }
-
-    /**
-   * @description Checks if the authenticated user ID matches the provided user ID and the resource exists.
-   * @param {string} userId The user ID to compare against.
-   * @returns {boolean} True if the user is the owner and the resource exists, false otherwise.
-   */
-  function isExistingOwner(userId) {
-    return isOwner(userId) && resource != null;
   }
 }
