@@ -14,7 +14,8 @@ import { Button } from '@/components/ui/button';
 import { useLocale } from 'next-intl';
 
 
-export default function TripDetailsPage({ params }: { params: { tripId: string } }) {
+export default function TripDetailsPage({ params: paramsPromise }: { params: Promise<{ tripId: string }> }) {
+    const params = React.use(paramsPromise);
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const locale = useLocale();
