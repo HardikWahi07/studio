@@ -117,19 +117,23 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
 
     const sortedBookingOptions = useMemo(() => {
         if (!trip?.bookingOptions) return { best: null, cheapest: null, eco: null, other: [] };
-        const parsePrice = (price: string) => parseFloat(price.replace(/[^0-9.]/g, ''));
-
-        const sortedByPrice = [...trip.bookingOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
-
-        const cheapest = sortedByPrice[0];
-        const eco = trip.bookingOptions.find(o => o.ecoFriendly && o.provider !== cheapest.provider);
         
-        let best = trip.bookingOptions.find(o => o.type === 'flight' && o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
+        const validOptions = trip.bookingOptions.filter(o => o.price);
+        if (validOptions.length === 0) return { best: null, cheapest: null, eco: null, other: [] };
+
+        const parsePrice = (price: string) => parseFloat(price.replace(/[^0-9.]/g, ''));
+        const sortedByPrice = [...validOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
+        
+        const cheapest = sortedByPrice[0];
+        const eco = validOptions.find(o => o.ecoFriendly && o.provider !== cheapest.provider);
+        
+        let best = validOptions.find(o => o.type === 'flight' && o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
         if (!best) {
-            best = trip.bookingOptions.find(o => o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
+            best = validOptions.find(o => o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
         }
 
-        const other = trip.bookingOptions.filter(o => o.provider !== best?.provider && o.provider !== cheapest.provider && o.provider !== eco?.provider);
+        const recommendationProviders = new Set([best?.provider, cheapest?.provider, eco?.provider]);
+        const other = validOptions.filter(o => !recommendationProviders.has(o.provider));
 
         return { best, cheapest, eco, other };
     }, [trip?.bookingOptions]);

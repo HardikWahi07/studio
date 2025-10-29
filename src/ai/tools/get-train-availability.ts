@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A tool for fetching real-time train availability.
@@ -34,19 +33,54 @@ export const getTrainAvailability = ai.defineTool(
     //
     // 🚨 DEVELOPER ACTION REQUIRED 🚨
     // This is where you would integrate with a real train API (e.g., IRCTC, RailYatri).
-    // You will need to use the API key you mentioned to make a real request.
     // The response below is MOCK DATA for demonstration purposes.
     //
-    // Example:
-    // const apiKey = process.env.YOUR_TRAIN_API_KEY;
-    // const response = await fetch(`https://api.example-train-provider.com/search?from=${input.origin}&to=${input.destination}&date=${input.date}`, {
-    //   headers: { 'Authorization': `Bearer ${apiKey}` }
-    // });
-    // const data = await response.json();
-    // return transformApiDataToToolOutput(data);
-    //
     
-    // Returning mock data:
+    // Returning more realistic mock data for a Pune to Lucknow route:
+    if (input.origin.toLowerCase().includes('pune') && input.destination.toLowerCase().includes('lucknow')) {
+      return {
+        trains: [
+          {
+            trainName: 'Pune-Lucknow Express',
+            trainNumber: '12103',
+            departureTime: '10:45',
+            arrivalTime: '13:15',
+            travelClass: 'AC 2 Tier (2A)',
+            availability: 'Available',
+            price: '₹2,500'
+          },
+          {
+            trainName: 'Pune-Lucknow Express',
+            trainNumber: '12103',
+            departureTime: '10:45',
+            arrivalTime: '13:15',
+            travelClass: 'Sleeper (SL)',
+            availability: 'Waitlist',
+            price: '₹650'
+          },
+          {
+            trainName: 'Gorakhpur Express',
+            trainNumber: '15030',
+            departureTime: '17:30',
+            arrivalTime: '20:50',
+            travelClass: 'AC 3 Tier (3A)',
+            availability: 'Available',
+            price: '₹1,800'
+          },
+           {
+            trainName: 'Yesvantpur-Lucknow SF',
+            trainNumber: '22683',
+            departureTime: '05:15',
+            arrivalTime: '08:40',
+            travelClass: 'AC 2 Tier (2A)',
+            availability: 'Sold Out',
+            price: '₹2,600'
+          },
+        ],
+      };
+    }
+
+    // Default mock data for other routes
     return {
       trains: [
         {
