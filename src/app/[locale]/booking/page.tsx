@@ -3,7 +3,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Calendar, CheckCircle, Users, Plane, Train, Bus, Hotel, ShoppingCart, ArrowRight, Wallet, Leaf, Clock, Star, CarFront } from 'lucide-react';
@@ -22,6 +22,7 @@ type LocalBooking = {
     experience: string;
     day: string;
     time: string;
+    userId: string;
     bookedAt: {
         toDate: () => Date;
     };
@@ -131,18 +132,19 @@ export default function BookingPage() {
 
     const bookingsQuery = useMemoFirebase(() => {
         if (!user || !firestore) return null;
+        // Fetch all bookings and filter on the client
         return query(
             collection(firestore, 'bookings'),
-            where('userId', '==', user.uid),
             orderBy('bookedAt', 'desc')
         );
     }, [user, firestore]);
-    const { data: localBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
 
-    const sortedBookings = useMemo(() => {
-        if (!localBookings) return [];
-        return localBookings;
-    }, [localBookings]);
+    const { data: allBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
+
+    const userBookings = useMemo(() => {
+        if (!allBookings || !user) return [];
+        return allBookings.filter(booking => booking.userId === user.uid);
+    }, [allBookings, user]);
 
     const sortedBookingOptions = useMemo(() => {
         if (!selectedTrip?.bookingOptions) return { best: null, cheapest: null, eco: null };
@@ -281,7 +283,7 @@ export default function BookingPage() {
             );
         }
 
-        if (!sortedBookings.length) {
+        if (!userBookings.length) {
             return (
                 <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed">
                     <Briefcase className="h-16 w-16 text-muted-foreground/50" />
@@ -301,7 +303,7 @@ export default function BookingPage() {
                     <CardDescription>Here are the experiences you've confirmed with local supporters.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {sortedBookings.map(booking => (
+                    {userBookings.map(booking => (
                         <div key={booking.id} className="flex items-center justify-between p-4 rounded-lg bg-secondary">
                             <div className="space-y-1">
                                 <p className="font-bold text-primary">{booking.experience}</p>
@@ -378,5 +380,3 @@ export default function BookingPage() {
         </main>
     );
 }
-
-    
