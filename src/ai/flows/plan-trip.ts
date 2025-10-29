@@ -37,17 +37,17 @@ const prompt = ai.definePrompt({
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
   
   2.  **Generate Main Booking Options:**
-      - Create a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.
-      - Include a mix of flights, trains, and buses where appropriate for the distance.
-      - For each option, provide a provider, details (e.g., "Flight IB388, Non-stop"), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL.
+      - **CRITICAL:** You MUST generate a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.
+      - Include a mix of flights, trains, and buses where appropriate for the distance. For a trip within India, you can use providers like 'IndiGo', 'Vistara', or 'IRCTC'.
+      - For each option, provide a provider, details (e.g., "Flight 6E-204, Non-stop" or "Shatabdi Express"), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
 
   3.  **Generate Mock Hotel Options:**
-      - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely.
+      - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely and return an empty array for 'hotelOptions'.
       - Otherwise, based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
       - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
   
   4.  **Generate Local Transport Options:**
-      - Recommend 3-4 common and useful local transport options for getting around the destination city (e.g., metro, bus, taxi, rideshare like Uber, bike rentals).
+      - Recommend 3-4 common and useful local transport options for getting around the destination city (e.g., metro, bus, taxi, rideshare like Uber, auto-rickshaw, bike rentals).
       - For each option, provide the type, a provider name, details, an estimated average cost, and a helpful tip for travelers.
 
   5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
@@ -64,7 +64,7 @@ const prompt = ai.definePrompt({
       - **Be Realistic:** Ensure the plan is logical for the chosen tripPace. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
       - **Incorporate User Interests:** If the user mentions specific places, be sure to include them in the itinerary on different days.
 
-  Produce the final output in the required JSON format.
+  Produce the final output in the required JSON format, ensuring the 'bookingOptions' array is always populated.
   `,
 });
 

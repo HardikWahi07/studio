@@ -42,7 +42,7 @@ const DayPlanSchema = z.object({
 
 const BookingOptionSchema = z.object({
     type: z.enum(['flight', 'train', 'bus', 'driving']).describe('Type of transport.'),
-    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive"'),
+    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive", "IRCTC"'),
     details: z.string().describe('e.g., "Flight IB388, Non-stop" or "Via I-90 E"'),
     duration: z.string().describe('e.g., "2h 30m"'),
     price: z.string().describe('e.g., "€120"'),
@@ -59,7 +59,7 @@ const HotelOptionSchema = z.object({
 });
 
 const LocalTransportOptionSchema = z.object({
-    type: z.enum(['metro', 'bus', 'taxi', 'rideshare', 'bike', 'scooter']).describe('Type of local transport.'),
+    type: z.enum(['metro', 'bus', 'taxi', 'rideshare', 'bike', 'scooter', 'auto-rickshaw']).describe('Type of local transport.'),
     provider: z.string().describe('e.g., "City Metro", "Uber", "Lime"'),
     details: z.string().describe('e.g., "Line 10", "UberX", "Shared e-bike"'),
     averageCost: z.string().describe('e.g., "€2 per trip", "$10-15 per ride"'),
