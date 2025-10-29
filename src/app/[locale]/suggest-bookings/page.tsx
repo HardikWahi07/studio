@@ -3,7 +3,7 @@
 
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plane, Train, Bus, Clock, Leaf, Search, Sparkles, BadgeEuro } from "lucide-react";
+import { Plane, Train, Bus, Clock, Leaf, Search, Sparkles, BadgeEuro, CarFront } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebas
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
-import { suggestTransportOptions, type SuggestTransportOptionsOutput, type BookingOption } from "@/ai/flows/suggest-transport-options";
+import { suggestTransportOptions } from "@/ai/flows/suggest-transport-options";
+import type { SuggestTransportOptionsOutput, BookingOption } from "@/ai/flows/suggest-transport-options.types";
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/context/settings-context";
@@ -32,6 +33,7 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     flight: <Plane className="h-6 w-6 text-sky-500" />,
     train: <Train className="h-6 w-6 text-purple-500" />,
     bus: <Bus className="h-6 w-6 text-orange-500" />,
+    driving: <CarFront className="h-6 w-6 text-gray-500" />,
 };
 
 const recommendationBadges: { [key: string]: React.ReactNode } = {

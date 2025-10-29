@@ -82,17 +82,20 @@ const planTripFlow = ai.defineFlow(
       currency: input.currency
     });
 
-    const [{ output: itineraryOutput }, transportOutput] = await Promise.all([itineraryPromise, transportPromise]);
+    // Wait for both promises to resolve
+    const [itineraryResult, transportOutput] = await Promise.all([itineraryPromise, transportPromise]);
 
+    const itineraryOutput = itineraryResult.output;
+    
     if (!itineraryOutput) {
       throw new Error("Failed to generate itinerary.");
     }
 
     const bookingOptions = [];
-    if (transportOutput.best) bookingOptions.push(transportOutput.best);
-    if (transportOutput.cheapest) bookingOptions.push(transportOutput.cheapest);
-    if (transportOutput.eco) bookingOptions.push(transportOutput.eco);
-    bookingOptions.push(...transportOutput.other);
+    if (transportOutput?.best) bookingOptions.push(transportOutput.best);
+    if (transportOutput?.cheapest) bookingOptions.push(transportOutput.cheapest);
+    if (transportOutput?.eco) bookingOptions.push(transportOutput.eco);
+    if (transportOutput?.other) bookingOptions.push(...transportOutput.other);
     
     // Combine the results
     return {
