@@ -51,7 +51,7 @@ const prompt = ai.definePrompt({
   3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely and return an empty array for 'hotelOptions'.
       - Otherwise, based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
-      - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
+      - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, mock rating, and a fake booking URL.
   
   4.  **Generate Local Transport Options:**
       - Recommend 3-4 common and useful local transport options for getting around the destination city (e.g., metro, bus, taxi, rideshare like Uber, auto-rickshaw, bike rentals).
