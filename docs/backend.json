@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "User": {
@@ -519,8 +518,12 @@
           "schema": {
             "$ref": "#/backend/entities/Booking"
           },
-          "description": "Stores confirmed bookings.",
-          "rules": "allow list: if request.query.where.userId == request.auth.uid;\nallow get: if resource.data.userId == request.auth.uid || resource.data.supporterId == request.auth.uid;\nallow create: if request.resource.data.userId == request.auth.uid;",
+          "description": "Stores confirmed bookings. Users can only query bookings where their userId matches the authenticated user's ID. Individual reads are allowed by either the user or the supporter involved in the booking.",
+          "rules": {
+            "list": "allow list: if request.query.where.userId == request.auth.uid;",
+            "read": "allow get: if resource.data.userId == request.auth.uid || resource.data.supporterId == request.auth.uid;",
+            "create": "allow create: if request.resource.data.userId == request.auth.uid;"
+          },
           "params": [
             {
               "name": "bookingId",
@@ -533,5 +536,4 @@
     "reasoning": "The Firestore structure is designed to be secure, scalable, and debuggable, adhering to the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation for homogeneous security postures.\n\n**Authorization Independence:**\nAuthorization independence is achieved through path-based ownership for `User`, `Trip`, and `Expense` data. This eliminates the need for `get()` calls in security rules, enabling atomic operations. All data related to a user is stored under their `userId`, making ownership clear and enforceable directly in the path.\n\n**QAPs Support:**\nThe structure supports secure `list` operations (QAPs) by ensuring that each collection has a consistent security posture. For the `/bookings` collection, an explicit `allow list` rule has been defined to allow `list` operations only when the query explicitly filters for the user's own `userId`. This prevents users from listing all bookings in the system while still allowing them to fetch their own, which is a critical security pattern.\n\n**DBAC (Database-Based Access Control):**\nThis design uses the database to store roles. Since there are no roles defined, this design focuses on the 'request.auth.uid' for authorization, and ownership is determined based on the path. No custom claims are used.\n\n**Structure Overview:**\n- `/users/{userId}`: User profiles and related data (trips, expenses, itinerary items). This path enforces ownership.\n- `/local_businesses/{localBusinessId}`: Information about local businesses is stored globally. A separate collection could be created if business-owners need to update their entries, but this is not specified in the prompt. A separate service (not firestore rules) would handle authorization for that.\n- `/app-stats/{statId}`: A new collection to hold global, publicly readable application statistics like traveler counts.\n- `/supporters/{supporterId}`: A new collection to store profiles of local residents who volunteer to help travelers. This data is intended to be publicly readable to allow travelers to find support. Availability has been added to this entity to support the new booking flow.\n- `/bookings/{bookingId}`: A new collection to store confirmed bookings. The rules for this collection are now robust and explicitly defined, allowing reads for involved parties and secure, user-specific queries for lists."
   }
 }
-
     

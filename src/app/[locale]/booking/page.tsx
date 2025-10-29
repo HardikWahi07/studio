@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -29,6 +28,7 @@ export default function BookingPage() {
         return query(
             collection(firestore, 'bookings'),
             where('userId', '==', user.uid),
+            orderBy('userId'), 
             orderBy('bookedAt', 'desc')
         );
     }, [user, firestore]);
@@ -101,5 +101,4 @@ export default function BookingPage() {
         </main>
     );
 }
-
     
