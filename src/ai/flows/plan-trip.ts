@@ -38,7 +38,8 @@ const prompt = ai.definePrompt({
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
 
   2.  **Generate Mock Hotel Options:**
-      - Based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
+      - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely.
+      - Otherwise, based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
       - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, a mock rating, and a fake booking URL.
   
   3.  **Generate Local Transport Options:**

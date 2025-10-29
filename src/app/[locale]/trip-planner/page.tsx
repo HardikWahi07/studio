@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from "@/components/ui/button";
@@ -24,15 +24,15 @@ import { AuthDialog } from '@/components/auth-dialog';
 import { TripItinerary } from '@/components/trip-itinerary';
 
 const formSchema = z.object({
-    from: z.string().min(1, 'Origin is required.'),
-    to: z.string().min(1, 'Destination is required.'),
-    departure: z.string().min(1, 'Departure date is required.'),
+    origin: z.string().min(1, 'Origin is required.'),
+    destination: z.string().min(1, 'Destination is required.'),
+    departureDate: z.string().min(1, 'Departure date is required.'),
     tripDuration: z.coerce.number().min(1, 'Duration must be at least 1 day.').max(14, 'Duration cannot exceed 14 days.'),
     travelers: z.coerce.number().min(1, "Please enter at least 1 traveler.").positive(),
     tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']),
     travelStyle: z.enum(['solo', 'couple', 'family', 'group']),
-    accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']),
-    accommodationBudget: z.enum(['budget', 'moderate', 'luxury']),
+    accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental', 'none']),
+    accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).optional(),
     interests: z.string().min(10, 'Please tell us a bit more about your interests.'),
 });
 
@@ -50,7 +50,12 @@ export default function TripPlannerPage() {
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: { from: '', to: '', departure: '', tripDuration: 7, travelers: 1, tripPace: 'moderate', travelStyle: 'solo', accommodationType: 'hotel', accommodationBudget: 'moderate', interests: '' },
+        defaultValues: { origin: '', destination: '', departureDate: '', tripDuration: 7, travelers: 1, tripPace: 'moderate', travelStyle: 'solo', accommodationType: 'hotel', accommodationBudget: 'moderate', interests: '' },
+    });
+
+    const accommodationType = useWatch({
+      control: form.control,
+      name: 'accommodationType'
     });
 
     async function handleSearch(values: z.infer<typeof formSchema>) {
@@ -60,9 +65,9 @@ export default function TripPlannerPage() {
 
         try {
             const planTripInput: PlanTripInput = {
-                origin: values.from,
-                destination: values.to,
-                departureDate: values.departure,
+                origin: values.origin,
+                destination: values.destination,
+                departureDate: values.departureDate,
                 tripDuration: values.tripDuration,
                 travelers: values.travelers,
                 tripPace: values.tripPace,
@@ -94,9 +99,9 @@ export default function TripPlannerPage() {
             const values = form.getValues();
             const tripRef = doc(collection(firestore, `users/${user.uid}/trips`));
             await setDoc(tripRef, {
-                id: tripRef.id, userId: user.uid, destination: values.to, origin: values.from, startDate: values.departure, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, hotelOptions: results.hotelOptions, localTransportOptions: results.localTransportOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(), ...values
+                id: tripRef.id, userId: user.uid, destination: values.destination, origin: values.origin, startDate: values.departureDate, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, hotelOptions: results.hotelOptions, localTransportOptions: results.localTransportOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(), ...values
             });
-            toast({ title: "Itinerary Saved!", description: `Your trip to ${values.to} has been saved to 'My Trips'.`, });
+            toast({ title: "Itinerary Saved!", description: `Your trip to ${values.destination} has been saved to 'My Trips'.`, });
             setTripSaved(true);
         } catch(error) {
              toast({ title: "Save Failed", description: "There was an error saving your trip. Please try again.", variant: 'destructive' });
@@ -123,14 +128,14 @@ export default function TripPlannerPage() {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSearch)} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <FormField control={form.control} name="from" render={({ field }) => (
+                                <FormField control={form.control} name="origin" render={({ field }) => (
                                     <FormItem><FormLabel>{t('fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('fromPlaceholder')} /><FormMessage /></FormItem>
                                 )} />
-                                <FormField control={form.control} name="to" render={({ field }) => (
+                                <FormField control={form.control} name="destination" render={({ field }) => (
                                     <FormItem><FormLabel>{t('toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('toPlaceholder')} /><FormMessage /></FormItem>
                                 )} />
                                 <div className="grid grid-cols-2 gap-4">
-                                    <FormField control={form.control} name="departure" render={({ field }) => (
+                                    <FormField control={form.control} name="departureDate" render={({ field }) => (
                                         <FormItem><FormLabel>{t('departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="tripDuration" render={({ field }) => (
@@ -158,15 +163,22 @@ export default function TripPlannerPage() {
                                     <FormField control={form.control} name="accommodationType" render={({ field }) => (
                                         <FormItem><FormLabel>{t('accommodationLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
                                             <FormControl><SelectTrigger><SelectValue placeholder={t('accommodationPlaceholder')} /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="hotel">{t('accommodationHotel')}</SelectItem><SelectItem value="hostel">{t('accommodationHostel')}</SelectItem><SelectItem value="vacation-rental">{t('accommodationRental')}</SelectItem></SelectContent>
+                                            <SelectContent>
+                                                <SelectItem value="hotel">{t('accommodationHotel')}</SelectItem>
+                                                <SelectItem value="hostel">{t('accommodationHostel')}</SelectItem>
+                                                <SelectItem value="vacation-rental">{t('accommodationRental')}</SelectItem>
+                                                <SelectItem value="none">{t('accommodationNone')}</SelectItem>
+                                            </SelectContent>
                                         </Select><FormMessage /></FormItem>
                                     )}/>
-                                    <FormField control={form.control} name="accommodationBudget" render={({ field }) => (
-                                        <FormItem><FormLabel>Stay Budget</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Select budget..." /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="budget">Budget</SelectItem><SelectItem value="moderate">Moderate</SelectItem><SelectItem value="luxury">Luxury</SelectItem></SelectContent>
-                                        </Select><FormMessage /></FormItem>
-                                    )}/>
+                                    {accommodationType !== 'none' && (
+                                      <FormField control={form.control} name="accommodationBudget" render={({ field }) => (
+                                          <FormItem><FormLabel>{t('accommodationBudgetLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                              <FormControl><SelectTrigger><SelectValue placeholder={t('accommodationBudgetPlaceholder')} /></SelectTrigger></FormControl>
+                                              <SelectContent><SelectItem value="budget">{t('accommodationBudgetBudget')}</SelectItem><SelectItem value="moderate">{t('accommodationBudgetModerate')}</SelectItem><SelectItem value="luxury">{t('accommodationBudgetLuxury')}</SelectItem></SelectContent>
+                                          </Select><FormMessage /></FormItem>
+                                      )}/>
+                                    )}
                                 </div>
                             </div>
                             <FormField control={form.control} name="interests" render={({ field }) => (
@@ -184,7 +196,7 @@ export default function TripPlannerPage() {
                 <div className="flex flex-col items-center justify-center pt-10 text-center">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
                     <p className="mt-4 text-lg font-semibold text-muted-foreground">{t('loadingMessage')}</p>
-                    <p className="text-sm text-muted-foreground">Crafting your perfect journey to {form.getValues('to')}...</p>
+                    <p className="text-sm text-muted-foreground">Crafting your perfect journey to {form.getValues('destination')}...</p>
                 </div>
             )}
 

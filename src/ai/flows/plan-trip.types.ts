@@ -10,8 +10,8 @@ export const PlanTripInputSchema = z.object({
   currency: z.string().describe('The currency for costs (e.g., USD, EUR, INR).'),
   tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']).describe('The desired pace of the trip.'),
   travelStyle: z.enum(['solo', 'couple', 'family', 'group']).describe('The style of travel.'),
-  accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental']).describe('Preferred accommodation type.'),
-  accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).describe('The budget for accommodation.'),
+  accommodationType: z.enum(['hotel', 'hostel', 'vacation-rental', 'none']).describe('Preferred accommodation type. "none" means the user has their own arrangements.'),
+  accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).optional().describe('The budget for accommodation. This may be omitted if accommodationType is "none".'),
   interests: z.string().describe('Detailed interests of the traveler(s), including food preferences (e.g., "local street food", "vegan restaurants", "fine dining").'),
 });
 export type PlanTripInput = z.infer<typeof PlanTripInputSchema>;
