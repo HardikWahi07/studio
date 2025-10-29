@@ -10,6 +10,8 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { PlanTripOutputSchema, type PlanTripOutput } from './plan-trip.types';
+
 
 const GeneratePersonalizedItineraryInputSchema = z.object({
   destination: z.string().describe('The destination for the trip.'),
@@ -21,13 +23,9 @@ export type GeneratePersonalizedItineraryInput = z.infer<
   typeof GeneratePersonalizedItineraryInputSchema
 >;
 
-const GeneratePersonalizedItineraryOutputSchema = z.object({
-  itinerary: z.string().describe('The generated trip itinerary.'),
-});
+// Use the same output schema as the main trip planner for consistency.
+export type GeneratePersonalizedItineraryOutput = PlanTripOutput;
 
-export type GeneratePersonalizedItineraryOutput = z.infer<
-  typeof GeneratePersonalizedItineraryOutputSchema
->;
 
 export async function generatePersonalizedItinerary(
   input: GeneratePersonalizedItineraryInput
@@ -38,18 +36,47 @@ export async function generatePersonalizedItinerary(
 const generatePersonalizedItineraryPrompt = ai.definePrompt({
   name: 'generatePersonalizedItineraryPrompt',
   input: {schema: GeneratePersonalizedItineraryInputSchema},
-  output: {schema: GeneratePersonalizedItineraryOutputSchema},
-  prompt: `You are an expert travel assistant. Generate a personalized trip itinerary based on the following information:\n\nDestination: {{{destination}}}\nBudget: {{{budget}}}\nInterests: {{{interests}}}\n\nItinerary:`,
+  output: {schema: PlanTripOutputSchema},
+  prompt: `You are an expert travel assistant. Generate a personalized, day-by-day trip itinerary based on the following information:
+
+  - **Destination:** {{{destination}}}
+  - **Budget:** {{{budget}}}
+  - **Interests & Preferences:** {{{interests}}}
+
+  Your Task:
+  1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
+  2.  **Generate a Day-by-Day Itinerary:** Create a plan for a 3-day trip. For each day, create a detailed plan.
+      - Each day needs a **title** and a brief **summary**.
+      - For each activity, provide:
+        - **Time:** A specific start time (e.g., "09:00 AM").
+        - **Description:** A clear description of the activity (e.g., "Guided tour of the Louvre Museum").
+        - **Location:** The address or name of the place.
+        - **Details:** Practical tips, booking information, or why it's a great spot.
+      - **CRITICAL: For activities like "Lunch," "Dinner," or "Coffee," you MUST suggest a specific, real business.** Base your suggestion on the user's interests.
+      - **Include Transportation:** Between each activity, add a 'transportToNext' segment with estimated travel times.
+  
+  You MUST NOT suggest booking options, hotel options, or local transport options for this simplified itinerary. Return empty arrays for 'bookingOptions', 'hotelOptions', and 'localTransportOptions'.
+  
+  Produce the final output in the required JSON format.
+  `,
 });
 
 const generatePersonalizedItineraryFlow = ai.defineFlow(
   {
     name: 'generatePersonalizedItineraryFlow',
     inputSchema: GeneratePersonalizedItineraryInputSchema,
-    outputSchema: GeneratePersonalizedItineraryOutputSchema,
+    outputSchema: PlanTripOutputSchema,
   },
   async input => {
     const {output} = await generatePersonalizedItineraryPrompt(input);
-    return output!;
+    if (!output) {
+      throw new Error("AI model failed to generate a valid itinerary. The response was empty.");
+    }
+    // Ensure arrays are not null to prevent UI errors
+    output.bookingOptions = [];
+    output.hotelOptions = [];
+    output.localTransportOptions = [];
+
+    return output;
   }
 );

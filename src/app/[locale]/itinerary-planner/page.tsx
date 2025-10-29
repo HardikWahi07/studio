@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { generatePersonalizedItinerary, GeneratePersonalizedItineraryInput } from "@/ai/flows/generate-personalized-itineraries";
+import { generatePersonalizedItinerary, GeneratePersonalizedItineraryOutput } from "@/ai/flows/generate-personalized-itineraries";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Wand2, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
+import { TripItinerary } from "@/components/trip-itinerary";
 
 const formSchema = z.object({
   destination: z.string().min(2, "Destination must be at least 2 characters."),
@@ -22,7 +23,7 @@ const formSchema = z.object({
 
 export default function ItineraryGeneratorPage() {
   const t = useTranslations('ItineraryPlannerPage');
-  const [itinerary, setItinerary] = useState("");
+  const [itinerary, setItinerary] = useState<GeneratePersonalizedItineraryOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -37,10 +38,10 @@ export default function ItineraryGeneratorPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    setItinerary("");
+    setItinerary(null);
     try {
-      const result = await generatePersonalizedItinerary(values as GeneratePersonalizedItineraryInput);
-      setItinerary(result.itinerary);
+      const result = await generatePersonalizedItinerary(values);
+      setItinerary(result);
     } catch (error) {
       console.error("Failed to generate itinerary:", error);
       toast({
@@ -63,117 +64,103 @@ export default function ItineraryGeneratorPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>{t('formTitle')}</CardTitle>
-            <CardDescription>{t('formDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
-                  name="destination"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('destinationLabel')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t('destinationPlaceholder')} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="budget"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('budgetLabel')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t('budgetPlaceholder')} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="interests"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('interestsLabel')}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t('interestsPlaceholder')}
-                          className="resize-none"
-                          rows={4}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t('generatingButton')}
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="mr-2 h-4 w-4" />
-                      {t('generateButton')}
-                    </>
-                  )}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('formTitle')}</CardTitle>
+              <CardDescription>{t('formDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                  <FormField
+                    control={form.control}
+                    name="destination"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('destinationLabel')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={t('destinationPlaceholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="budget"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('budgetLabel')}</FormLabel>
+                        <FormControl>
+                          <Input placeholder={t('budgetPlaceholder')} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="interests"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('interestsLabel')}</FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder={t('interestsPlaceholder')}
+                            className="resize-none"
+                            rows={4}
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        {t('generatingButton')}
+                      </>
+                    ) : (
+                      <>
+                        <Wand2 className="mr-2 h-4 w-4" />
+                        {t('generateButton')}
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </Form>
+            </CardContent>
+          </Card>
+        </div>
 
-        <Card className="lg:col-span-2">
-          <CardHeader>
-            <CardTitle>{t('resultTitle')}</CardTitle>
-            <CardDescription>{t('resultDescription')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading && (
-              <div className="space-y-4">
-                 <div className="space-y-2">
-                  <div className="h-6 w-1/3 bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-3/4 bg-muted animate-pulse rounded-md" />
-                </div>
-                 <div className="space-y-2 pt-4">
-                  <div className="h-6 w-1/3 bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-3/4 bg-muted animate-pulse rounded-md" />
-                </div>
-                 <div className="space-y-2 pt-4">
-                  <div className="h-6 w-1/3 bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                  <div className="h-4 w-2/3 bg-muted animate-pulse rounded-md" />
-                </div>
-              </div>
-            )}
-            {!isLoading && !itinerary && (
-              <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[300px]">
-                <Map className="h-12 w-12 text-muted-foreground" />
-                <p className="mt-4 text-muted-foreground">{t('waitingMessage')}</p>
-              </div>
-            )}
-            {itinerary && (
-              <div className="prose prose-sm md:prose-base max-w-none text-foreground">
-                <pre className="whitespace-pre-wrap bg-secondary/50 p-4 rounded-md font-sans text-sm">
-                  {itinerary}
-                </pre>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+        <div className="lg:col-span-2">
+            <Card>
+              <CardHeader>
+                 <CardTitle>{itinerary ? itinerary.tripTitle : t('resultTitle')}</CardTitle>
+                <CardDescription>{t('resultDescription')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {isLoading && (
+                  <div className="flex flex-col items-center justify-center pt-10 text-center">
+                      <Loader2 className="w-12 h-12 animate-spin text-primary" />
+                      <p className="mt-4 text-lg font-semibold text-muted-foreground">Crafting your itinerary...</p>
+                  </div>
+                )}
+                {!isLoading && !itinerary && (
+                  <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[300px]">
+                    <Map className="h-12 w-12 text-muted-foreground" />
+                    <p className="mt-4 text-muted-foreground">{t('waitingMessage')}</p>
+                  </div>
+                )}
+                {itinerary && (
+                  <TripItinerary results={itinerary} />
+                )}
+              </CardContent>
+            </Card>
+        </div>
       </div>
     </main>
   );
