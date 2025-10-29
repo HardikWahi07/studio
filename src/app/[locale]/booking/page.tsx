@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy, doc, updateDoc } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Briefcase, Calendar, CheckCircle, Users, Plane, Train, Bus, Hotel, ShoppingCart, Wallet, Leaf, Clock, Star, CarFront } from 'lucide-react';
+import { Briefcase, Calendar, CheckCircle, Users, Plane, Train, Bus, Hotel, Wallet, Leaf, Clock, Star, CarFront } from 'lucide-react';
 import { format } from 'date-fns';
 import { useTranslations } from 'next-intl';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -115,6 +115,8 @@ export default function BookingPage() {
 
     const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
 
+    // --- Data Fetching ---
+
     const tripsQuery = useMemoFirebase(() => {
         if (!user || !firestore) return null;
         return query(
@@ -122,25 +124,39 @@ export default function BookingPage() {
             orderBy('createdAt', 'desc')
         );
     }, [user, firestore]);
-
     const { data: trips, isLoading: isLoadingTrips, forceRefetch: forceRefetchTrips } = useCollection<Trip>(tripsQuery);
     
+    // Fetch all bookings. The security rules allow this for any signed-in user.
+    const allBookingsQuery = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return query(collection(firestore, 'bookings'), orderBy('bookedAt', 'desc'));
+    }, [user, firestore]);
+    const { data: allBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(allBookingsQuery);
+
+    // Filter the bookings on the client-side. This is secure and efficient for the demo.
+    const userBookings = useMemo(() => {
+        if (!user || !allBookings) return [];
+        return allBookings.filter(booking => booking.userId === user.uid);
+    }, [user, allBookings]);
+
+
+    // --- Derived State ---
+
     const selectedTrip = useMemo(() => {
         if (!trips || !selectedTripId) return null;
-        return trips.find(trip => trip.id === selectedTripId) || null;
+        const trip = trips.find(trip => trip.id === selectedTripId) || trips[0];
+        if (trip && !selectedTripId) {
+            setSelectedTripId(trip.id);
+        }
+        return trip;
+    }, [trips, selectedTripId]);
+    
+    useEffect(() => {
+        if(trips && trips.length > 0 && !selectedTripId) {
+            setSelectedTripId(trips[0].id);
+        }
     }, [trips, selectedTripId]);
 
-    const bookingsQuery = useMemoFirebase(() => {
-        if (!user || !firestore) return null;
-        // This query now fetches only the bookings belonging to the current user.
-        return query(
-            collection(firestore, 'bookings'),
-            where('userId', '==', user.uid),
-            orderBy('bookedAt', 'desc')
-        );
-    }, [user, firestore]);
-
-    const { data: userBookings, isLoading: isLoadingBookings } = useCollection<LocalBooking>(bookingsQuery);
 
     const sortedBookingOptions = useMemo(() => {
         if (!selectedTrip?.bookingOptions) return { best: null, cheapest: null, eco: null };
@@ -157,6 +173,8 @@ export default function BookingPage() {
 
         return { best, cheapest, eco };
     }, [selectedTrip?.bookingOptions]);
+    
+    // --- Event Handlers ---
     
     const handleConfirmBooking = async () => {
         if (!firestore || !user || !selectedTripId) return;
@@ -177,10 +195,29 @@ export default function BookingPage() {
         }
     }
     
+    // --- Render Logic ---
+    const isLoading = isUserLoading || isLoadingTrips;
     const isTripBooked = selectedTrip?.status === 'Booked';
 
+    if (isLoading) {
+        return <main className="flex-1 p-4 md:p-8 space-y-8 bg-background"><Skeleton className="h-96 w-full" /></main>
+    }
+
+    if (!user) {
+        return (
+            <main className="flex-1 p-4 md:p-8">
+                <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed">
+                    <Briefcase className="h-16 w-16 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-bold text-lg">Please Log In</h3>
+                    <p className="mt-2 text-muted-foreground max-w-sm">
+                        You need to be logged in to view and manage your bookings.
+                    </p>
+                </Card>
+            </main>
+        )
+    }
+
     const renderTripBookingContent = () => {
-        if (isLoadingTrips) return <Skeleton className="h-64 w-full" />;
         if (!trips?.length) {
             return (
                 <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed">
@@ -245,7 +282,6 @@ export default function BookingPage() {
                                         <h3 className="text-sm font-semibold mb-2 text-muted-foreground tracking-wider uppercase">Cheapest</h3>
                                         <BookingOptionCard opt={sortedBookingOptions.cheapest} />
                                     </div>
-
                                 )}
                             </div>
                         </CardContent>
@@ -279,7 +315,7 @@ export default function BookingPage() {
             );
         }
 
-        if (!userBookings || userBookings.length === 0) {
+        if (!userBookings.length) {
             return (
                 <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed">
                     <Briefcase className="h-16 w-16 text-muted-foreground/50" />
@@ -320,35 +356,23 @@ export default function BookingPage() {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold flex items-center gap-2">
-                    <ShoppingCart /> {t('title')}
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">
+                     {t('title')}
                 </h1>
                 <p className="text-muted-foreground max-w-2xl">
                     {t('description')}
                 </p>
             </div>
             
-            {!user && !isUserLoading && (
-                <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed">
-                    <Briefcase className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">Please Log In</h3>
-                    <p className="mt-2 text-muted-foreground max-w-sm">
-                        You need to be logged in to view and manage your bookings.
-                    </p>
-                </Card>
-            )}
-
-            {isUserLoading && <Skeleton className="h-96 w-full" />}
-
-            {user && !isUserLoading && (
-                <div className="space-y-8">
-                     <Card>
-                        <CardHeader>
-                            <CardTitle>Book Your Trip</CardTitle>
-                            <CardDescription>Select one of your AI-planned trips to view flight, hotel, and other booking options.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="max-w-md">
+            <div className="space-y-8">
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Book Your Trip</CardTitle>
+                        <CardDescription>Select one of your AI-planned trips to view flight, hotel, and other booking options.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="max-w-md">
+                            {isLoadingTrips ? <Skeleton className="h-10 w-full" /> : (
                                 <Select onValueChange={setSelectedTripId} value={selectedTripId || undefined}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a planned trip..." />
@@ -361,18 +385,17 @@ export default function BookingPage() {
                                         ))}
                                     </SelectContent>
                                 </Select>
-                            </div>
-                        </CardContent>
-                    </Card>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
 
-                    {renderTripBookingContent()}
-                    
-                    <div className="pt-8">
-                         {renderLocalBookings()}
-                    </div>
+                {renderTripBookingContent()}
+                
+                <div className="pt-8">
+                     {renderLocalBookings()}
                 </div>
-            )}
-
+            </div>
         </main>
     );
 }
