@@ -86,10 +86,12 @@ const planTripFlow = ai.defineFlow(
     const output = llmResponse.output;
 
     if (!output) {
+      // If the model returns null, throw a more specific error.
+      // This can be caught by the calling function on the front-end.
       throw new Error("AI model failed to generate a valid itinerary. The response was empty.");
     }
     
-    // Ensure bookingOptions is always an array
+    // Ensure bookingOptions is always an array to prevent downstream errors.
     if (!output.bookingOptions) {
       output.bookingOptions = [];
     }
