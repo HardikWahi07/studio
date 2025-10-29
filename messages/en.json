@@ -5,7 +5,8 @@
     "myTrips": "My Trips",
     "about": "About",
     "aiTripPlanner": "AI Trip Planner",
-    "booking": "Booking",
+    "booking": "My Bookings",
+    "suggestBookings": "Suggest Bookings",
     "localConnect": "Local Connect",
     "hiddenGems": "Hidden Gems",
     "travelTools": "Travel Tools",
@@ -239,12 +240,18 @@
     "description": "Compare your travel options by cost, time, and environmental impact. Choose the smarter, greener way to get there.",
     "mockDataNotice": "(This is a concept demonstration with mock data)",
     "routeTitle": "Your Route",
-    "fromLocation": "New York City",
-    "toLocation": "Chicago",
+    "fromLocation": "Origin",
+    "toLocation": "Destination",
     "to": "to",
+    "from": "From",
     "duration": "Duration",
     "cost": "Est. Cost",
     "carbon": "Carbon"
+  },
+  "SuggestBookingsPage": {
+    "title": "Suggest Transport Bookings",
+    "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
+    "findButton": "Find Options"
   },
   "TripPlannerPage": {
     "title": "AI Trip Planner",

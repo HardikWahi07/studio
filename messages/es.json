@@ -5,7 +5,8 @@
     "myTrips": "Mis Viajes",
     "about": "Acerca de",
     "aiTripPlanner": "Planificador de Viajes IA",
-    "booking": "Reservas",
+    "booking": "Mis Reservas",
+    "suggestBookings": "Sugerir Reservas",
     "localConnect": "Conexión Local",
     "hiddenGems": "Joyas Ocultas",
     "travelTools": "Herramientas de Viaje",
@@ -239,12 +240,18 @@
     "description": "Compara tus opciones de viaje por costo, tiempo e impacto ambiental. Elige la forma más inteligente y ecológica de llegar.",
     "mockDataNotice": "(Esta es una demostración conceptual con datos de prueba)",
     "routeTitle": "Tu Ruta",
-    "fromLocation": "Nueva York",
-    "toLocation": "Chicago",
+    "fromLocation": "Origen",
+    "toLocation": "Destino",
     "to": "a",
+    "from": "Desde",
     "duration": "Duración",
     "cost": "Costo Est.",
     "carbon": "Carbono"
+  },
+  "SuggestBookingsPage": {
+    "title": "Sugerir Reservas de Transporte",
+    "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
+    "findButton": "Encontrar Opciones"
   },
   "TripPlannerPage": {
     "title": "Planificador de Viajes con IA",

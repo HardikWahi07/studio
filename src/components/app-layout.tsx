@@ -26,6 +26,7 @@ import {
   HelpCircle,
   Mail,
   Book,
+  Ticket,
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
@@ -379,6 +380,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedInNavItems = [
     { href: "/", label: t('home') },
     { href: "/my-trips", label: t('myTrips') },
+    { href: "/suggest-bookings", label: t('suggestBookings') },
     { href: "/booking", label: t('booking') },
     { href: "/about", label: t('about') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
@@ -389,6 +391,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedOutNavItems = [
     { href: "/", label: t('home') },
     { href: "/about", label: t('about') },
+    { href: "/suggest-bookings", label: t('suggestBookings') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "#", label: t('helpCenter') },
     { href: "#", label: t('contactUs') },
