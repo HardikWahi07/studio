@@ -82,10 +82,11 @@ const planTripFlow = ai.defineFlow(
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
-    
+    const llmResponse = await prompt(input);
+    const output = llmResponse.output;
+
     if (!output) {
-      throw new Error("Failed to generate itinerary.");
+      throw new Error("AI model failed to generate a valid itinerary. The response was empty.");
     }
     
     // Ensure bookingOptions is always an array
