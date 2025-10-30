@@ -26,9 +26,7 @@
     "termsOfService": "Terms of Service",
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
-    "contactUs": "Contact Us",
-    "login": "Login",
-    "safety": "Safety Companion"
+    "contactUs": "Contact Us"
   },
   "AuthButton": {
     "login": "Login",
@@ -174,87 +172,27 @@
     "title": "AI Itinerary Generator",
     "description": "Let our AI craft the perfect, personalized travel plan for you. Just enter your preferences below and watch the magic happen.",
     "formTitle": "Your Trip Details",
-    "formDescription": "Fill in the form to get started.",
-    "destinationLabel": "Destination",
-    "destinationPlaceholder": "e.g., Kyoto, Japan",
-    "budgetLabel": "Budget",
-    "budgetPlaceholder": "e.g., Moderate",
-    "interestsLabel": "Interests & Preferences",
-    "interestsPlaceholder": "e.g., Interested in historic temples, local cuisine, nature walks, and minimal travel between locations.",
-    "generateButton": "Generate Itinerary",
-    "generatingButton": "Generating...",
-    "toastErrorTitle": "Error",
-    "toastErrorDescription": "Failed to generate itinerary. Please try again.",
-    "resultTitle": "Your Personalized Itinerary",
-    "resultDescription": "Your AI-generated travel plan will appear here.",
-    "waitingMessage": "Your itinerary is waiting to be created."
-  },
-  "LocalArtisansPage": {
-    "title": "Local Connect",
-    "description": "Support local communities by connecting with talented artisans and authentic experiences. Every interaction tells a story.",
-    "connectButton": "Connect"
-  },
-  "LocalSupportersPage": {
-    "title": "Local Supporters",
-    "description": "Connect with friendly locals who are happy to help. Get advice, ask questions, or just get a friendly tip when you're feeling lost.",
-    "findSupporterTitle": "Find a Supporter",
-    "findSupporterDescription": "Enter a city to find locals who can help. We'll try to detect your location automatically.",
-    "searchPlaceholder": "e.g., Madrid, Spain",
-    "searchButton": "Search",
-    "locationErrorTitle": "Location Error",
-    "noSupportersTitle": "No Supporters Found in {city}",
-    "noSupportersDescription": "We're still building our network. Try searching for another city or check back soon!",
-    "findSupportersPromptTitle": "Find Local Supporters",
-    "findSupportersPromptDescription": "Enter a location above to find local supporters in that area.",
-    "responds": "Responds:",
-    "messageButton": "Message"
-  },
-  "MyTripsPage": {
-    "title": "My Trips",
-    "description": "Here are all the amazing journeys you've planned with TripMind.",
-    "noTripsTitle": "No Trips Planned Yet",
-    "noTripsDescription": "Use the AI Trip Planner to start your next adventure!",
-    "from": "From {origin}",
-    "travelers": "{count, plural, one {# traveler} other {# travelers}}"
-  },
-  "SafetyPage": {
-    "title": "Safety Companion",
-    "description": "Feeling lost or need help? Your AI safety companion, powered by local knowledge, is here to assist you in any situation.",
-    "formTitle": "Get Assistance",
-    "formDescription": "Describe your situation, and our AI will provide guidance.",
-    "locationLabel": "Your Location",
-    "locationPlaceholder": "e.g., Madrid, Spain",
-    "situationLabel": "What's the situation?",
-    "situationPlaceholder": "e.g., I'm lost near the train station",
-    "getHelpButton": "Get Help",
-    "gettingHelpButton": "Getting Help...",
-    "toastErrorTitle": "Error",
-    "toastErrorDescription": "Could not get assistance. Please try again.",
-    "resultsTitle": "Your Safety Guide",
-    "alertsTitle": "Safety Alerts",
-    "guidanceTitle": "Your Local Supporter's Guidance",
-    "hospitalsTitle": "Nearby Hospitals",
-    "waitingMessage": "Your safety guidance will appear here."
+    "formDescription": "Fill in the form to get started."
   },
   "SuggestBookingsPage": {
     "title": "Suggest Transport Bookings",
     "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
-    "formTitle": "Find Your Transport",
-    "formDescription": "Enter your origin, destination, and travel date below.",
+    "formTitle": "Describe Your Journey",
+    "formDescription": "Tell us where you’re traveling from and to, and we’ll find the best options for you.",
     "fromLabel": "From",
     "fromPlaceholder": "Enter origin city...",
     "toLabel": "To",
     "toPlaceholder": "Enter destination city...",
-    "departureLabel": "Date",
+    "dateLabel": "Date",
     "preferencesLabel": "Preferences",
     "preferencesPlaceholder": "e.g., Fastest, Cheapest, Most Eco-Friendly",
     "findButton": "Find Options",
-    "searchingButton": "Searching...",
-    "loadingMessage": "Finding the best transport options for you...",
-    "resultsTitle": "Suggested Transport Options",
-    "noResults": "No transport options found for this route on the selected date.",
-    "toastErrorTitle": "Search Error",
-    "toastErrorDescription": "Could not fetch transport options. Please try again."
+    "searchingButton": "Finding...",
+    "resultsTitle": "Available Travel Options",
+    "noResultsTitle": "No Options Found",
+    "noResultsDescription": "Try changing your search or adjusting your preferences.",
+    "localTransportTitle": "Local Transport Options",
+    "localTransportDescription": "Best ways to move around your destination city."
   },
   "TripPlannerPage": {
     "title": "AI Trip Planner",
@@ -318,29 +256,6 @@
     "selectPlaceholder": "Select city...",
     "searchPlaceholder": "Search city...",
     "noCityFound": "No city found."
-  },
-  "BlogPage": {
-    "title": "Travel Stories & Tips",
-    "description": "Insights and inspiration from our community of travelers.",
-    "searchPlaceholder": "Search stories...",
-    "createButton": "Create Post",
-    "noPosts": "No stories found. Why not be the first to share one?",
-    "readMore": "Read More"
-  },
-  "CreateBlogPage": {
-    "title": "Create a New Story",
-    "description": "Share your travel experiences and tips with the community.",
-    "titleLabel": "Title",
-    "titlePlaceholder": "e.g., My Amazing Week in the Alps",
-    "contentLabel": "Your Story",
-    "imageHintLabel": "Image Hint",
-    "imageHintPlaceholder": "e.g., snowy mountains",
-    "publishButton": "Publish Story",
-    "publishingButton": "Publishing...",
-    "errorTitle": "Publishing Failed",
-    "errorDescription": "Could not save your story. Please try again.",
-    "successTitle": "Story Published!",
-    "successDescription": "Your travel story is now live for everyone to see."
   }
 }
 
