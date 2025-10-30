@@ -32,7 +32,7 @@ export const searchRealtimeTrains = ai.defineTool(
     }),
   },
   async (input) => {
-    console.log(`[searchRealtimeTrains Tool] Searching for trains from ${input.origin} to ${input.destination}`);
+    console.log(`[searchRealtimeTrains Tool] V4: Searching for trains from ${input.origin} to ${input.destination}`);
     
     if (!process.env.RAPIDAPI_KEY) {
         console.warn("[searchRealtimeTrains Tool] RAPIDAPI_KEY environment variable not set. Returning empty array.");
@@ -51,7 +51,7 @@ export const searchRealtimeTrains = ai.defineTool(
         }
         
         console.log(`[searchRealtimeTrains Tool] Found station codes: ${originStationCode} -> ${destinationStationCode}. Searching trains...`);
-        const formattedDate = format(new Date(input.date), 'yyyy-MM-dd');
+        const formattedDate = format(new Date(input.date), 'DD-MM-YYYY');
 
         const response = await fetch(`https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDate}`, {
             headers: {
@@ -75,18 +75,23 @@ export const searchRealtimeTrains = ai.defineTool(
 
         // The API provides many trains, let's take the first 4 for a concise list.
         const trainsPromises = data.data.slice(0, 4).map(async (train: any) => {
-            const travelClass = input.travelClass || train.available_classes[0] || "SL";
+            // Define a default travel class if not provided, preferring AC classes.
+            const preferredClasses = ["3A", "2A", "1A", "SL"];
+            const availableClasses = train.available_classes || [];
+            const travelClass = input.travelClass || preferredClasses.find(c => availableClasses.includes(c)) || availableClasses[0] || "SL";
             
             let availability = 'N/A';
             let fare: string | undefined = undefined;
 
             try {
-                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${travelClass}&quota=GN&date=${formattedDate}`, {
+                 const availDate = format(new Date(input.date), 'YYYY-MM-DD');
+                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${travelClass}&quota=GN&date=${availDate}`, {
                      headers: {
                         'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
                         'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
                      }
                  });
+
                  if (availResponse.ok) {
                      const availData = await availResponse.json();
                      if (availData.status && availData.data && availData.data.length > 0) {
