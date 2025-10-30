@@ -1,13 +1,14 @@
 
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
     Plane, Train, Bus, Leaf, Star, Hotel,
-    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront, DollarSign, Download
+    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront, DollarSign, Download, Loader2
 } from "lucide-react";
 import type { PlanTripOutput, TransportSegment, HotelOption } from '@/ai/flows/plan-trip.types';
 import jsPDF from 'jspdf';
@@ -70,10 +71,16 @@ function HotelOptionDisplay({ opt }: { opt: HotelOption }) {
 
 
 export function TripItinerary({ results }: { results: PlanTripOutput }) {
+    const [isDownloading, setIsDownloading] = useState(false);
+
     const handleDownloadPdf = () => {
         const input = document.getElementById('itinerary-content');
-        if (!input) return;
+        if (!input) {
+            console.error("PDF generation failed: Could not find itinerary content.");
+            return;
+        }
 
+        setIsDownloading(true);
         // Temporarily add a class to style for PDF generation
         document.body.classList.add('pdf-generating');
 
@@ -83,45 +90,57 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
             onclone: (document) => {
                  // Open all accordion items for capture
                 const triggers = document.querySelectorAll('[data-state="closed"]');
-                triggers.forEach(trigger => (trigger as HTMLElement).click());
+                triggers.forEach(trigger => {
+                    const content = trigger.nextElementSibling as HTMLElement;
+                    if (content) {
+                        content.style.maxHeight = 'none'; // Temporarily override animation
+                    }
+                });
             }
         }).then(canvas => {
-            document.body.classList.remove('pdf-generating');
             const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
             const canvasWidth = canvas.width;
             const canvasHeight = canvas.height;
             const ratio = canvasWidth / canvasHeight;
-            const width = pdfWidth;
-            const height = width / ratio;
-
+            const imgHeight = pdfWidth / ratio;
+            
+            let heightLeft = imgHeight;
             let position = 0;
-            let heightLeft = height;
 
-            pdf.addImage(imgData, 'PNG', 0, position, width, height);
-            heightLeft -= pdfHeight;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, imgHeight);
+            heightLeft -= pdf.internal.pageSize.getHeight();
 
             while (heightLeft > 0) {
-                position = heightLeft - height;
+                position = heightLeft - imgHeight;
                 pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, width, height);
-                heightLeft -= pdfHeight;
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                heightLeft -= pdf.internal.pageSize.getHeight();
             }
             
             pdf.save(`${results.tripTitle.replace(/\s+/g, '-')}.pdf`);
-        }).catch(() => {
+        }).finally(() => {
             document.body.classList.remove('pdf-generating');
+            setIsDownloading(false);
         });
     };
 
     return (
-        <div className="space-y-6">
+        <div id="itinerary-content" className="space-y-6">
             <div className="flex justify-center">
-                 <Button onClick={handleDownloadPdf} variant="outline">
-                    <Download className="mr-2 h-4 w-4" />
-                    Download as PDF
+                 <Button onClick={handleDownloadPdf} variant="outline" disabled={isDownloading}>
+                    {isDownloading ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Generating...
+                        </>
+                    ) : (
+                        <>
+                            <Download className="mr-2 h-4 w-4" />
+                            Download as PDF
+                        </>
+                    )}
                 </Button>
             </div>
             {results.journeyToHub && results.journeyToHub.length > 0 && (

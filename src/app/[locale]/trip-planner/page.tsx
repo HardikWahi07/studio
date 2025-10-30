@@ -254,7 +254,7 @@ export default function TripPlannerPage() {
             )}
 
             {results && !isLoading && (
-                <div className="pt-6 space-y-6" id="itinerary-content">
+                <div className="pt-6 space-y-6">
                     <div className="text-center">
                         <h2 className="font-headline text-3xl md:text-4xl font-bold">{results.tripTitle}</h2>
                         {!tripSaved && (
