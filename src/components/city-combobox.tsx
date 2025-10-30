@@ -44,9 +44,8 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
         setIsLoading(true)
         try {
           const result = await findCities({ query: debouncedSearchTerm })
-          // Filter out duplicates before setting state
-          const uniqueCities = [...new Set(result.cities)];
-          setSuggestions(uniqueCities)
+          const uniqueCities = [...new Set(result.cities.map(c => c.toLowerCase()))];
+          setSuggestions(uniqueCities.map(c => c.split(',').map(part => part.trim()).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(', ')));
         } catch (error) {
           console.error("Failed to fetch cities:", error)
           setSuggestions([])
@@ -67,8 +66,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
     setOpen(false)
   }
 
-  // Find the full city name from suggestions or use the passed value
-  const displayValue = suggestions.find(city => city.toLowerCase() === value) || value;
+  const displayValue = value ? value.split(',')[0] : (placeholder || t('selectPlaceholder'));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -79,7 +77,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
           aria-expanded={open}
           className="w-full justify-between font-normal"
         >
-          {value ? displayValue.split(',')[0] : placeholder || t('selectPlaceholder')}
+          {displayValue}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -104,12 +102,12 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
                 <CommandItem
                   key={`${city}-${index}`}
                   value={city}
-                  onSelect={() => handleSelect(city.toLowerCase())}
+                  onSelect={() => handleSelect(city)}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === city.toLowerCase() ? "opacity-100" : "opacity-0"
+                      value === city ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {city}

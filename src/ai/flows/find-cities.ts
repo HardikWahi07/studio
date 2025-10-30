@@ -40,6 +40,7 @@ const prompt = ai.definePrompt({
   1.  **Analyze the Query:** Understand the user's input, whether it's a full address, a point of interest, a neighborhood, or just a city.
   2.  **Generate Suggestions:** Provide a list of up to 10 relevant location suggestions.
   3.  **Format Correctly:** For each suggestion, provide a clear, descriptive name. Include as much detail as is relevant, such as the point of interest, neighborhood, city, state/province, and country.
+  4.  **Remove Duplicates:** Ensure there are no duplicate locations in the final list. For example, if "Pune, India" and "Pune, Maharashtra, India" are both valid, prefer the more specific one.
 
   **Examples:**
   - If the query is "avadh heliconia vapi", you should suggest "Avadh Heliconia Homes, Tukwada, Vapi, Gujarat, India".
@@ -58,6 +59,18 @@ const findCitiesFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    return output!;
+    if (!output) {
+      return { cities: [] };
+    }
+    // Post-processing to remove duplicates and prefer more specific results
+    const cityMap = new Map<string, string>();
+    output.cities.forEach(city => {
+        const key = city.split(',')[0].trim().toLowerCase(); // Key by the primary name
+        if (!cityMap.has(key) || city.length > (cityMap.get(key)?.length || 0)) {
+            cityMap.set(key, city);
+        }
+    });
+
+    return { cities: Array.from(cityMap.values()) };
   }
 );

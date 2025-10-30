@@ -365,10 +365,10 @@ export default function SuggestBookingsPage() {
                         <form onSubmit={promptForm.handleSubmit(handlePromptSearch)} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField control={promptForm.control} name="origin" render={({ field }) => (
-                                    <FormItem><FormLabel>From</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Select origin..." /><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>From</FormLabel><FormControl><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Select origin..." /></FormControl><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={promptForm.control} name="destination" render={({ field }) => (
-                                    <FormItem><FormLabel>To</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Select destination..." /><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>To</FormLabel><FormControl><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Select destination..." /></FormControl><FormMessage /></FormItem>
                                 )} />
                             </div>
                              <FormField control={promptForm.control} name="preferences" render={({ field }) => (
@@ -403,5 +403,3 @@ export default function SuggestBookingsPage() {
     </main>
   );
 }
-
-    
