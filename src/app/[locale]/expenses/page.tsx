@@ -1,207 +1,241 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Trash2, Scale } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { ArrowRight, ArrowLeft, Users, FileDigit, Landmark, VenetianMask } from 'lucide-react';
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "next-intl";
 
-const expenseSchema = z.object({
-  description: z.string().min(1, "Description is required."),
-  amount: z.coerce.number().positive("Amount must be positive."),
-  paidBy: z.string().min(1, "Please select who paid."),
-});
+type Participant = {
+  id: number;
+  name: string;
+  contribution: number;
+};
 
-type Expense = z.infer<typeof expenseSchema> & { id: number };
-
-const participants = ["You", "Alex", "Mia", "Sam"];
+type Transaction = {
+  from: string;
+  to: string;
+  amount: number;
+};
 
 export default function ExpensesPage() {
   const t = useTranslations('ExpensesPage');
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [step, setStep] = useState(1);
+  const [numPeople, setNumPeople] = useState(2);
+  const [participants, setParticipants] = useState<Participant[]>([]);
+  const [totalCost, setTotalCost] = useState(0);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
-  const form = useForm<z.infer<typeof expenseSchema>>({
-    resolver: zodResolver(expenseSchema),
-    defaultValues: {
-      description: "",
-      amount: 0,
-      paidBy: "",
-    },
-  });
+  const handleSetupSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const initialParticipants = Array.from({ length: numPeople }, (_, i) => ({
+      id: i,
+      name: `Person ${i + 1}`,
+      contribution: 0,
+    }));
+    setParticipants(initialParticipants);
+    setStep(2);
+  };
 
-  function addExpense(values: z.infer<typeof expenseSchema>) {
-    setExpenses([...expenses, { ...values, id: Date.now() }]);
-    form.reset();
-  }
+  const handleParticipantNameChange = (id: number, name: string) => {
+    setParticipants(participants.map(p => p.id === id ? { ...p, name } : p));
+  };
+  
+  const handleParticipantContributionChange = (id: number, contribution: string) => {
+      const value = parseFloat(contribution);
+      setParticipants(
+          participants.map(p => p.id === id ? { ...p, contribution: isNaN(value) ? 0 : value } : p)
+      );
+  };
 
-  function removeExpense(id: number) {
-    setExpenses(expenses.filter((expense) => expense.id !== id));
-  }
+  const calculateExpenses = () => {
+    const totalContributions = participants.reduce((acc, p) => acc + p.contribution, 0);
 
-  const totalSpent = expenses.reduce((acc, expense) => acc + expense.amount, 0);
-  const sharePerPerson = totalSpent > 0 ? totalSpent / participants.length : 0;
+    if (Math.abs(totalCost - totalContributions) > 0.01) {
+      alert(t('alertCostMismatch'));
+      return;
+    }
 
-  const balances = participants.map(participant => {
-    const paid = expenses
-      .filter(e => e.paidBy === participant)
-      .reduce((acc, e) => acc + e.amount, 0);
-    return {
-      name: participant,
-      balance: paid - sharePerPerson,
-    };
-  });
+    const sharePerPerson = totalCost / participants.length;
+
+    const balances = participants.map(p => ({
+      name: p.name,
+      balance: p.contribution - sharePerPerson,
+    }));
+
+    const debtors = balances.filter(p => p.balance < 0).sort((a, b) => a.balance - b.balance);
+    const creditors = balances.filter(p => p.balance > 0).sort((a, b) => b.balance - a.balance);
+
+    const newTransactions: Transaction[] = [];
+
+    let i = 0;
+    let j = 0;
+
+    while (i < debtors.length && j < creditors.length) {
+      const debtor = debtors[i];
+      const creditor = creditors[j];
+      const amountToTransfer = Math.min(Math.abs(debtor.balance), creditor.balance);
+
+      newTransactions.push({
+        from: debtor.name,
+        to: creditor.name,
+        amount: amountToTransfer,
+      });
+
+      debtor.balance += amountToTransfer;
+      creditor.balance -= amountToTransfer;
+
+      if (Math.abs(debtor.balance) < 0.01) i++;
+      if (Math.abs(creditor.balance) < 0.01) j++;
+    }
+    
+    setTransactions(newTransactions);
+    setStep(3);
+  };
+  
+  const cardVariants = {
+      hidden: { opacity: 0, x: 50 },
+      visible: { opacity: 1, x: 0 },
+      exit: { opacity: 0, x: -50 }
+  };
 
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
         <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          {t('description')}
-        </p>
+        <p className="text-muted-foreground max-w-2xl">{t('description')}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-        <Card className="lg:col-span-1">
-          <CardHeader>
-            <CardTitle>{t('addExpenseTitle')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(addExpense)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('descriptionLabel')}</FormLabel>
-                      <FormControl>
-                        <Input placeholder={t('descriptionPlaceholder')} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="amount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('amountLabel')}</FormLabel>
-                      <FormControl>
-                        <Input type="number" step="0.01" placeholder={t('amountPlaceholder')} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="paidBy"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('paidByLabel')}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder={t('paidByPlaceholder')} />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {participants.map(p => (
-                            <SelectItem key={p} value={p}>{p}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" className="w-full">
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  {t('addExpenseButton')}
-                </Button>
-              </form>
-            </Form>
-          </CardContent>
-        </Card>
-        
-        <div className="lg:col-span-2 space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>{t('expenseLogTitle')}</CardTitle>
-              <CardDescription>{t('expenseLogDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('tableHeaderDescription')}</TableHead>
-                    <TableHead>{t('tableHeaderPaidBy')}</TableHead>
-                    <TableHead className="text-right">{t('tableHeaderAmount')}</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {expenses.length > 0 ? (
-                    expenses.map((expense) => (
-                      <TableRow key={expense.id}>
-                        <TableCell className="font-medium">{expense.description}</TableCell>
-                        <TableCell>{expense.paidBy}</TableCell>
-                        <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
-                        <TableCell>
-                          <Button variant="ghost" size="icon" onClick={() => removeExpense(expense.id)}>
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="h-24 text-center">
-                        {t('noExpenses')}
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </CardContent>
-             <CardFooter className="font-bold text-lg">
-                <div className="flex justify-between w-full">
-                    <span>{t('totalSpent')}</span>
-                    <span>${totalSpent.toFixed(2)}</span>
-                </div>
-            </CardFooter>
-          </Card>
+       <div className="relative overflow-hidden">
+            <AnimatePresence mode="wait">
+                {step === 1 && (
+                     <motion.div key="step1" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><Users /> {t('step1Title')}</CardTitle>
+                                <CardDescription>{t('step1Description')}</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <form onSubmit={handleSetupSubmit} className="space-y-4">
+                                    <div className="space-y-2">
+                                    <Label htmlFor="numPeople">{t('numPeopleLabel')}</Label>
+                                    <Input
+                                        id="numPeople"
+                                        type="number"
+                                        value={numPeople}
+                                        onChange={e => setNumPeople(Math.max(2, parseInt(e.target.value) || 2))}
+                                        min="2"
+                                    />
+                                    </div>
+                                    <Button type="submit" className="w-full">
+                                    {t('nextButton')} <ArrowRight className="ml-2 h-4 w-4" />
+                                    </Button>
+                                </form>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
+                
+                {step === 2 && (
+                    <motion.div key="step2" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
+                        <Card>
+                             <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><FileDigit /> {t('step2Title')}</CardTitle>
+                                <CardDescription>{t('step2Description')}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="totalCost">{t('totalCostLabel')}</Label>
+                                    <Input
+                                        id="totalCost"
+                                        type="number"
+                                        placeholder="0.00"
+                                        onChange={e => setTotalCost(parseFloat(e.target.value) || 0)}
+                                    />
+                                </div>
+                                <div className="space-y-4">
+                                    <h4 className="font-semibold">{t('contributionsTitle')}</h4>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {participants.map(p => (
+                                            <div key={p.id} className="space-y-2">
+                                                <Label htmlFor={`p-name-${p.id}`}>{t('participantNameLabel', {number: p.id + 1})}</Label>
+                                                 <Input
+                                                    id={`p-name-${p.id}`}
+                                                    value={p.name}
+                                                    onChange={e => handleParticipantNameChange(p.id, e.target.value)}
+                                                />
+                                                <Label htmlFor={`p-contrib-${p.id}`}>{t('contributionLabel')}</Label>
+                                                <Input
+                                                    id={`p-contrib-${p.id}`}
+                                                    type="number"
+                                                    placeholder="0.00"
+                                                    onChange={e => handleParticipantContributionChange(p.id, e.target.value)}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </CardContent>
+                            <CardFooter className="flex justify-between">
+                                <Button variant="outline" onClick={() => setStep(1)}>
+                                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('backButton')}
+                                </Button>
+                                <Button onClick={calculateExpenses}>
+                                    {t('calculateButton')} <ArrowRight className="ml-2 h-4 w-4" />
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+                )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Scale className="h-5 w-5"/> {t('balanceSummaryTitle')}</CardTitle>
-              <CardDescription>
-                {t('balanceSummaryDescription')}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {balances.map(p => (
-                   <li key={p.name} className="flex justify-between items-center p-3 rounded-md bg-secondary">
-                        <span className="font-medium">{p.name}</span>
-                        <span className={`font-bold ${p.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                           {p.balance >= 0 ? '+' : '-'}${Math.abs(p.balance).toFixed(2)}
-                        </span>
-                   </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+                {step === 3 && (
+                    <motion.div key="step3" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><Landmark /> {t('step3Title')}</CardTitle>
+                                <CardDescription>{t('step3Description')}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {transactions.length > 0 ? (
+                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        {transactions.map((t, i) => (
+                                            <Card key={i} className="p-4 bg-secondary">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex flex-col items-center text-center">
+                                                        <VenetianMask className="w-8 h-8 mb-1" />
+                                                        <span className="font-bold">{t.from}</span>
+                                                        <span className="text-xs text-muted-foreground">{("owes")}</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-center">
+                                                        <ArrowRight className="w-8 h-8 text-primary" />
+                                                        <span className="font-bold text-primary">${t.amount.toFixed(2)}</span>
+                                                    </div>
+                                                    <div className="flex flex-col items-center text-center">
+                                                        <Landmark className="w-8 h-8 mb-1" />
+                                                        <span className="font-bold">{t.to}</span>
+                                                        <span className="text-xs text-muted-foreground">{("is owed")}</span>
+                                                    </div>
+                                                </div>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-center text-muted-foreground">{t('allSettled')}</p>
+                                )}
+                            </CardContent>
+                             <CardFooter>
+                                <Button variant="outline" onClick={() => { setStep(1); setTransactions([]); }}>
+                                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('startOverButton')}
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
-      </div>
     </main>
   );
 }

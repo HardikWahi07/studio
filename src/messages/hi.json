@@ -1,3 +1,4 @@
+
 {
     "AppLayout": {
       "home": "होम",
@@ -111,6 +112,29 @@
       "selectPlaceholder": "शहर चुनें...",
       "searchPlaceholder": "शहर खोजें...",
       "noCityFound": "कोई शहर नहीं मिला।"
+    },
+    "ExpensesPage": {
+      "title": "समूह व्यय विभाजक",
+      "description": "यात्रा के बाद कौन किसको कितना देना है, यह गणना करने का एक सरल तरीका।",
+      "step1Title": "चरण 1: सेटअप",
+      "step1Description": "कितने लोग खर्च बांट रहे हैं?",
+      "numPeopleLabel": "लोगों की संख्या",
+      "nextButton": "अगला",
+      "step2Title": "चरण 2: लागत और योगदान",
+      "step2Description": "कुल लागत और प्रत्येक व्यक्ति ने कितना भुगतान किया, दर्ज करें।",
+      "totalCostLabel": "कुल यात्रा लागत",
+      "contributionsTitle": "व्यक्तिगत योगदान",
+      "participantNameLabel": "प्रतिभागी #{number} का नाम",
+      "contributionLabel": "योगदान की राशि",
+      "backButton": "वापस",
+      "calculateButton": "गणना करें",
+      "alertCostMismatch": "योगदानों का योग कुल लागत से मेल नहीं खाता। कृपया संख्या जांचें।",
+      "step3Title": "चरण 3: निपटान",
+      "step3Description": "खाते का निपटान कैसे करें। प्रत्येक कार्ड एक भुगतान का प्रतिनिधित्व करता है।",
+      "owes": "देना है",
+      "is_owed": "लेना है",
+      "allSettled": "सभी का हिसाब बराबर है। कोई भुगतान आवश्यक नहीं।",
+      "startOverButton": "एक नई गणना शुरू करें"
     },
     "TripPlannerPage": {
       "title": "एआई ट्रिप प्लानर",
