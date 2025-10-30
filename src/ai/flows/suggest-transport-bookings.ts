@@ -9,7 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { z } from 'genkit';
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
 
@@ -81,7 +81,15 @@ const suggestTransportBookingsFlow = ai.defineFlow(
   },
   async (input) => {
     // Call the LLM with the defined prompt and tools
-    const { output } = await prompt(input);
+    let llmResponse;
+    try {
+        llmResponse = await prompt(input);
+    } catch (err) {
+        console.error("❌ LLM prompt failed in suggestTransportBookingsFlow:", err);
+        llmResponse = { output: null }; 
+    }
+    
+    const output = llmResponse?.output;
 
     // Ensure the output is not null and conforms to the schema
     if (!output || !Array.isArray(output.bookingOptions)) {
