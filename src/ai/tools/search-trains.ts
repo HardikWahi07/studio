@@ -9,7 +9,7 @@ import { z } from 'genkit';
 export const searchRealtimeTrains = ai.defineTool(
   {
     name: 'searchRealtimeTrains',
-    description: 'Searches for real-time train options between two cities in India.',
+    description: 'Searches for real-time train options between two cities. This tool is for travel within India.',
     inputSchema: z.object({
       origin: z.string().describe('The origin city for the train journey.'),
       destination: z.string().describe('The destination city for the train journey.'),
