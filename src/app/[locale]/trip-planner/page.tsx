@@ -27,7 +27,7 @@ const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
     destination: z.string().min(1, 'Destination is required.'),
     departureDate: z.string().min(1, 'Departure date is required.'),
-    tripDuration: z.coerce.number().min(1, 'Duration must be at least 1 day.'),
+    tripDuration: z.coerce.number().min(1, 'Duration must be at least 1 day.').max(365, 'Duration cannot exceed 365 days.'),
     travelers: z.coerce.number().min(1, "Please enter at least 1 traveler.").positive(),
     tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']),
     travelStyle: z.enum(['solo', 'couple', 'family', 'group']),
@@ -153,7 +153,7 @@ export default function TripPlannerPage() {
                                         <FormItem><FormLabel>{t('departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="tripDuration" render={({ field }) => (
-                                        <FormItem><FormLabel>{t('durationLabel')}</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>{t('durationLabel')}</FormLabel><FormControl><Input type="number" min="1" max="365" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
                                 <FormField control={form.control} name="tripPace" render={({ field }) => (

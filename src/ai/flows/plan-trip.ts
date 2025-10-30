@@ -23,6 +23,35 @@ export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
 }
 
+const longTripSummaryPrompt = ai.definePrompt({
+    name: 'longTripSummaryPrompt',
+    input: { schema: PlanTripInputSchema },
+    output: { schema: PlanTripOutputSchema },
+    prompt: `You are a world-class AI trip planner. The user wants to plan an unusually long trip of {{{tripDuration}}} days. Generating a day-by-day itinerary is not feasible.
+
+    **User's Trip Preferences:**
+    - **Origin:** {{{origin}}}
+    - **Destination:** {{{destination}}}
+    - **Departure Date:** {{{departureDate}}}
+    - **Total Duration:** {{{tripDuration}}} days
+    - **Interests:** {{{interests}}}
+
+    **Your Task:**
+    1.  **Create a Trip Title:** A creative name for this extended journey.
+    2.  **Generate a High-Level Summary:** Instead of a daily plan, create a summary in the 'itinerary' section. Create a single "Day 1" entry that contains the summary.
+        -   **Title:** "High-Level Travel Strategy"
+        -   **Summary:** Write a paragraph explaining that a day-by-day plan isn't practical, and you're providing a strategic overview instead.
+        -   **Activities:** Create a few "activity" blocks that represent phases or suggestions for their long trip. For example:
+            -   **First Month:** Suggest initial settling-in activities.
+            -   **Seasonal Suggestions:** Recommend different regions or activities for different seasons they will experience (e.g., "Months 3-6 (Spring/Summer)").
+            -   **Pacing Advice:** Give tips on how to manage such a long trip to avoid burnout.
+    3.  **No Bookings:** Do not use any tools. Return empty arrays for 'bookingOptions', 'hotelOptions', and 'localTransportOptions'.
+    
+    Output must strictly follow the JSON schema.
+    `,
+});
+
+
 // 🗣️ Define the prompt
 const prompt = ai.definePrompt({
   name: 'planTripPrompt',
@@ -78,11 +107,17 @@ const planTripFlow = ai.defineFlow(
   },
   async (input) => {
     let llmResponse;
+    const MAX_TRIP_DURATION_FOR_DAILY_PLAN = 30;
 
     // 🛡️ Safety wrapper for LLM call
     try {
       console.log('[/src/ai/flows/plan-trip.ts] Calling prompt with input: ', input);
-      llmResponse = await prompt(input);
+      if (input.tripDuration > MAX_TRIP_DURATION_FOR_DAILY_PLAN) {
+          console.log(`Trip duration of ${input.tripDuration} is too long. Using high-level summary prompt.`);
+          llmResponse = await longTripSummaryPrompt(input);
+      } else {
+          llmResponse = await prompt(input);
+      }
     } catch (err) {
       console.error("❌ LLM prompt failed:", err);
       // Ensure we always have an llmResponse object to check
