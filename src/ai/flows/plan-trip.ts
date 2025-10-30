@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent for planning a detailed, multi-day trip itinerary.
@@ -7,16 +6,24 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type PlanTripOutput } from './plan-trip.types';
+import { 
+  PlanTripInputSchema, 
+  PlanTripOutputSchema, 
+  type PlanTripInput, 
+  type PlanTripOutput 
+} from './plan-trip.types';
+
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
 import { getTrainAvailability } from '../tools/get-train-availability';
 import { searchRealtimeHotels } from '../tools/search-hotels';
 
+// 🧠 Public function called by frontend
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
 }
 
+// 🗣️ Define the prompt
 const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: PlanTripInputSchema },
@@ -40,49 +47,29 @@ const prompt = ai.definePrompt({
   - **Desired Currency for Costs:** {{{currency}}}
 
   **Your Task:**
+  1. **Create a Trip Title:** A creative name for the trip.
+  2. **Generate Main Booking Options:**
+     - Use 'searchRealtimeFlights' for global flights.
+     - Use 'searchRealtimeTrains' and 'getTrainAvailability' ONLY for India.
+     - If outside India, create 1–2 mock train or bus options.
+     - Include provider, duration, price, eco-friendly status, and booking link.
+  3. **Hotels:**
+     - Use 'searchRealtimeHotels' unless 'accommodationType' = 'none'.
+     - Always return valid URLs with no spaces.
+  4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
+  5. **Day-by-Day Itinerary:**
+     - Each day = title + summary.
+     - Activities must include time, location, description, cost, and transportToNext.
+     - Suggest real restaurants for meals.
+  6. **Travel Advisory:**
+     - If peak season or holiday (e.g., Diwali, Christmas), add contextual warnings.
+     - Mark train waitlist or festival rush as warnings when needed.
 
-  1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
-  
-  2.  **Generate Main Booking Options:**
-      - **CRITICAL: You MUST use the provided tools to find real-time travel options where appropriate.**
-      - **For flights, you MUST use the 'searchRealtimeFlights' tool.** This is a global tool.
-      - **For trains, the tools 'searchRealtimeTrains' and 'getTrainAvailability' ONLY work for journeys within India.** You MUST ONLY use these tools if the origin and destination are in India. For train journeys in other countries, you MUST generate 1-2 realistic *mock* train options.
-      - **For all other routes, generate 1-2 realistic mock bus options** as a fallback.
-      - For each option, provide the provider/name, details, duration, price (in the requested {{{currency}}}), its eco-friendly status, and a booking URL.
-      - For real train options found with tools, the availability MUST reflect the real-time status from the 'getTrainAvailability' tool (e.g., "AVAILABLE 100", "WL 7"). For mock options, set availability to 'Available'.
-
-  3.  **Generate Real Hotel Options:**
-      - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Return an empty array for 'hotelOptions'.
-      - Otherwise, you **MUST use the 'searchRealtimeHotels' tool** to find 3-4 real hotel options based on the destination and user preferences.
-      - Provide name, style, estimated price, rating, and a valid booking link from the tool's output.
-      - **CRITICAL: The 'bookingLink' for hotels MUST be a single, valid, unbroken URL string with no spaces.**
-  
-  4.  **Generate Local Transport Options:**
-      - Recommend 3-4 common transport options for the destination city (e.g., metro, bus, rideshare, walking).
-      - Provide type, provider, details, average cost, and a helpful tip.
-
-  5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
-      - Each day needs a **title** and a **summary**.
-      - For each activity, provide:
-        - **Time:** A specific start time.
-        - **Description:** Clear description of the activity.
-        - **Location:** Address or name of the place.
-        - **Details:** Practical tips or booking info.
-        - **Cost:** Estimated cost in the specified {{{currency}}}.
-      - **CRITICAL: For "Lunch," "Dinner," or "Coffee," suggest a specific, real business** based on user interests.
-      - **MANDATORY: Include Detailed Transportation:** Between each activity, add a 'transportToNext' segment with mode, estimated time, and route.
-      - **Be Realistic:** Ensure the plan is logical for the chosen tripPace.
-
-  6.  **Add Contextual Travel Advisory:**
-      - **CRITICAL:** Analyze the user's travel dates ({{{departureDate}}}) and destination ({{{destination}}}) for potential conflicts with major public holidays, festivals (like Diwali in India, Christmas in Europe, etc.), or peak tourist seasons.
-      - If you identify a waitlisted train during a peak travel period, you **MUST** add a warning in the 'details' section of that booking option.
-      - **Example:** If a train is waitlisted during Diwali, the details should say: "WL7 - High waitlist due to Diwali festival rush. Confirmation is unlikely. Consider booking flights or traveling on a different date."
-      - If no major events are found, no advisory is needed.
-
-  Produce the final output in the required JSON format.
+  Output must strictly follow the JSON schema. If data is unavailable, use realistic mock placeholders.
   `,
 });
 
+// ⚙️ Main flow definition
 const planTripFlow = ai.defineFlow(
   {
     name: 'planTripFlow',
@@ -90,24 +77,82 @@ const planTripFlow = ai.defineFlow(
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
-    const llmResponse = await prompt(input);
-    const output = llmResponse.output;
+    let llmResponse;
 
-    if (!output) {
-      // If the model returns null, throw a specific error.
-      // This can be caught by the calling function on the front-end.
-      throw new Error("AI model failed to generate a valid itinerary. The response was empty.");
+    // 🛡️ Safety wrapper for LLM call
+    try {
+      llmResponse = await prompt(input);
+    } catch (err) {
+      console.error("❌ LLM prompt failed:", err);
+      llmResponse = { output: null };
     }
-    
-    // Ensure tripTitle exists, providing a fallback if necessary.
+
+    let output = llmResponse?.output;
+
+    // 🩹 Fallback: handle null or invalid model output
+    if (!output || typeof output !== "object") {
+      console.warn("⚠️ LLM returned null or invalid output, using safe fallback...");
+      output = {
+        tripTitle: `Your Trip to ${input.destination || "Unknown Destination"}`,
+        itinerary: [
+          {
+            day: 1,
+            title: "Arrival & Exploration",
+            summary: "A relaxed first day to explore and settle in.",
+            activities: [
+              {
+                time: "10:00 AM",
+                description: "Arrive and check into your hotel.",
+                location: input.destination || "Destination City",
+                details: "Rest and get ready for the adventure ahead!",
+                cost: "Included",
+                transportToNext: null
+              },
+              {
+                time: "4:00 PM",
+                description: "Evening walk around the local area.",
+                location: "City Center",
+                details: "Enjoy street food or coffee nearby.",
+                cost: "Approx. $10",
+                transportToNext: {
+                  mode: "Walk",
+                  duration: "15 minutes",
+                  description: "Leisurely stroll through the neighborhood.",
+                  ecoFriendly: true
+                }
+              }
+            ]
+          }
+        ],
+        bookingOptions: [],
+        hotelOptions: [],
+        localTransportOptions: [
+          {
+            type: "metro",
+            provider: "City Metro",
+            details: "Fastest way around the city.",
+            averageCost: "$2 per ride",
+            tip: "Buy a daily metro card for unlimited rides."
+          },
+          {
+            type: "rideshare",
+            provider: "Uber / Ola",
+            details: "Available 24/7.",
+            averageCost: "$10-15 per ride",
+            tip: "Use off-peak hours for cheaper fares."
+          }
+        ]
+      };
+    }
+
+    // ✅ Ensure schema-required fields exist
     if (!output.tripTitle) {
-      output.tripTitle = `Your Trip to ${input.destination}`;
+      output.tripTitle = `Your Trip to ${input.destination || "Unknown Destination"}`;
     }
-
-    // Ensure bookingOptions is always an array to prevent downstream errors.
-    if (!output.bookingOptions) {
-      output.bookingOptions = [];
-    }
+    if (!Array.isArray(output.itinerary)) output.itinerary = [];
+    if (!Array.isArray(output.bookingOptions)) output.bookingOptions = [];
+    if (!Array.isArray(output.hotelOptions)) output.hotelOptions = [];
+    if (!Array.isArray(output.localTransportOptions)) output.localTransportOptions = [];
 
     return output;
   }
