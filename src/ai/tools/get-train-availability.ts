@@ -14,114 +14,65 @@ export const getTrainAvailability = ai.defineTool(
       origin: z.string().describe('The starting station or city.'),
       destination: z.string().describe('The destination station or city.'),
       date: z.string().describe('The date of travel in YYYY-MM-DD format.'),
+      trainNumber: z.string().describe('The train number to check availability for.'),
+      travelClass: z.string().describe('The class of travel to check (e.g., "3A", "SL", "2A").'),
     }),
     outputSchema: z.object({
-        trains: z.array(z.object({
-            trainName: z.string(),
-            trainNumber: z.string(),
-            departureTime: z.string(),
-            arrivalTime: z.string(),
-            travelClass: z.string().describe('e.g., "AC First Class (1A)", "Sleeper (SL)"'),
-            availability: z.enum(['Available', 'Waitlist', 'Sold Out']),
-            price: z.string(),
-        }))
+      trains: z.array(z.object({
+        trainName: z.string(),
+        trainNumber: z.string(),
+        departureTime: z.string(),
+        arrivalTime: z.string(),
+        travelClass: z.string().describe('e.g., "AC First Class (1A)", "Sleeper (SL)"'),
+        availability: z.string().describe('The availability status, e.g., "AVAILABLE 100", "WL 7", "RAC 2"'),
+        price: z.string(),
+      }))
     }),
   },
   async (input) => {
-    console.log(`[getTrainAvailability Tool] Searching for trains from ${input.origin} to ${input.destination} on ${input.date}`);
+    console.log(`[getTrainAvailability Tool] Checking availability for train ${input.trainNumber} from ${input.origin} to ${input.destination} on ${input.date}`);
     
-    //
-    // 🚨 DEVELOPER ACTION REQUIRED 🚨
-    // This is MOCK DATA. For a production application, you must replace this
-    // with a real integration to a train booking API (e.g., IRCTC, RailYatri, etc.)
-    // to provide live, accurate train availability. The 'searchRealtimeTrains' tool
-    // provides an example of how to do this with a live API.
-    //
-
-    // Returning more realistic mock data for a Pune to Lucknow route:
-    if (input.origin.toLowerCase().includes('pune') && input.destination.toLowerCase().includes('lucknow')) {
-      return {
-        trains: [
-          {
-            trainName: 'Pune-Lucknow Express',
-            trainNumber: '12103',
-            departureTime: '10:45',
-            arrivalTime: '13:15',
-            travelClass: 'AC 2 Tier (2A)',
-            availability: 'Available',
-            price: '₹2,500'
-          },
-          {
-            trainName: 'Pune-Lucknow Express',
-            trainNumber: '12103',
-            departureTime: '10:45',
-            arrivalTime: '13:15',
-            travelClass: 'Sleeper (SL)',
-            availability: 'Waitlist',
-            price: '₹650'
-          },
-          {
-            trainName: 'Gorakhpur Express',
-            trainNumber: '15030',
-            departureTime: '17:30',
-            arrivalTime: '20:50',
-            travelClass: 'AC 3 Tier (3A)',
-            availability: 'Available',
-            price: '₹1,800'
-          },
-           {
-            trainName: 'Yesvantpur-Lucknow SF',
-            trainNumber: '22683',
-            departureTime: '05:15',
-            arrivalTime: '08:40',
-            travelClass: 'AC 2 Tier (2A)',
-            availability: 'Sold Out',
-            price: '₹2,600'
-          },
-        ],
-      };
+    if (!process.env.RAPIDAPI_KEY) {
+        console.warn("[getTrainAvailability Tool] RAPIDAPI_KEY is not set. Returning empty array.");
+        return { trains: [] };
     }
 
-    // Default mock data for other routes to make the tool more robust
-    return {
-      trains: [
-        {
-          trainName: 'Capital Express',
-          trainNumber: '12301',
-          departureTime: '17:00',
-          arrivalTime: '09:55',
-          travelClass: 'AC First Class (1A)',
-          availability: 'Available',
-          price: '₹4,800'
-        },
-        {
-          trainName: 'Capital Express',
-          trainNumber: '12301',
-          departureTime: '17:00',
-          arrivalTime: '09:55',
-          travelClass: 'Sleeper (SL)',
-          availability: 'Waitlist',
-          price: '₹850'
-        },
-        {
-          trainName: 'City Hopper',
-          trainNumber: '12259',
-          departureTime: '20:00',
-          arrivalTime: '15:55',
-          travelClass: 'AC 2 Tier (2A)',
-          availability: 'Available',
-          price: '₹2,900'
-        },
-        {
-            trainName: 'Intercity Fast',
-            trainNumber: '12907',
-            departureTime: '21:30',
-            arrivalTime: '18:45',
-            travelClass: 'AC Chair Car (CC)',
-            availability: 'Sold Out',
-            price: '₹1100'
-        },
-      ],
-    };
+    try {
+        const response = await fetch(`https://indian-railway-api.p.rapidapi.com/api/v1/seat/availability?class=${input.travelClass}&date=${input.date}&from=${input.origin}&quota=GN&to=${input.destination}&train=${input.trainNumber}`, {
+            headers: {
+                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+                'X-RapidAPI-Host': 'indian-railway-api.p.rapidapi.com'
+            }
+        });
+
+        if (!response.ok) {
+            console.error(`[getTrainAvailability Tool] API error: ${response.statusText}`);
+            return { trains: [] };
+        }
+        
+        const data = await response.json();
+        
+        if (!data.data || data.data.length === 0) {
+            return { trains: [] };
+        }
+
+        const availabilityData = data.data[0];
+
+        return {
+          trains: [{
+              trainName: availabilityData.train_name,
+              trainNumber: availabilityData.train_number,
+              departureTime: availabilityData.from_sta,
+              arrivalTime: availabilityData.to_sta,
+              travelClass: availabilityData.class,
+              availability: availabilityData.status,
+              price: 'N/A' // This specific API doesn't return price, so we mark it as N/A
+          }]
+        };
+
+    } catch (error) {
+        console.error("[getTrainAvailability Tool] Failed to fetch availability:", error);
+        return { trains: [] };
+    }
   }
 );
