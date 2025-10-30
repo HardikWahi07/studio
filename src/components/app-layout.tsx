@@ -1,5 +1,4 @@
 
-
 "use client"
 
 import * as React from "react"
@@ -248,7 +247,7 @@ function TravelToolsDropdown() {
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('expenseSplitter') },
     { href: "/local-supporters", icon: Shield, label: t('localSupporters') },
-    { href: "/transport", icon: Briefcase, label: t('smartTransport') },
+    { href: "/suggest-bookings", icon: Briefcase, label: t('smartTransport') },
     { href: "/itinerary-planner", icon: Wand2, label: t('aiItineraryGenerator') },
     { href: "/safety", icon: LifeBuoy, label: 'Safety Companion' },
   ];
@@ -408,7 +407,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const allNavItems = user ? [...loggedInNavItems, ...[
       { href: "/expenses", label: t('expenseSplitter') },
       { href: "/local-supporters", label: t('localSupporters') },
-      { href: "/transport", label: t('smartTransport') },
+      { href: "/suggest-bookings", label: t('smartTransport') },
       { href: "/itinerary-planner", label: t('aiItineraryGenerator') },
       { href: "/safety", label: 'Safety Companion' },
       { href: '#', label: t('helpCenter') },
@@ -561,5 +560,3 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-    

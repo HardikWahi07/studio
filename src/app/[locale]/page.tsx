@@ -74,7 +74,7 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
       icon: <Leaf className="h-8 w-8 text-primary" />,
       title: t('feature6Title'),
       description: t('feature6Description'),
-      link: `/${locale}/transport`,
+      link: `/${locale}/suggest-bookings`,
     },
   ];
 

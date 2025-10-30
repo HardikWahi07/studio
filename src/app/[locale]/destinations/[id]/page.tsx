@@ -1,3 +1,4 @@
+
 import { destinations } from '@/lib/destinations';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -73,7 +74,7 @@ export default function DestinationPage({ params }: { params: { id: string } }) 
                     <CardContent className='space-y-4'>
                         <p className='text-muted-foreground'>{t('planDescription', { destinationName: destination.name })}</p>
                         <Button asChild className="w-full" size="lg">
-                            <Link href="/transport">
+                            <Link href="/suggest-bookings">
                                 <Plane className="mr-2 h-4 w-4" />
                                 {t('bookYourTrip')}
                             </Link>
