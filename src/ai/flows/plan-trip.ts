@@ -10,6 +10,7 @@ import { ai } from '@/ai/genkit';
 import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type PlanTripOutput } from './plan-trip.types';
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
+import { getTrainAvailability } from '../tools/get-train-availability';
 
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
@@ -19,7 +20,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: PlanTripInputSchema },
   output: { schema: PlanTripOutputSchema },
-  tools: [searchRealtimeFlights, searchRealtimeTrains],
+  tools: [searchRealtimeFlights, searchRealtimeTrains, getTrainAvailability],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -44,10 +45,10 @@ const prompt = ai.definePrompt({
   2.  **Generate Main Booking Options:**
       - **CRITICAL: You MUST use the provided tools to find real-time travel options.**
       - **For flights, you MUST use the 'searchRealtimeFlights' tool.** Use the user's origin, destination, and departure date. If the tool returns valid flights, integrate them as 'flight' type booking options.
-      - **For trains, you MUST use the 'searchRealtimeTrains' tool.** Use the user's origin and destination. If the tool returns valid trains, integrate them as 'train' type booking options.
+      - **For trains, you MUST use the 'searchRealtimeTrains' tool.** If it returns trains, you **MUST** then use the 'getTrainAvailability' tool to check the live status (Available, Waitlist, Sold Out) for those trains.
       - **Generate 1-2 realistic mock bus options** as a fallback if flights or trains are not suitable for the route.
       - For each option, provide the provider/name, details (like departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
-      - Set availability to 'Available' for all real-time options found.
+      - Set availability to 'Available' for all real-time options found, unless 'getTrainAvailability' provides a different status (like 'Waitlist' or 'Sold Out').
 
   3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Return an empty array for 'hotelOptions'.
@@ -69,6 +70,12 @@ const prompt = ai.definePrompt({
       - **CRITICAL: For "Lunch," "Dinner," or "Coffee," suggest a specific, real business** based on user interests.
       - **MANDATORY: Include Detailed Transportation:** Between each activity, add a 'transportToNext' segment with mode, estimated time, and route.
       - **Be Realistic:** Ensure the plan is logical for the chosen tripPace.
+
+  6.  **Add Contextual Travel Advisory:**
+      - **CRITICAL:** Analyze the user's travel dates ({{{departureDate}}}) and destination ({{{destination}}}) for potential conflicts with major public holidays, festivals (like Diwali in India, Christmas in Europe, etc.), or peak tourist seasons.
+      - If you identify a peak travel period, you **MUST** add a warning in the 'details' section of the relevant booking options.
+      - **Example:** If a train is waitlisted during Diwali, the details should say: "WL7 - High waitlist due to Diwali festival rush. Confirmation is unlikely. Consider booking flights or traveling on a different date."
+      - If no major events are found, no advisory is needed.
 
   Produce the final output in the required JSON format.
   `,
