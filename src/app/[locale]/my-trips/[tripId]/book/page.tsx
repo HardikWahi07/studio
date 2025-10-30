@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useMemo } from 'react';
@@ -118,21 +117,21 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
     const sortedBookingOptions = useMemo(() => {
         if (!trip?.bookingOptions) return { best: null, cheapest: null, eco: null, other: [] };
         
-        const validOptions = trip.bookingOptions.filter(o => o.price);
+        const validOptions = trip.bookingOptions.filter(o => o.price && o.availability !== 'Sold Out');
         if (validOptions.length === 0) return { best: null, cheapest: null, eco: null, other: [] };
 
         const parsePrice = (price: string) => parseFloat(price.replace(/[^0-9.]/g, ''));
         const sortedByPrice = [...validOptions].sort((a, b) => parsePrice(a.price) - parsePrice(b.price));
         
         const cheapest = sortedByPrice[0];
-        const eco = validOptions.find(o => o.ecoFriendly && o.provider !== cheapest.provider);
+        const eco = validOptions.find(o => o.ecoFriendly && o.provider !== cheapest?.provider);
         
-        let best = validOptions.find(o => o.type === 'flight' && o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
+        let best = validOptions.find(o => o.type === 'flight' && o.provider !== cheapest?.provider && o.provider !== eco?.provider) || null;
         if (!best) {
-            best = validOptions.find(o => o.provider !== cheapest.provider && o.provider !== eco?.provider) || null;
+            best = validOptions.find(o => o.provider !== cheapest?.provider && o.provider !== eco?.provider) || null;
         }
 
-        const recommendationProviders = new Set([best?.provider, cheapest?.provider, eco?.provider]);
+        const recommendationProviders = new Set([best?.provider, cheapest?.provider, eco?.provider].filter(Boolean));
         const other = validOptions.filter(o => !recommendationProviders.has(o.provider));
 
         return { best, cheapest, eco, other };
