@@ -15,7 +15,6 @@ import {
 
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
-import { getTrainAvailability } from '../tools/get-train-availability';
 import { searchRealtimeHotels } from '../tools/search-hotels';
 
 // 🧠 Public function called by frontend
@@ -28,7 +27,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: PlanTripInputSchema },
   output: { schema: PlanTripOutputSchema },
-  tools: [searchRealtimeFlights, searchRealtimeTrains, getTrainAvailability, searchRealtimeHotels],
+  tools: [searchRealtimeFlights, searchRealtimeTrains, searchRealtimeHotels],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -52,7 +51,7 @@ const prompt = ai.definePrompt({
      - Use 'searchRealtimeFlights' for global flights.
      - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool for ground travel. This tool can handle city names directly.
      - For other regions, do NOT create mock train or bus options. Only provide data from available tools.
-     - Include provider, duration, price, eco-friendly status, and booking link.
+     - Include provider, duration, price, eco-friendly status, booking link and availability.
   3. **Hotels:**
      - Use 'searchRealtimeHotels' unless 'accommodationType' = 'none'.
      - Always return valid URLs with no spaces.
