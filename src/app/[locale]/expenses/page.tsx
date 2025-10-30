@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -66,8 +67,8 @@ export default function ExpensesPage() {
       balance: p.contribution - sharePerPerson,
     }));
 
-    const debtors = balances.filter(p => p.balance < 0).sort((a, b) => a.balance - b.balance);
-    const creditors = balances.filter(p => p.balance > 0).sort((a, b) => b.balance - a.balance);
+    const debtors = balances.filter(p => p.balance < 0).map(p => ({...p})).sort((a, b) => a.balance - b.balance);
+    const creditors = balances.filter(p => p.balance > 0).map(p => ({...p})).sort((a, b) => b.balance - a.balance);
 
     const newTransactions: Transaction[] = [];
 
@@ -79,11 +80,13 @@ export default function ExpensesPage() {
       const creditor = creditors[j];
       const amountToTransfer = Math.min(Math.abs(debtor.balance), creditor.balance);
 
-      newTransactions.push({
-        from: debtor.name,
-        to: creditor.name,
-        amount: amountToTransfer,
-      });
+      if (amountToTransfer > 0.01) {
+        newTransactions.push({
+            from: debtor.name,
+            to: creditor.name,
+            amount: amountToTransfer,
+        });
+      }
 
       debtor.balance += amountToTransfer;
       creditor.balance -= amountToTransfer;
@@ -158,22 +161,26 @@ export default function ExpensesPage() {
                                 </div>
                                 <div className="space-y-4">
                                     <h4 className="font-semibold">{t('contributionsTitle')}</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="space-y-4">
                                         {participants.map(p => (
-                                            <div key={p.id} className="space-y-2">
-                                                <Label htmlFor={`p-name-${p.id}`}>{t('participantNameLabel', {number: p.id + 1})}</Label>
-                                                 <Input
-                                                    id={`p-name-${p.id}`}
-                                                    value={p.name}
-                                                    onChange={e => handleParticipantNameChange(p.id, e.target.value)}
-                                                />
-                                                <Label htmlFor={`p-contrib-${p.id}`}>{t('contributionLabel')}</Label>
-                                                <Input
-                                                    id={`p-contrib-${p.id}`}
-                                                    type="number"
-                                                    placeholder="0.00"
-                                                    onChange={e => handleParticipantContributionChange(p.id, e.target.value)}
-                                                />
+                                            <div key={p.id} className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end p-4 border rounded-lg">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor={`p-name-${p.id}`}>{t('participantNameLabel', {number: p.id + 1})}</Label>
+                                                    <Input
+                                                        id={`p-name-${p.id}`}
+                                                        value={p.name}
+                                                        onChange={e => handleParticipantNameChange(p.id, e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label htmlFor={`p-contrib-${p.id}`}>{t('contributionLabel')}</Label>
+                                                    <Input
+                                                        id={`p-contrib-${p.id}`}
+                                                        type="number"
+                                                        placeholder="0.00"
+                                                        onChange={e => handleParticipantContributionChange(p.id, e.target.value)}
+                                                    />
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
