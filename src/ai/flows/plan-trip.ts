@@ -47,16 +47,17 @@ const prompt = ai.definePrompt({
       - **For flights, you MUST use the 'searchRealtimeFlights' tool.** Use the user's origin, destination, and departure date. If the tool returns valid flights, integrate them as 'flight' type booking options.
       - **For trains, you MUST use the 'searchRealtimeTrains' tool.** If it returns trains, you **MUST** then use the 'getTrainAvailability' tool for each train to check the live status (e.g., "AVAILABLE", "WL 7", etc.).
       - **Generate 1-2 realistic mock bus options** as a fallback if flights or trains are not suitable for the route.
-      - For each option, provide the provider/name, details (like departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
+      - For each option, provide the provider/name, details (like departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a booking URL.
       - For train options, the availability MUST reflect the real-time status from the 'getTrainAvailability' tool. For other options, set to 'Available'.
 
   3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Return an empty array for 'hotelOptions'.
       - Otherwise, suggest 3-4 realistic but *mock* hotel options based on accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}).
-      - Provide name, style, estimated price, mock rating, and a fake booking URL.
+      - Provide name, style, estimated price, and mock rating.
+      - **CRITICAL: The 'bookingLink' for hotels MUST be a single, valid, unbroken URL string with no spaces.**
   
   4.  **Generate Local Transport Options:**
-      - Recommend 3-4 common transport options for the destination city (e.g., metro, bus, rideshare).
+      - Recommend 3-4 common transport options for the destination city (e.g., metro, bus, rideshare, walking).
       - Provide type, provider, details, average cost, and a helpful tip.
 
   5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.

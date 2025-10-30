@@ -62,8 +62,8 @@ const HotelOptionSchema = z.object({
 });
 
 const LocalTransportOptionSchema = z.object({
-    type: z.enum(['metro', 'bus', 'taxi', 'rideshare', 'bike', 'scooter', 'auto-rickshaw', 'tram']).describe('Type of local transport.'),
-    provider: z.string().describe('e.g., "City Metro", "Uber", "Lime"'),
+    type: z.enum(['metro', 'bus', 'taxi', 'rideshare', 'bike', 'scooter', 'auto-rickshaw', 'tram', 'walking']).describe('Type of local transport.'),
+    provider: z.string().describe('e.g., "City Metro", "Uber", "Lime", "Pedestrian"'),
     details: z.string().describe('e.g., "Line 10", "UberX", "Shared e-bike"'),
     averageCost: z.string().describe('e.g., "€2 per trip", "$10-15 per ride"'),
     tip: z.string().describe('A helpful tip about using this mode of transport in the destination.'),
