@@ -1,6 +1,6 @@
 
 // src/firebase/server.ts
-import { initializeApp, getApps, getApp, App } from 'firebase-admin/app';
+import { initializeApp, getApps, getApp, App, cert } from 'firebase-admin/app';
 import { getAuth, Auth } from 'firebase-admin/auth';
 import { getFirestore, Firestore } from 'firebase-admin/firestore';
 import { firebaseConfig } from './config';
@@ -15,13 +15,21 @@ interface FirebaseServerServices {
 export function initializeFirebase(): FirebaseServerServices {
   if (!getApps().length) {
     // When running in a Google Cloud environment, the SDK will automatically
-    // use the project's service account credentials.
-    // For local development, you need to set up the GOOGLE_APPLICATION_CREDENTIALS
-    // environment variable.
-    initializeApp({
-        // projectId is needed for the emulator to work
+    // use the project's service account credentials if `GOOGLE_APPLICATION_CREDENTIALS` is set.
+    // For local development and other environments, we explicitly provide the credential.
+    try {
+      const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS!);
+      initializeApp({
+        credential: cert(serviceAccount),
         projectId: firebaseConfig.projectId,
-    });
+      });
+    } catch (e) {
+      console.error("Firebase Admin SDK initialization failed. Ensure GOOGLE_APPLICATION_CREDENTIALS is set and valid.", e);
+       // Fallback for environments where ADC is set up differently but GOOGLE_APPLICATION_CREDENTIALS env var is not a JSON string.
+       initializeApp({
+          projectId: firebaseConfig.projectId,
+       });
+    }
   }
 
   const app = getApp();
