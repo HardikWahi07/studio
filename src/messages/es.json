@@ -237,9 +237,17 @@
     "waitingMessage": "Tu guía de seguridad aparecerá aquí."
   },
   "SuggestBookingsPage": {
-    "title": "Sugerir Reservas",
-    "description": "Utilice el Planificador de viajes con IA para obtener sugerencias de reservas personalizadas de vuelos, hoteles y más, basadas en un itinerario detallado.",
-    "findButton": "Encontrar Opciones"
+    "title": "Sugerir Reservas de Transporte",
+    "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
+    "findButton": "Encontrar Opciones",
+    "formTitle": "Encuentra tu Transporte",
+    "formDescription": "Ingresa tu origen, destino y fecha de viaje a continuación.",
+    "searchingButton": "Buscando...",
+    "loadingMessage": "Buscando las mejores opciones de transporte para ti...",
+    "resultsTitle": "Opciones de Transporte Sugeridas",
+    "noResults": "No se encontraron opciones de transporte para esta ruta en la fecha seleccionada.",
+    "toastErrorTitle": "Error de Búsqueda",
+    "toastErrorDescription": "No se pudieron obtener las opciones de transporte. Por favor, inténtalo de nuevo."
   },
   "TripPlannerPage": {
     "title": "Planificador de Viajes con IA",

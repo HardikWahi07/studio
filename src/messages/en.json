@@ -237,9 +237,17 @@
     "waitingMessage": "Your safety guidance will appear here."
   },
   "SuggestBookingsPage": {
-    "title": "Suggest Bookings",
-    "description": "Use the AI Trip Planner to get personalized booking suggestions for flights, hotels, and more based on a detailed itinerary.",
-    "findButton": "Find Options"
+    "title": "Suggest Transport Bookings",
+    "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
+    "findButton": "Find Options",
+    "formTitle": "Find Your Transport",
+    "formDescription": "Enter your origin, destination, and travel date below.",
+    "searchingButton": "Searching...",
+    "loadingMessage": "Finding the best transport options for you...",
+    "resultsTitle": "Suggested Transport Options",
+    "noResults": "No transport options found for this route on the selected date.",
+    "toastErrorTitle": "Search Error",
+    "toastErrorDescription": "Could not fetch transport options. Please try again."
   },
   "TripPlannerPage": {
     "title": "AI Trip Planner",
