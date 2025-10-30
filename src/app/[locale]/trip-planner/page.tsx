@@ -112,9 +112,30 @@ export default function TripPlannerPage() {
         try {
             const values = form.getValues();
             const tripRef = doc(collection(firestore, `users/${user.uid}/trips`));
-            await setDoc(tripRef, {
-                id: tripRef.id, userId: user.uid, destination: values.destination, origin: values.origin, startDate: values.departureDate, travelers: values.travelers, itinerary: results.itinerary, journeyToHub: results.journeyToHub || [], bookingOptions: results.bookingOptions, hotelOptions: results.hotelOptions, localTransportOptions: results.localTransportOptions, tripTitle: results.tripTitle, createdAt: serverTimestamp(), ...values
-            });
+            
+            const tripDataToSave = {
+                id: tripRef.id,
+                userId: user.uid,
+                destination: values.destination,
+                origin: values.origin,
+                startDate: values.departureDate,
+                travelers: values.travelers,
+                itinerary: results.itinerary,
+                journeyToHub: results.journeyToHub || [],
+                bookingOptions: results.bookingOptions,
+                hotelOptions: results.hotelOptions,
+                localTransportOptions: results.localTransportOptions,
+                tripTitle: results.tripTitle,
+                createdAt: serverTimestamp(),
+                // Only include form values relevant to the trip, not all of them
+                tripPace: values.tripPace,
+                travelStyle: values.travelStyle,
+                accommodationType: values.accommodationType,
+                accommodationBudget: values.accommodationBudget,
+                interests: values.interests,
+            };
+
+            await setDoc(tripRef, tripDataToSave);
             toast({ title: "Itinerary Saved!", description: `Your trip to ${values.destination} has been saved to 'My Trips'.`, });
             setTripSaved(true);
         } catch(error) {
@@ -233,7 +254,7 @@ export default function TripPlannerPage() {
             )}
 
             {results && !isLoading && (
-                <div className="pt-6 space-y-6">
+                <div className="pt-6 space-y-6" id="itinerary-content">
                     <div className="text-center">
                         <h2 className="font-headline text-3xl md:text-4xl font-bold">{results.tripTitle}</h2>
                         {!tripSaved && (

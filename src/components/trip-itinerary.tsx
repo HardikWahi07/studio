@@ -7,9 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { 
     Plane, Train, Bus, Leaf, Star, Hotel,
-    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront, DollarSign
+    Bike, TramFront, Car, Footprints, Clock, MapPin, Info, CarFront, DollarSign, Download
 } from "lucide-react";
-import type { PlanTripOutput, TransportSegment, BookingOption, HotelOption } from '@/ai/flows/plan-trip.types';
+import type { PlanTripOutput, TransportSegment, HotelOption } from '@/ai/flows/plan-trip.types';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const transportIcons: { [key: string]: React.ReactNode } = {
     Walk: <Footprints className="h-5 w-5 text-green-500" />,
@@ -68,68 +70,120 @@ function HotelOptionDisplay({ opt }: { opt: HotelOption }) {
 
 
 export function TripItinerary({ results }: { results: PlanTripOutput }) {
-  return (
-    <div className="space-y-6">
-      {results.journeyToHub && results.journeyToHub.length > 0 && (
-        <Card>
-            <CardHeader><CardTitle>Journey to the Airport</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                {results.journeyToHub.map((segment, idx) => (
-                    <TransportSegmentDisplay key={idx} segment={segment} />
-                ))}
-            </CardContent>
-        </Card>
-      )}
+    const handleDownloadPdf = () => {
+        const input = document.getElementById('itinerary-content');
+        if (!input) return;
 
-      {results.hotelOptions?.length > 0 && (
-        <Card>
-            <CardHeader><CardTitle>Hotel Suggestions</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                {results.hotelOptions.map((opt, idx) => (
-                    <HotelOptionDisplay key={idx} opt={opt} />
-                ))}
-            </CardContent>
-        </Card>
-      )}
+        // Temporarily add a class to style for PDF generation
+        document.body.classList.add('pdf-generating');
 
-      <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
-        {results.itinerary.map((day, dayIndex) => (
-        <AccordionItem value={`item-${dayIndex}`} key={dayIndex}>
-            <AccordionTrigger className="text-lg font-bold hover:no-underline">
-                <div className="flex items-center gap-3">
-                    <span className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-sans">{day.day}</span>
-                    {day.title}
-                </div>
-            </AccordionTrigger>
-            <AccordionContent className="border-l-2 border-primary/20 ml-4 pl-8 pt-4 space-y-6">
-                <p className="text-muted-foreground italic">{day.summary}</p>
-                {day.activities.map((activity, activityIndex) => (
-                    <div key={activityIndex} className="relative">
-                          <div className="absolute -left-[43px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
-                        <div className="flex items-center justify-between">
-                            <p className="font-bold text-base">{activity.time} - {activity.description}</p>
-                            {activity.cost && (
-                                <div className="flex items-center gap-1 text-sm font-semibold text-muted-foreground">
-                                    <DollarSign className="w-4 h-4" />
-                                    {activity.cost}
+        html2canvas(input, {
+            scale: 2, // Increase resolution
+            useCORS: true,
+            onclone: (document) => {
+                 // Open all accordion items for capture
+                const triggers = document.querySelectorAll('[data-state="closed"]');
+                triggers.forEach(trigger => (trigger as HTMLElement).click());
+            }
+        }).then(canvas => {
+            document.body.classList.remove('pdf-generating');
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            const ratio = canvasWidth / canvasHeight;
+            const width = pdfWidth;
+            const height = width / ratio;
+
+            let position = 0;
+            let heightLeft = height;
+
+            pdf.addImage(imgData, 'PNG', 0, position, width, height);
+            heightLeft -= pdfHeight;
+
+            while (heightLeft > 0) {
+                position = heightLeft - height;
+                pdf.addPage();
+                pdf.addImage(imgData, 'PNG', 0, position, width, height);
+                heightLeft -= pdfHeight;
+            }
+            
+            pdf.save(`${results.tripTitle.replace(/\s+/g, '-')}.pdf`);
+        }).catch(() => {
+            document.body.classList.remove('pdf-generating');
+        });
+    };
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-center">
+                 <Button onClick={handleDownloadPdf} variant="outline">
+                    <Download className="mr-2 h-4 w-4" />
+                    Download as PDF
+                </Button>
+            </div>
+            {results.journeyToHub && results.journeyToHub.length > 0 && (
+                <Card>
+                    <CardHeader><CardTitle>Journey to the Airport</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
+                        {results.journeyToHub.map((segment, idx) => (
+                            <TransportSegmentDisplay key={idx} segment={segment} />
+                        ))}
+                    </CardContent>
+                </Card>
+            )}
+
+            {results.hotelOptions?.length > 0 && (
+                <Card>
+                    <CardHeader><CardTitle>Hotel Suggestions</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
+                        {results.hotelOptions.map((opt, idx) => (
+                            <HotelOptionDisplay key={idx} opt={opt} />
+                        ))}
+                    </CardContent>
+                </Card>
+            )}
+
+            <Accordion type="single" collapsible defaultValue="item-0" className="w-full">
+                {results.itinerary.map((day, dayIndex) => (
+                <AccordionItem value={`item-${dayIndex}`} key={dayIndex}>
+                    <AccordionTrigger className="text-lg font-bold hover:no-underline">
+                        <div className="flex items-center gap-3">
+                            <span className="bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center font-sans">{day.day}</span>
+                            {day.title}
+                        </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="border-l-2 border-primary/20 ml-4 pl-8 pt-4 space-y-6">
+                        <p className="text-muted-foreground italic">{day.summary}</p>
+                        {day.activities.map((activity, activityIndex) => (
+                            <div key={activityIndex} className="relative">
+                                <div className="absolute -left-[43px] top-1 h-3 w-3 rounded-full bg-primary ring-4 ring-background" />
+                                <div className="flex items-center justify-between">
+                                    <p className="font-bold text-base">{activity.time} - {activity.description}</p>
+                                    {activity.cost && (
+                                        <div className="flex items-center gap-1 text-sm font-semibold text-muted-foreground">
+                                            <DollarSign className="w-4 h-4" />
+                                            {activity.cost}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                        <div className="text-sm text-muted-foreground space-y-2 mt-1">
-                            <p className='flex items-start gap-2'><MapPin className='mt-0.5' /> {activity.location}</p>
-                            <p className='flex items-start gap-2'><Info className='mt-0.5' /> {activity.details}</p>
-                        </div>
-                        {activity.transportToNext && (
-                            <div className="mt-4 p-3 rounded-md bg-secondary">
-                                <TransportSegmentDisplay segment={activity.transportToNext} />
+                                <div className="text-sm text-muted-foreground space-y-2 mt-1">
+                                    <p className='flex items-start gap-2'><MapPin className='mt-0.5' /> {activity.location}</p>
+                                    <p className='flex items-start gap-2'><Info className='mt-0.5' /> {activity.details}</p>
+                                </div>
+                                {activity.transportToNext && (
+                                    <div className="mt-4 p-3 rounded-md bg-secondary">
+                                        <TransportSegmentDisplay segment={activity.transportToNext} />
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        ))}
+                    </AccordionContent>
+                </AccordionItem>
                 ))}
-            </AccordionContent>
-        </AccordionItem>
-        ))}
-      </Accordion>
-    </div>
-  );
+            </Accordion>
+        </div>
+    );
 }

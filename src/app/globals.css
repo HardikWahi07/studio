@@ -112,6 +112,15 @@ body {
   .loading-progress-bar {
     background: hsl(var(--primary));
   }
+
+  .pdf-generating [data-state="closed"] {
+    display: block; /* Or grid, or flex, depending on your layout */
+  }
+
+  .pdf-generating .radix-accordion-content-closed {
+    height: auto !important;
+    visibility: visible !important;
+  }
 }
 
 @layer utilities {
