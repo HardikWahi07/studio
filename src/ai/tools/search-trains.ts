@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A tool for fetching real-time train data from an external API.
@@ -6,17 +7,17 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { getStationCode } from './get-station-code';
-
+import { format } from 'date-fns';
 
 export const searchRealtimeTrains = ai.defineTool(
   {
     name: 'searchRealtimeTrains',
-    description: 'Searches for real-time train options between two cities. This tool is for travel within India. It can take city names as input.',
+    description: 'Searches for real-time train options between two cities for travel within India. It can take city names as input.',
     inputSchema: z.object({
       origin: z.string().describe('The origin city for the train journey (e.g., "Mumbai", "Vapi").'),
       destination: z.string().describe('The destination city for the train journey (e.g., "Delhi", "Lucknow").'),
       date: z.string().describe('The date of travel in YYYY-MM-DD format.'),
-      travelClass: z.string().describe('The class of travel to check (e.g., "3A", "SL", "2A").'),
+      travelClass: z.string().optional().describe('The class of travel to check (e.g., "3A", "SL", "2A"). If not provided, a default will be used.'),
     }),
     outputSchema: z.object({
         trains: z.array(z.object({
@@ -25,7 +26,7 @@ export const searchRealtimeTrains = ai.defineTool(
             departureTime: z.string(),
             arrivalTime: z.string(),
             duration: z.string(),
-            fare: z.string(),
+            fare: z.string().optional(),
             travelClass: z.string(),
             availability: z.string().describe('The availability status, e.g., "AVAILABLE 100", "WL 7", "RAC 2"'),
         }))
@@ -40,7 +41,6 @@ export const searchRealtimeTrains = ai.defineTool(
     }
 
     try {
-        // First, get the station codes for the origin and destination
         const [originStationCode, destinationStationCode] = await Promise.all([
             getStationCode(input.origin),
             getStationCode(input.destination),
@@ -51,12 +51,13 @@ export const searchRealtimeTrains = ai.defineTool(
             return { trains: [] };
         }
         
-        console.log(`[searchRealtimeTrains Tool] Found station codes: ${originStationCode} -> ${destinationStationCode}`);
+        console.log(`[searchRealtimeTrains Tool] Found station codes: ${originStationCode} -> ${destinationStationCode}. Searching trains...`);
+        const formattedDate = format(new Date(input.date), 'YYYY-MM-DD');
 
-        const response = await fetch(`https://indian-railway-api.p.rapidapi.com/api/v1/trains/betweenStations?from=${originStationCode}&to=${destinationStationCode}&date=${input.date}`, {
+        const response = await fetch(`https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDate}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'indian-railway-api.p.rapidapi.com'
+                'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
             }
         });
 
@@ -68,40 +69,39 @@ export const searchRealtimeTrains = ai.defineTool(
         
         const data = await response.json();
         
-        if (!data.data || data.data.length === 0) {
-            console.log(`[searchRealtimeTrains Tool] No trains found from API for ${originStationCode} to ${destinationStationCode} on ${input.date}.`);
+        if (!data.status || !data.data || data.data.length === 0) {
+            console.log(`[searchRealtimeTrains Tool] No trains found from irctc1 API for ${originStationCode} to ${destinationStationCode} on ${formattedDate}.`);
             return { trains: [] };
         }
 
         // The API provides many trains, let's take the first 4 for a concise list.
-        const trains = data.data.slice(0, 4).map(async (train: any) => {
-            // Find a class with a fare to display
-            const availableClass = train.classes.find((c: any) => c.class_code === input.travelClass && c.fare);
-
+        const trainsPromises = data.data.slice(0, 4).map(async (train: any) => {
+            const travelClass = input.travelClass || train.available_classes[0] || "SL";
+            
             let availability = 'N/A';
-             if (availableClass) {
-                 try {
-                     const availResponse = await fetch(`https://indian-railway-api.p.rapidapi.com/api/v1/seat/availability?class=${availableClass.class_code}&date=${input.date}&from=${originStationCode}&quota=GN&to=${destinationStationCode}&train=${train.train_number}`, {
-                         headers: {
-                            'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
-                            'X-RapidAPI-Host': 'indian-railway-api.p.rapidapi.com'
-                         }
-                     });
-                     if (availResponse.ok) {
-                         const availData = await availResponse.json();
-                         if (availData.data.length > 0) {
-                             availability = availData.data[0].status;
-                         } else {
-                             availability = 'Not Available'
-                         }
-                     } else {
-                         console.warn(`[searchRealtimeTrains Tool] Could not fetch availability for train ${train.train_number}, status: ${availResponse.status}`);
-                         availability = 'Error';
+            try {
+                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/getFare?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}`, {
+                     headers: {
+                        'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
+                        'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
                      }
-                 } catch (e) {
-                     console.error(`[searchRealtimeTrains Tool] Exception when fetching availability for train ${train.train_number}`, e);
+                 });
+                 if (availResponse.ok) {
+                     const availData = await availResponse.json();
+                     if (availData.status && availData.data) {
+                         const classInfo = availData.data.find((c: any) => c.class_type === travelClass);
+                         availability = classInfo ? classInfo.availability : 'Not Available';
+                     } else {
+                         availability = 'Not Available';
+                     }
+                 } else {
+                     console.warn(`[searchRealtimeTrains Tool] Could not fetch availability for train ${train.train_number}, status: ${availResponse.status}`);
+                     availability = 'Error';
                  }
-             }
+            } catch (e) {
+                 console.error(`[searchRealtimeTrains Tool] Exception when fetching availability for train ${train.train_number}`, e);
+                 availability = 'Error Fetching';
+            }
 
             return {
                 trainNumber: train.train_number,
@@ -109,13 +109,15 @@ export const searchRealtimeTrains = ai.defineTool(
                 departureTime: train.from_sta,
                 arrivalTime: train.to_sta,
                 duration: train.duration,
-                fare: availableClass ? `₹${availableClass.fare}` : 'N/A',
-                travelClass: availableClass ? availableClass.class_name : 'N/A',
+                fare: train.fare ? `₹${train.fare}` : undefined,
+                travelClass: travelClass,
                 availability: availability
             };
         });
 
-        return { trains: await Promise.all(trains) };
+        const trains = await Promise.all(trainsPromises);
+        console.log(`[searchRealtimeTrains Tool] Found ${trains.length} trains.`);
+        return { trains };
 
     } catch (error) {
         console.error("[searchRealtimeTrains Tool] Failed to fetch trains:", error);

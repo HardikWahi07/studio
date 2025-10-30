@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A tool for fetching the Indian Railway station code for a given city.
@@ -22,7 +23,7 @@ export async function getStationCode(cityName: string): Promise<string | null> {
         return stationCodeCache.get(query)!;
     }
 
-    console.log(`[getStationCode] Cache miss for ${query}. Fetching from API...`);
+    console.log(`[getStationCode] Cache miss for ${query}. Fetching from irctc1 API...`);
 
     if (!process.env.RAPIDAPI_KEY) {
         console.warn("[getStationCode] RAPIDAPI_KEY is not set. Cannot fetch station code.");
@@ -30,10 +31,10 @@ export async function getStationCode(cityName: string): Promise<string | null> {
     }
 
     try {
-        const response = await fetch(`https://indian-railway-api.p.rapidapi.com/api/v1/station?name=${query}`, {
+        const response = await fetch(`https://irctc1.p.rapidapi.com/api/v1/searchStation?query=${query}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'indian-railway-api.p.rapidapi.com'
+                'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
             }
         });
 
@@ -44,10 +45,10 @@ export async function getStationCode(cityName: string): Promise<string | null> {
         
         const data = await response.json();
         
-        if (data.data && data.data.length > 0) {
+        if (data.status && data.data && data.data.length > 0) {
             // Find the most relevant station code. The API can return multiple matches.
             // We prefer exact matches or mainline stations.
-            const exactMatch = data.data.find((s: any) => s.name.toLowerCase() === query || s.code.toLowerCase() === query);
+            const exactMatch = data.data.find((s: any) => s.name.toLowerCase() === query);
             const station = exactMatch || data.data[0];
             
             console.log(`[getStationCode] Found station code for ${query}: ${station.code}`);
