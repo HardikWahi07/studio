@@ -32,7 +32,7 @@ export const searchRealtimeTrains = ai.defineTool(
     }),
   },
   async (input) => {
-    console.log(`[searchRealtimeTrains Tool] V4: Searching for trains from ${input.origin} to ${input.destination}`);
+    console.log(`[searchRealtimeTrains Tool] V5: Searching for trains from ${input.origin} to ${input.destination}`);
     
     if (!process.env.RAPIDAPI_KEY) {
         console.warn("[searchRealtimeTrains Tool] RAPIDAPI_KEY environment variable not set. Returning empty array.");
@@ -51,32 +51,32 @@ export const searchRealtimeTrains = ai.defineTool(
         }
         
         console.log(`[searchRealtimeTrains Tool] Found station codes: ${originStationCode} -> ${destinationStationCode}. Searching trains...`);
-        const formattedDate = format(new Date(input.date), 'DD-MM-YYYY');
+        const formattedDateForSearch = format(new Date(input.date), 'dd-MM-yyyy');
 
-        const response = await fetch(`https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDate}`, {
+        const trainListResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDateForSearch}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
                 'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
             }
         });
 
-        if (!response.ok) {
-            const errorBody = await response.text();
-            console.error(`[searchRealtimeTrains Tool] API error fetching trains: ${response.statusText}`, errorBody);
+        if (!trainListResponse.ok) {
+            const errorBody = await trainListResponse.text();
+            console.error(`[searchRealtimeTrains Tool] API error fetching trains: ${trainListResponse.statusText}`, errorBody);
             return { trains: [] };
         }
         
-        const data = await response.json();
+        const trainListData = await trainListResponse.json();
         
-        if (!data.status || !data.data || data.data.length === 0) {
-            console.log(`[searchRealtimeTrains Tool] No trains found from irctc1 API for ${originStationCode} to ${destinationStationCode} on ${formattedDate}.`);
+        if (!trainListData.status || !trainListData.data || trainListData.data.length === 0) {
+            console.log(`[searchRealtimeTrains Tool] No trains found from irctc1 API for ${originStationCode} to ${destinationStationCode} on ${formattedDateForSearch}.`);
             return { trains: [] };
         }
 
         // The API provides many trains, let's take the first 4 for a concise list.
-        const trainsPromises = data.data.slice(0, 4).map(async (train: any) => {
+        const trainsPromises = trainListData.data.slice(0, 4).map(async (train: any) => {
             // Define a default travel class if not provided, preferring AC classes.
-            const preferredClasses = ["3A", "2A", "1A", "SL"];
+            const preferredClasses = ["3A", "2A", "1A", "SL", "CC"];
             const availableClasses = train.available_classes || [];
             const travelClass = input.travelClass || preferredClasses.find(c => availableClasses.includes(c)) || availableClasses[0] || "SL";
             
@@ -84,7 +84,7 @@ export const searchRealtimeTrains = ai.defineTool(
             let fare: string | undefined = undefined;
 
             try {
-                 const availDate = format(new Date(input.date), 'YYYY-MM-DD');
+                 const availDate = format(new Date(input.date), 'yyyy-MM-dd');
                  const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${travelClass}&quota=GN&date=${availDate}`, {
                      headers: {
                         'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
