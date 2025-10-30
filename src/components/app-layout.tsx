@@ -249,7 +249,7 @@ function TravelToolsDropdown() {
     { href: "/local-supporters", icon: Shield, label: t('localSupporters') },
     { href: "/suggest-bookings", icon: Briefcase, label: t('smartTransport') },
     { href: "/itinerary-planner", icon: Wand2, label: t('aiItineraryGenerator') },
-    { href: "/safety", icon: LifeBuoy, label: 'Safety Companion' },
+    { href: "/safety", icon: LifeBuoy, label: t('safety') },
   ];
   const supportLinks = [
       { href: "#", icon: HelpCircle, label: t('helpCenter') },
@@ -409,7 +409,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       { href: "/local-supporters", label: t('localSupporters') },
       { href: "/suggest-bookings", label: t('smartTransport') },
       { href: "/itinerary-planner", label: t('aiItineraryGenerator') },
-      { href: "/safety", label: 'Safety Companion' },
+      { href: "/safety", label: t('safety') },
       { href: '#', label: t('helpCenter') },
       { href: '#', label: t('contactUs') },
     ]] : loggedOutNavItems;

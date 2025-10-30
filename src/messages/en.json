@@ -27,7 +27,8 @@
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
     "contactUs": "Contact Us",
-    "login": "Login"
+    "login": "Login",
+    "safety": "Safety Companion"
   },
   "AuthButton": {
     "login": "Login",
@@ -325,7 +326,7 @@
     "titleLabel": "Title",
     "titlePlaceholder": "e.g., My Amazing Week in the Alps",
     "contentLabel": "Your Story",
-        "imageHintLabel": "Image Hint",
+    "imageHintLabel": "Image Hint",
     "imageHintPlaceholder": "e.g., snowy mountains",
     "publishButton": "Publish Story",
     "publishingButton": "Publishing...",
