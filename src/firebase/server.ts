@@ -14,21 +14,35 @@ interface FirebaseServerServices {
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase(): FirebaseServerServices {
   if (!getApps().length) {
-    // When running in a Google Cloud environment, the SDK will automatically
-    // use the project's service account credentials if `GOOGLE_APPLICATION_CREDENTIALS` is set.
-    // For local development and other environments, we explicitly provide the credential.
+    // When running in a Google Cloud environment, the SDK automatically
+    // uses the project's service account credentials. For local development,
+    // ensure the GOOGLE_APPLICATION_CREDENTIALS environment variable is set.
     try {
-      const serviceAccount = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS!);
-      initializeApp({
-        credential: cert(serviceAccount),
-        projectId: firebaseConfig.projectId,
-      });
+      const serviceAccountCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+      if (serviceAccountCred) {
+        // If the credential is a JSON string, parse and use it.
+        const serviceAccount = JSON.parse(serviceAccountCred);
+        initializeApp({
+            credential: cert(serviceAccount),
+            projectId: firebaseConfig.projectId,
+        });
+      } else {
+        // Otherwise, let Firebase Admin SDK try to find credentials automatically.
+        // This works for Cloud environments (like App Hosting) where the env var is not a JSON string but a path,
+        // or where Application Default Credentials (ADC) are configured.
+        initializeApp({
+            projectId: firebaseConfig.projectId,
+        });
+      }
     } catch (e) {
-      console.error("Firebase Admin SDK initialization failed. Ensure GOOGLE_APPLICATION_CREDENTIALS is set and valid.", e);
-       // Fallback for environments where ADC is set up differently but GOOGLE_APPLICATION_CREDENTIALS env var is not a JSON string.
-       initializeApp({
-          projectId: firebaseConfig.projectId,
-       });
+        console.error("Firebase Admin SDK initialization failed.", e);
+        // Provide a clear fallback if everything else fails.
+        // This might happen in a misconfigured local environment.
+        if (!getApps().length) {
+             initializeApp({
+                projectId: firebaseConfig.projectId,
+             });
+        }
     }
   }
 
