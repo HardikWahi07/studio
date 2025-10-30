@@ -94,12 +94,10 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
             document.body.classList.add('pdf-generating');
 
             html2canvas(input, {
-                scale: 2, // Increase resolution for better quality
-                useCORS: true, // Needed for external images
-                backgroundColor: '#000000', // Force black background
+                scale: 2,
+                useCORS: true,
+                backgroundColor: '#000000',
                 onclone: (document) => {
-                    // This ensures that during the cloning process for canvas rendering,
-                    // the accordion content areas do not get hidden by animation classes.
                     const contentElements = document.querySelectorAll('.radix-accordion-content-closed');
                     contentElements.forEach(el => {
                         el.classList.remove('radix-accordion-content-closed');
@@ -111,38 +109,30 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
-                
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvas.height;
-                
-                // Calculate the ratio of the canvas and the height of the image in the PDF
-                const ratio = canvasWidth / canvasHeight;
-                const imgHeight = pdfWidth / ratio;
-                
-                let heightLeft = imgHeight;
+                const imgWidth = canvas.width;
+                const imgHeight = canvas.height;
+                const ratio = imgWidth / imgHeight;
+                const pageImgHeight = pdfWidth / ratio;
+                let heightLeft = pageImgHeight;
                 let position = 0;
 
-                // Add the first page
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pageImgHeight);
                 heightLeft -= pdfHeight;
 
-                // Add more pages if the content is taller than one page
                 while (heightLeft > 0) {
                     position = position - pdfHeight;
                     pdf.addPage();
-                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
+                    pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pageImgHeight);
                     heightLeft -= pdfHeight;
                 }
                 
                 pdf.save(`${results.tripTitle.replace(/\s+/g, '-')}.pdf`);
             }).finally(() => {
-                // Cleanup after generation
                 document.body.classList.remove('pdf-generating');
                 setIsDownloading(false);
-                // Optionally, revert to only the first item being open
                 setAccordionValue(['item-0']);
             });
-        }, 100); // 100ms delay for DOM update
+        }, 100);
     };
 
     return (
