@@ -237,7 +237,7 @@
     "waitingMessage": "Your safety guidance will appear here."
   },
   "SuggestBookingsPage": {
-    "title": "Suggest Transport Bookings",
+    "title": "Suggest Bookings",
     "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
     "findButton": "Find Options"
   },
@@ -328,3 +328,5 @@
     "successDescription": "Your travel story is now live for everyone to see."
   }
 }
+
+    

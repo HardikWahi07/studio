@@ -3,6 +3,7 @@
 
 import { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plane, Train, Bus, Clock, Leaf, Search, Sparkles, BadgeEuro, CarFront, Hotel, Star, Bike } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useTranslations } from "next-intl";
@@ -16,6 +17,14 @@ import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useSettings } from "@/context/settings-context";
 import { planTrip } from "@/ai/flows/plan-trip";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { CityCombobox } from "@/components/city-combobox";
+import { Textarea } from "@/components/ui/textarea";
+import { format } from "date-fns";
+
 
 type Trip = PlanTripOutput & {
     id: string;
@@ -56,6 +65,12 @@ const recommendationBadges: { [key: string]: React.ReactNode } = {
     'Cheapest': <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200"><BadgeEuro className="w-3 h-3 mr-1"/>Cheapest</Badge>,
     'Eco-Friendly': <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>,
 }
+
+const promptSchema = z.object({
+  origin: z.string().min(1, 'Origin is required.'),
+  destination: z.string().min(1, 'Destination is required.'),
+  preferences: z.string().min(5, 'Please describe what you are looking for.'),
+});
 
 function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recommendation?: 'Best' | 'Cheapest' | 'Eco-Friendly' }) {
     const { toast } = useToast();
@@ -140,157 +155,15 @@ function LocalTransportCard({ opt }: { opt: LocalTransportOption }) {
     );
 }
 
-export default function SuggestBookingsPage() {
-    const t = useTranslations('SuggestBookingsPage');
-    const { user, isUserLoading } = useUser();
-    const firestore = useFirestore();
-    const { currency } = useSettings();
-    const { toast } = useToast();
+function SuggestionResults({ suggestions, destination }: { suggestions: PlanTripOutput | null, destination?: string }) {
+    if (!suggestions) return null;
 
-    const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
-    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
-    const [suggestions, setSuggestions] = useState<PlanTripOutput | null>(null);
-
-    const tripsQuery = useMemoFirebase(() => {
-        if (!user || !firestore) return null;
-        return query(
-            collection(firestore, 'users', user.uid, 'trips'),
-            orderBy('createdAt', 'desc')
-        );
-    }, [user, firestore]);
-
-    const { data: trips, isLoading: isLoadingTrips } = useCollection<Trip>(tripsQuery);
-    const isLoading = isUserLoading || isLoadingTrips;
-
-    const selectedTrip = useMemo(() => {
-        if (!trips || !selectedTripId) return null;
-        return trips.find(trip => trip.id === selectedTripId);
-    }, [trips, selectedTripId]);
-    
-    async function handleSearch() {
-        if (!selectedTrip) return;
-        setIsLoadingSuggestions(true);
-        setSuggestions(null);
-        try {
-            // Re-running the planTrip flow is better as it can generate hotels and local transport
-            // based on the full context of the trip, which suggestTransportOptions cannot do.
-            const result = await planTrip({
-                origin: selectedTrip.origin,
-                destination: selectedTrip.destination,
-                currency: currency,
-                accommodationType: selectedTrip.accommodationType,
-                accommodationBudget: selectedTrip.accommodationBudget,
-                interests: selectedTrip.interests,
-                travelers: selectedTrip.travelers,
-                tripPace: selectedTrip.tripPace,
-                travelStyle: selectedTrip.travelStyle,
-                departureDate: selectedTrip.startDate,
-                tripDuration: selectedTrip.tripDuration,
-                // These are optional, so we can pass undefined
-                planeClass: undefined,
-                trainClass: undefined,
-            });
-            setSuggestions(result);
-        } catch (error) {
-            console.error("Failed to suggest bookings:", error);
-            toast({
-                title: "Error",
-                description: "Could not fetch booking suggestions. Please try again.",
-                variant: 'destructive'
-            });
-        } finally {
-            setIsLoadingSuggestions(false);
-        }
-    }
-
-    if (isLoading) {
-      return (
-        <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
-            <Skeleton className="h-10 w-1/3 mb-2" />
-            <Skeleton className="h-6 w-2/3 mb-8" />
-            <Skeleton className="h-32 w-full" />
-        </main>
-      )
-    }
-
-    if (!user) {
-        return (
-            <main className="flex-1 p-4 md:p-8">
-                <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
-                    <h3 className="font-bold text-lg">Please Log In</h3>
-                    <p className="mt-2 text-muted-foreground max-w-sm">
-                        You need to be logged in to get booking suggestions for your saved trips.
-                    </p>
-                </Card>
-            </main>
-        )
-    }
-    
-    if (trips && trips.length === 0) {
-        return (
-            <main className="flex-1 p-4 md:p-8">
-                 <Card className="flex flex-col items-center justify-center text-center p-8 border-dashed min-h-[400px]">
-                    <h3 className="font-bold text-lg">No Trips Found</h3>
-                    <p className="mt-2 text-muted-foreground max-w-sm">
-                        You don't have any saved trips yet. Plan a trip first!
-                    </p>
-                    <Button asChild className="mt-4"><Link href="/trip-planner">Plan a Trip</Link></Button>
-                </Card>
-            </main>
-        )
-    }
-
-  return (
-    <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
-      <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          {t('description')}
-        </p>
-      </div>
-
-      <Card>
-        <CardHeader>
-            <CardTitle>Select a Saved Trip</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                <div className="md:col-span-3">
-                    <Select onValueChange={setSelectedTripId}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Choose one of your saved trips..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {trips?.map(trip => (
-                                <SelectItem key={trip.id} value={trip.id}>
-                                    {trip.tripTitle || `Trip to ${trip.destination}`}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-                <Button onClick={handleSearch} className="md:col-span-1 w-full" disabled={isLoadingSuggestions || !selectedTripId}>
-                    <Search className="mr-2"/>
-                    {isLoadingSuggestions ? "Searching..." : t('findButton')}
-                </Button>
-            </div>
-        </CardContent>
-      </Card>
-      
-        {(isLoadingSuggestions || suggestions) && (
+    return (
         <div className="space-y-8 pt-4">
-            {isLoadingSuggestions && (
-                <>
-                 <Skeleton className="h-32 w-full" />
-                 <Skeleton className="h-32 w-full" />
-                 <Skeleton className="h-32 w-full" />
-                </>
-            )}
-            
             {suggestions?.bookingOptions && suggestions.bookingOptions.length > 0 && (
                  <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Plane /> Transport to {selectedTrip?.destination}</CardTitle>
+                        <CardTitle className="flex items-center gap-2"><Plane /> Transport to {destination}</CardTitle>
                         <CardDescription>Our AI has found these options for your main travel leg.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -319,7 +192,7 @@ export default function SuggestBookingsPage() {
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><CarFront /> Local Transport</CardTitle>
-                        <CardDescription>Best ways to get around in {selectedTrip?.destination}.</CardDescription>
+                        <CardDescription>Best ways to get around in {destination}.</CardDescription>
                     </CardHeader>
                     <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                        {suggestions.localTransportOptions.map((opt, idx) => (
@@ -329,7 +202,206 @@ export default function SuggestBookingsPage() {
                 </Card>
             )}
         </div>
+    )
+}
+
+export default function SuggestBookingsPage() {
+    const t = useTranslations('SuggestBookingsPage');
+    const { user, isUserLoading } = useUser();
+    const firestore = useFirestore();
+    const { currency } = useSettings();
+    const { toast } = useToast();
+
+    const [selectedTripId, setSelectedTripId] = useState<string | null>(null);
+    const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+    const [suggestions, setSuggestions] = useState<PlanTripOutput | null>(null);
+
+    const promptForm = useForm<z.infer<typeof promptSchema>>({
+        resolver: zodResolver(promptSchema),
+        defaultValues: { origin: '', destination: '', preferences: '' },
+    });
+
+    const tripsQuery = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return query(
+            collection(firestore, 'users', user.uid, 'trips'),
+            orderBy('createdAt', 'desc')
+        );
+    }, [user, firestore]);
+
+    const { data: trips, isLoading: isLoadingTrips } = useCollection<Trip>(tripsQuery);
+    const isLoading = isUserLoading || isLoadingTrips;
+
+    const selectedTrip = useMemo(() => {
+        if (!trips || !selectedTripId) return null;
+        return trips.find(trip => trip.id === selectedTripId);
+    }, [trips, selectedTripId]);
+    
+    async function getSuggestions(input: any, destination: string) {
+        setIsLoadingSuggestions(true);
+        setSuggestions(null);
+        try {
+            const result = await planTrip({
+                ...input,
+                currency: currency,
+            });
+            setSuggestions(result);
+        } catch (error) {
+            console.error("Failed to suggest bookings:", error);
+            toast({
+                title: "Error",
+                description: "Could not fetch booking suggestions. Please try again.",
+                variant: 'destructive'
+            });
+        } finally {
+            setIsLoadingSuggestions(false);
+        }
+    }
+
+    function handleTripSearch() {
+        if (!selectedTrip) return;
+        getSuggestions({
+            origin: selectedTrip.origin,
+            destination: selectedTrip.destination,
+            accommodationType: selectedTrip.accommodationType,
+            accommodationBudget: selectedTrip.accommodationBudget,
+            interests: selectedTrip.interests,
+            travelers: selectedTrip.travelers,
+            tripPace: selectedTrip.tripPace,
+            travelStyle: selectedTrip.travelStyle,
+            departureDate: selectedTrip.startDate,
+            tripDuration: selectedTrip.tripDuration,
+            planeClass: undefined,
+            trainClass: undefined,
+        }, selectedTrip.destination);
+    }
+    
+    function handlePromptSearch(values: z.infer<typeof promptSchema>) {
+        getSuggestions({
+            origin: values.origin,
+            destination: values.destination,
+            interests: values.preferences,
+            // Provide sensible defaults for a last-minute booking
+            accommodationType: 'hotel',
+            accommodationBudget: 'moderate',
+            travelers: 1,
+            tripPace: 'moderate',
+            travelStyle: 'solo',
+            departureDate: format(new Date(), 'yyyy-MM-dd'),
+            tripDuration: 3,
+            planeClass: undefined,
+            trainClass: undefined,
+        }, values.destination);
+    }
+
+
+  return (
+    <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
+      <div className="space-y-2">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+        <p className="text-muted-foreground max-w-2xl">
+          {t('description')}
+        </p>
+      </div>
+
+      <Tabs defaultValue="from-trip">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="from-trip">From Saved Trip</TabsTrigger>
+          <TabsTrigger value="from-prompt">From Prompt</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="from-trip">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Select a Saved Trip</CardTitle>
+                    <CardDescription>Find booking options for one of your planned journeys.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    {isLoading && <Skeleton className="h-10 w-full" />}
+                    {!user && !isLoading && (
+                        <div className="text-center text-muted-foreground p-4 border rounded-md">
+                            <p>Please log in to see your saved trips.</p>
+                        </div>
+                    )}
+                    {user && !isLoadingTrips && trips && trips.length === 0 && (
+                        <div className="text-center text-muted-foreground p-4 border rounded-md">
+                            <p>No saved trips found. Go to the AI Trip Planner to create one!</p>
+                        </div>
+                    )}
+                    {user && trips && trips.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                            <div className="md:col-span-3">
+                                <Select onValueChange={setSelectedTripId}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Choose one of your saved trips..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {trips?.map(trip => (
+                                            <SelectItem key={trip.id} value={trip.id}>
+                                                {trip.tripTitle || `Trip to ${trip.destination}`}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <Button onClick={handleTripSearch} className="md:col-span-1 w-full" disabled={isLoadingSuggestions || !selectedTripId}>
+                                <Search className="mr-2"/>
+                                {isLoadingSuggestions ? "Searching..." : t('findButton')}
+                            </Button>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </TabsContent>
+        
+        <TabsContent value="from-prompt">
+             <Card>
+                <CardHeader>
+                    <CardTitle>Describe Your Journey</CardTitle>
+                    <CardDescription>Tell us where you're going, and we'll find options for you.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Form {...promptForm}>
+                        <form onSubmit={promptForm.handleSubmit(handlePromptSearch)} className="space-y-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <FormField control={promptForm.control} name="origin" render={({ field }) => (
+                                    <FormItem><FormLabel>From</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Select origin..." /><FormMessage /></FormItem>
+                                )} />
+                                <FormField control={promptForm.control} name="destination" render={({ field }) => (
+                                    <FormItem><FormLabel>To</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Select destination..." /><FormMessage /></FormItem>
+                                )} />
+                            </div>
+                             <FormField control={promptForm.control} name="preferences" render={({ field }) => (
+                                <FormItem><FormLabel>Preferences</FormLabel><FormControl>
+                                <Textarea placeholder="e.g., 'Looking for the cheapest flight next Friday' or 'Need a family-friendly hotel near the city center'" {...field} />
+                                </FormControl><FormMessage /></FormItem>
+                            )}/>
+                            <Button type="submit" className="w-full md:w-auto" disabled={isLoadingSuggestions}>
+                                <Search className="mr-2"/>
+                                {isLoadingSuggestions ? "Searching..." : t('findButton')}
+                            </Button>
+                        </form>
+                    </Form>
+                </CardContent>
+             </Card>
+        </TabsContent>
+      </Tabs>
+      
+        
+        {isLoadingSuggestions && (
+            <div className="space-y-8 pt-4">
+             <Skeleton className="h-32 w-full" />
+             <Skeleton className="h-32 w-full" />
+             <Skeleton className="h-32 w-full" />
+            </div>
         )}
+        
+        <SuggestionResults 
+            suggestions={suggestions} 
+            destination={selectedTrip?.destination || promptForm.getValues('destination')}
+        />
     </main>
   );
 }
+
+    
