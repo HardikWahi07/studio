@@ -113,13 +113,23 @@ body {
     background: hsl(var(--primary));
   }
 
+  /* Styles for PDF generation */
   .pdf-generating [data-state="closed"] {
-    display: block; /* Or grid, or flex, depending on your layout */
+    display: block !important;
   }
 
   .pdf-generating .radix-accordion-content-closed {
     height: auto !important;
     visibility: visible !important;
+    overflow: visible !important;
+    opacity: 1 !important;
+  }
+  
+  .pdf-generating .radix-accordion-content-open {
+     height: auto !important;
+     visibility: visible !important;
+     overflow: visible !important;
+     opacity: 1 !important;
   }
 }
 
@@ -135,4 +145,15 @@ body {
   .animate-spin-reverse {
     animation: spin-reverse 1.2s linear infinite;
   }
+}
+
+/* Radix primitive overrides for PDF generation */
+.radix-accordion-content-closed {
+  height: 0;
+  overflow: hidden;
+  /* Additional styles for Radix Accordion closed state */
+}
+
+.radix-accordion-content-open {
+  /* Styles for Radix Accordion open state */
 }
