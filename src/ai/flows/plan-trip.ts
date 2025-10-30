@@ -99,6 +99,11 @@ const planTripFlow = ai.defineFlow(
       throw new Error("AI model failed to generate a valid itinerary. The response was empty.");
     }
     
+    // Ensure tripTitle exists, providing a fallback if necessary.
+    if (!output.tripTitle) {
+      output.tripTitle = `Your Trip to ${input.destination}`;
+    }
+
     // Ensure bookingOptions is always an array to prevent downstream errors.
     if (!output.bookingOptions) {
       output.bookingOptions = [];
