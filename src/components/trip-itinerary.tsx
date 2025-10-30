@@ -14,6 +14,7 @@ import type { PlanTripOutput, TransportSegment, HotelOption } from '@/ai/flows/p
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { cn } from '@/lib/utils';
+import { useTheme } from 'next-themes';
 
 const transportIcons: { [key: string]: React.ReactNode } = {
     Walk: <Footprints className="h-5 w-5 text-green-500" />,
@@ -95,6 +96,7 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
             html2canvas(input, {
                 scale: 2, // Increase resolution for better quality
                 useCORS: true, // Needed for external images
+                backgroundColor: '#000000', // Force black background
                 onclone: (document) => {
                     // This ensures that during the cloning process for canvas rendering,
                     // the accordion content areas do not get hidden by animation classes.
@@ -109,19 +111,24 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
                 const pdf = new jsPDF('p', 'mm', 'a4');
                 const pdfWidth = pdf.internal.pageSize.getWidth();
                 const pdfHeight = pdf.internal.pageSize.getHeight();
+                
                 const canvasWidth = canvas.width;
                 const canvasHeight = canvas.height;
+                
+                // Calculate the ratio of the canvas and the height of the image in the PDF
                 const ratio = canvasWidth / canvasHeight;
                 const imgHeight = pdfWidth / ratio;
                 
                 let heightLeft = imgHeight;
                 let position = 0;
 
+                // Add the first page
                 pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
                 heightLeft -= pdfHeight;
 
+                // Add more pages if the content is taller than one page
                 while (heightLeft > 0) {
-                    position = -heightLeft;
+                    position = position - pdfHeight;
                     pdf.addPage();
                     pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeight);
                     heightLeft -= pdfHeight;
