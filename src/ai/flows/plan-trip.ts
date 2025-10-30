@@ -8,7 +8,8 @@
 
 import { ai } from '@/ai/genkit';
 import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type PlanTripOutput } from './plan-trip.types';
-import { getTrainAvailability } from '../tools/get-train-availability';
+import { searchRealtimeFlights } from '../tools/search-flights';
+import { searchRealtimeTrains } from '../tools/search-trains';
 
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
@@ -18,7 +19,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: PlanTripInputSchema },
   output: { schema: PlanTripOutputSchema },
-  tools: [getTrainAvailability],
+  tools: [searchRealtimeFlights, searchRealtimeTrains],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -41,38 +42,35 @@ const prompt = ai.definePrompt({
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
   
   2.  **Generate Main Booking Options:**
-      - **CRITICAL: You MUST generate a list of 3-4 realistic but *mock* booking options for the main journey from origin to destination.**
-      - Include a mix of flights, trains, and buses where appropriate for the distance.
-      - **For train options, you MUST use the 'getTrainAvailability' tool** to check for real-time seat availability. Use the user's origin, destination, and departure date. If the tool returns results, integrate them into your suggestions and set the 'availability' status accordingly. Do not show sold-out trains.
-      - For each option, provide a provider, details (including realistic mock departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
-      - For train options, especially in India, include different travel classes like "AC First Class (1A)", "AC 2 Tier (2A)", "Shatabdi Express (CC)", or "Vande Bharat (EC)" in the details field. If the user specified a trainClass preference, prioritize suggestions in that class.
-      - For flights, use providers like 'IndiGo', 'Vistara', 'Air India', etc. If the user specified a planeClass preference, prioritize suggestions in that class. Set flight availability to 'N/A'.
+      - **CRITICAL: You MUST use the provided tools to find real-time travel options.**
+      - **For flights, you MUST use the 'searchRealtimeFlights' tool.** Use the user's origin, destination, and departure date. If the tool returns valid flights, integrate them as 'flight' type booking options.
+      - **For trains, you MUST use the 'searchRealtimeTrains' tool.** Use the user's origin and destination. If the tool returns valid trains, integrate them as 'train' type booking options.
+      - **Generate 1-2 realistic mock bus options** as a fallback if flights or trains are not suitable for the route.
+      - For each option, provide the provider/name, details (like departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a fake booking URL (e.g., "https://www.example.com/book").
+      - Set availability to 'Available' for all real-time options found.
 
   3.  **Generate Mock Hotel Options:**
-      - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Skip this section entirely and return an empty array for 'hotelOptions'.
-      - Otherwise, based on the user's accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}), suggest 3-4 realistic but *mock* hotel options in the destination.
-      - For each hotel, provide its name, style (e.g., 'Luxury', 'Boutique'), estimated price per night, mock rating, and a fake booking URL.
+      - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Return an empty array for 'hotelOptions'.
+      - Otherwise, suggest 3-4 realistic but *mock* hotel options based on accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}).
+      - Provide name, style, estimated price, mock rating, and a fake booking URL.
   
   4.  **Generate Local Transport Options:**
-      - Recommend 3-4 common and useful local transport options for getting around the destination city (e.g., metro, bus, taxi, rideshare like Uber, auto-rickshaw, bike rentals).
-      - For each option, provide the type, a provider name, details, an estimated average cost, and a helpful tip for travelers.
+      - Recommend 3-4 common transport options for the destination city (e.g., metro, bus, rideshare).
+      - Provide type, provider, details, average cost, and a helpful tip.
 
   5.  **Generate a Day-by-Day Itinerary:** For each day of the trip, create a detailed plan.
-      - Each day needs a **title** and a brief **summary**.
+      - Each day needs a **title** and a **summary**.
       - For each activity, provide:
-        - **Time:** A specific start time (e.g., "09:00 AM").
-        - **Description:** A clear description of the activity (e.g., "Guided tour of the Prado Museum").
-        - **Location:** The address or name of the place.
-        - **Details:** Practical tips, booking information, or why it's a great spot.
-        - **Cost:** An estimated cost for the activity in the specified {{{currency}}} (e.g., "€25", "$50", "Free").
-      - **CRITICAL: For activities like "Lunch," "Dinner," "Coffee," or "Rest," you MUST suggest a specific, real business.** Base your suggestion on the user's interests (e.g., if they like "street food," find a highly-rated street food vendor; if they prefer "fine dining," find a suitable restaurant). For the 'location' field of that activity, provide the real name and address of the business. In the 'details' field, briefly explain why you chose it.
-      - **MANDATORY: Include Detailed Transportation:** Between each activity, you MUST add a 'transportToNext' segment.
-        - **Estimate travel times.** Be specific and multi-modal. Instead of just "Take the metro", suggest a specific route and line.
-        - **Prioritize Eco-Friendly & Cost-Effective Options:** Mark walking, cycling, or public transport as 'ecoFriendly: true'. Suggest taxis or ride-shares only when necessary.
-      - **Be Realistic:** Ensure the plan is logical for the chosen tripPace. A 'relaxed' pace should have fewer activities and more leisure time than a 'fast-paced' one.
-      - **Incorporate User Interests:** If the user mentions specific places, be sure to include them in the itinerary on different days.
+        - **Time:** A specific start time.
+        - **Description:** Clear description of the activity.
+        - **Location:** Address or name of the place.
+        - **Details:** Practical tips or booking info.
+        - **Cost:** Estimated cost in the specified {{{currency}}}.
+      - **CRITICAL: For "Lunch," "Dinner," or "Coffee," suggest a specific, real business** based on user interests.
+      - **MANDATORY: Include Detailed Transportation:** Between each activity, add a 'transportToNext' segment with mode, estimated time, and route.
+      - **Be Realistic:** Ensure the plan is logical for the chosen tripPace.
 
-  Produce the final output in the required JSON format, ensuring the 'bookingOptions' array is always populated.
+  Produce the final output in the required JSON format.
   `,
 });
 

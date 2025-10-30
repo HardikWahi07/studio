@@ -35,7 +35,8 @@ export const getTrainAvailability = ai.defineTool(
     // 🚨 DEVELOPER ACTION REQUIRED 🚨
     // This is MOCK DATA. For a production application, you must replace this
     // with a real integration to a train booking API (e.g., IRCTC, RailYatri, etc.)
-    // to provide live, accurate train availability.
+    // to provide live, accurate train availability. The 'searchRealtimeTrains' tool
+    // provides an example of how to do this with a live API.
     //
 
     // Returning more realistic mock data for a Pune to Lucknow route:
