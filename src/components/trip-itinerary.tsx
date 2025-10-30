@@ -87,20 +87,14 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
         const allItemValues = results.itinerary.map((_, index) => `item-${index}`);
         setAccordionValue(allItemValues);
 
+        // Allow time for accordions to expand before capturing
         setTimeout(() => {
             document.body.classList.add('pdf-generating');
 
             html2canvas(input, {
-                scale: 2,
+                scale: 2, // Higher scale for better quality
                 useCORS: true,
-                backgroundColor: '#000000',
-                onclone: (document) => {
-                    const contentElements = document.querySelectorAll('.radix-accordion-content-closed');
-                    contentElements.forEach(el => {
-                        el.classList.remove('radix-accordion-content-closed');
-                        el.classList.add('radix-accordion-content-open');
-                    });
-                }
+                backgroundColor: '#000000', // Black background
             }).then(canvas => {
                 const imgData = canvas.toDataURL('image/png');
                 const pdf = new jsPDF('p', 'mm', 'a4');
@@ -111,41 +105,28 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
                 const canvasHeight = canvas.height;
                 
                 const ratio = canvasWidth / canvasHeight;
-                const imgHeightOnPage = pdfWidth / ratio;
-                
-                let heightLeft = canvasHeight;
+                const imgHeightForPage = pdfWidth / ratio;
+                let heightLeft = imgHeightForPage;
                 let position = 0;
-                
-                const pageCanvas = document.createElement('canvas');
-                const pageCtx = pageCanvas.getContext('2d');
-                pageCanvas.width = canvasWidth;
-                pageCanvas.height = canvasHeight / (imgHeightOnPage / pdfHeight);
 
-                let srcY = 0;
+                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightForPage);
+                heightLeft -= pdfHeight;
+
                 while (heightLeft > 0) {
-                    const chunkHeight = Math.min(heightLeft, canvasHeight * (pdfHeight / imgHeightOnPage));
-                    const pageChunkCanvas = document.createElement('canvas');
-                    pageChunkCanvas.width = canvasWidth;
-                    pageChunkCanvas.height = chunkHeight;
-                    const pageChunkCtx = pageChunkCanvas.getContext('2d');
-                    pageChunkCtx?.drawImage(canvas, 0, srcY, canvasWidth, chunkHeight, 0, 0, canvasWidth, chunkHeight);
-
-                    if (srcY > 0) {
-                        pdf.addPage();
-                    }
-                    pdf.addImage(pageChunkCanvas.toDataURL('image/png', 1.0), 'PNG', 0, 0, pdfWidth, pdfHeight, '', 'FAST');
-                    
-                    heightLeft -= chunkHeight;
-                    srcY += chunkHeight;
+                  position = heightLeft - imgHeightForPage;
+                  pdf.addPage();
+                  pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, imgHeightForPage);
+                  heightLeft -= pdfHeight;
                 }
 
                 pdf.save(`${results.tripTitle.replace(/\s+/g, '-')}.pdf`);
+
             }).finally(() => {
                 document.body.classList.remove('pdf-generating');
                 setIsDownloading(false);
-                setAccordionValue(['item-0']);
+                setAccordionValue(['item-0']); // Collapse back to default
             });
-        }, 100);
+        }, 300); // Increased timeout to ensure rendering
     };
 
     return (
@@ -230,5 +211,3 @@ export function TripItinerary({ results }: { results: PlanTripOutput }) {
         </div>
     );
 }
-
-    
