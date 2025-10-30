@@ -66,6 +66,8 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
     setOpen(false)
   }
 
+  // Correctly determine the display value. If a value is selected, show the first part (the city name).
+  // Otherwise, show the placeholder.
   const displayValue = value ? value.split(',')[0] : (placeholder || t('selectPlaceholder'));
 
   return (
