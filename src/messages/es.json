@@ -27,7 +27,8 @@
     "termsOfService": "Términos de Servicio",
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
-    "contactUs": "Contáctanos"
+    "contactUs": "Contáctanos",
+    "safety": "Compañero de Seguridad"
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
@@ -120,6 +121,36 @@
     "title": "Mis Reservas",
     "description": "Gestiona todos tus viajes y experiencias confirmados con asistentes locales."
   },
+  "BlogPage": {
+    "title": "Historias de Viajes y Perspectivas Locales",
+    "description": "Lee historias inspiradoras de nuestra comunidad de viajeros y obtén consejos para tu próxima aventura.",
+    "searchPlaceholder": "Buscar historias...",
+    "createButton": "Escribe Tu Propia Historia",
+    "noPosts": "No se encontraron historias. ¿Por qué no ser el primero en escribir una?"
+  },
+  "CreateBlogPage": {
+    "title": "Comparte Tu Historia",
+    "description": "Escribe tu última aventura. Tu historia podría inspirar el próximo viaje de alguien.",
+    "titleLabel": "Título Atractivo",
+    "titlePlaceholder": "ej., Mi Semana Inolvidable en los Andes",
+    "contentLabel": "Tu Historia",
+    "imageHintLabel": "Pista para la Imagen de Portada",
+    "imageHintPlaceholder": "ej., 'amanecer en las montañas de los Andes' o 'mercado bullicioso lima'",
+    "publishButton": "Publicar Historia",
+    "publishingButton": "Publicando...",
+    "successTitle": "¡Historia Publicada!",
+    "successDescription": "Tu historia de viaje ahora está en vivo para que el mundo la vea.",
+    "errorTitle": "Fallo al Publicar",
+    "errorDescription": "No pudimos guardar tu historia. Por favor, inténtalo de nuevo."
+  },
+  "MyTripsPage": {
+    "title": "Mis Viajes",
+    "description": "Aquí están todos los viajes increíbles que has planeado con TripMind.",
+    "noTripsTitle": "Aún no has Planeado Viajes",
+    "noTripsDescription": "¡Usa el Planificador de Viajes IA para comenzar tu próxima aventura!",
+    "from": "Desde {origin}",
+    "travelers": "{count, plural, one {# viajero} other {# viajeros}}"
+  },
   "DestinationPage": {
     "reviews": "reseñas",
     "about": "Acerca de {destinationName}",
@@ -208,14 +239,6 @@
     "responds": "Responde:",
     "messageButton": "Mensaje"
   },
-  "MyTripsPage": {
-    "title": "Mis Viajes",
-    "description": "Aquí están todos los viajes increíbles que has planeado con TripMind.",
-    "noTripsTitle": "Aún no has Planeado Viajes",
-    "noTripsDescription": "¡Usa el Planificador de Viajes IA para comenzar tu próxima aventura!",
-    "from": "Desde {origin}",
-    "travelers": "{count, plural, one {# viajero} other {# viajeros}}"
-  },
   "SafetyPage": {
     "title": "Compañero de Seguridad",
     "description": "¿Te sientes perdido o necesitas ayuda? Tu compañero de seguridad IA, impulsado por el conocimiento local, está aquí para ayudarte en cualquier situación.",
@@ -238,7 +261,23 @@
   "SuggestBookingsPage": {
     "title": "Sugerir Reservas de Transporte",
     "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
-    "findButton": "Encontrar Opciones"
+    "formTitle": "Describe Tu Viaje",
+    "formDescription": "Dinos de dónde a dónde viajas y encontraremos las mejores opciones para ti.",
+    "fromLabel": "Desde",
+    "fromPlaceholder": "Ingresa ciudad de origen...",
+    "toLabel": "A",
+    "toPlaceholder": "Ingresa ciudad de destino...",
+    "departureLabel": "Fecha",
+    "preferencesLabel": "Preferencias",
+    "preferencesPlaceholder": "ej., Más rápido, Más barato, Más ecológico",
+    "findButton": "Encontrar Opciones",
+    "searchingButton": "Buscando...",
+    "resultsTitle": "Opciones de Viaje Disponibles",
+    "noResultsTitle": "No se Encontraron Opciones",
+    "noResultsDescription": "Intenta cambiar tu búsqueda o ajustar tus preferencias.",
+    "localTransportTitle": "Opciones de Transporte Local",
+    "localTransportDescription": "Las mejores formas de moverte por tu ciudad de destino.",
+    "loadingMessage": "Buscando las mejores opciones para ti..."
   },
   "TripPlannerPage": {
     "title": "Planificador de Viajes con IA",
@@ -304,5 +343,3 @@
     "noCityFound": "No se encontró la ciudad."
   }
 }
-
-    

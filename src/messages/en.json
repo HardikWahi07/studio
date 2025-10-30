@@ -1,3 +1,4 @@
+
 {
   "AppLayout": {
     "home": "Home",
@@ -26,7 +27,8 @@
     "termsOfService": "Terms of Service",
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "safety": "Safety Companion"
   },
   "AuthButton": {
     "login": "Login",
@@ -119,6 +121,36 @@
     "title": "My Bookings",
     "description": "Manage all your confirmed rides and experiences with local supporters."
   },
+  "BlogPage": {
+    "title": "Travel Stories & Local Insights",
+    "description": "Read inspiring stories from our community of travelers and get tips for your next adventure.",
+    "searchPlaceholder": "Search stories...",
+    "createButton": "Write Your Own Story",
+    "noPosts": "No stories found. Why not be the first to write one?"
+  },
+  "CreateBlogPage": {
+    "title": "Share Your Story",
+    "description": "Pen your latest adventure. Your story could inspire someone's next journey.",
+    "titleLabel": "Catchy Title",
+    "titlePlaceholder": "e.g., My Unforgettable Week in the Andes",
+    "contentLabel": "Your Story",
+    "imageHintLabel": "Cover Image Hint",
+    "imageHintPlaceholder": "e.g., 'Andes mountains sunrise' or 'bustling market lima'",
+    "publishButton": "Publish Story",
+    "publishingButton": "Publishing...",
+    "successTitle": "Story Published!",
+    "successDescription": "Your travel story is now live for the world to see.",
+    "errorTitle": "Publishing Failed",
+    "errorDescription": "We couldn't save your story. Please try again."
+  },
+  "MyTripsPage": {
+    "title": "My Trips",
+    "description": "Here are all the amazing journeys you've planned with TripMind.",
+    "noTripsTitle": "No Trips Planned Yet",
+    "noTripsDescription": "Use the AI Trip Planner to start your next adventure!",
+    "from": "From {origin}",
+    "travelers": "{count, plural, one {# traveler} other {# travelers}}"
+  },
   "DestinationPage": {
     "reviews": "reviews",
     "about": "About {destinationName}",
@@ -172,7 +204,59 @@
     "title": "AI Itinerary Generator",
     "description": "Let our AI craft the perfect, personalized travel plan for you. Just enter your preferences below and watch the magic happen.",
     "formTitle": "Your Trip Details",
-    "formDescription": "Fill in the form to get started."
+    "formDescription": "Fill in the form to get started.",
+    "destinationLabel": "Destination",
+    "destinationPlaceholder": "e.g., Kyoto, Japan",
+    "budgetLabel": "Budget",
+    "budgetPlaceholder": "e.g., Moderate",
+    "interestsLabel": "Interests & Preferences",
+    "interestsPlaceholder": "e.g., Interested in historic temples, local cuisine, nature walks, and minimal travel between locations.",
+    "generateButton": "Generate Itinerary",
+    "generatingButton": "Generating...",
+    "toastErrorTitle": "Error",
+    "toastErrorDescription": "Failed to generate itinerary. Please try again.",
+    "resultTitle": "Your Personalized Itinerary",
+    "resultDescription": "Your AI-generated travel plan will appear here.",
+    "waitingMessage": "Your itinerary is waiting to be created."
+  },
+  "LocalArtisansPage": {
+    "title": "Local Connect",
+    "description": "Support local communities by connecting with talented artisans and authentic experiences. Every interaction tells a story.",
+    "connectButton": "Connect"
+  },
+  "LocalSupportersPage": {
+    "title": "Local Supporters",
+    "description": "Connect with friendly locals who are happy to help. Get tips, ask questions, or just get a friendly suggestion when you feel lost.",
+    "findSupporterTitle": "Find a Supporter",
+    "findSupporterDescription": "Enter a city to find locals who can help. We'll try to autodetect your location.",
+    "searchPlaceholder": "e.g., Madrid, Spain",
+    "searchButton": "Search",
+    "locationErrorTitle": "Location Error",
+    "noSupportersTitle": "No Supporters Found in {city}",
+    "noSupportersDescription": "We're still building our network. Try searching another city or check back soon!",
+    "findSupportersPromptTitle": "Find Local Supporters",
+    "findSupportersPromptDescription": "Enter a location above to find local supporters in that area.",
+    "responds": "Responds:",
+    "messageButton": "Message"
+  },
+  "SafetyPage": {
+    "title": "Safety Companion",
+    "description": "Feeling lost or need help? Your AI safety companion, powered by local knowledge, is here to assist you in any situation.",
+    "formTitle": "Get Assistance",
+    "formDescription": "Describe your situation and our AI will provide guidance.",
+    "locationLabel": "Your Location",
+    "locationPlaceholder": "e.g., Madrid, Spain",
+    "situationLabel": "What is the situation?",
+    "situationPlaceholder": "e.g., I'm lost near the train station",
+    "getHelpButton": "Get Help",
+    "gettingHelpButton": "Getting Help...",
+    "toastErrorTitle": "Error",
+    "toastErrorDescription": "Failed to get assistance. Please try again.",
+    "resultsTitle": "Your Safety Guide",
+    "alertsTitle": "Safety Alerts",
+    "guidanceTitle": "Your Local Supporter Guidance",
+    "hospitalsTitle": "Nearby Hospitals",
+    "waitingMessage": "Your safety guide will appear here."
   },
   "SuggestBookingsPage": {
     "title": "Suggest Transport Bookings",
@@ -183,7 +267,7 @@
     "fromPlaceholder": "Enter origin city...",
     "toLabel": "To",
     "toPlaceholder": "Enter destination city...",
-    "dateLabel": "Date",
+    "departureLabel": "Date",
     "preferencesLabel": "Preferences",
     "preferencesPlaceholder": "e.g., Fastest, Cheapest, Most Eco-Friendly",
     "findButton": "Find Options",
@@ -192,7 +276,8 @@
     "noResultsTitle": "No Options Found",
     "noResultsDescription": "Try changing your search or adjusting your preferences.",
     "localTransportTitle": "Local Transport Options",
-    "localTransportDescription": "Best ways to move around your destination city."
+    "localTransportDescription": "Best ways to move around your destination city.",
+    "loadingMessage": "Searching for the best options for you..."
   },
   "TripPlannerPage": {
     "title": "AI Trip Planner",
@@ -258,5 +343,3 @@
     "noCityFound": "No city found."
   }
 }
-
-    
