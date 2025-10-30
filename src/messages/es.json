@@ -237,8 +237,8 @@
     "waitingMessage": "Tu guía de seguridad aparecerá aquí."
   },
   "SuggestBookingsPage": {
-    "title": "Sugerir Reservas de Transporte",
-    "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
+    "title": "Sugerir Reservas",
+    "description": "Utilice el Planificador de viajes con IA para obtener sugerencias de reservas personalizadas de vuelos, hoteles y más, basadas en un itinerario detallado.",
     "findButton": "Encontrar Opciones"
   },
   "TripPlannerPage": {

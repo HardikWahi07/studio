@@ -386,11 +386,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const loggedInNavItems = [
     { href: "/", label: t('home') },
     { href: "/my-trips", label: t('myTrips') },
-    { href: "/suggest-bookings", label: t('suggestBookings') },
+    { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "/booking", label: t('booking') },
     { href: "/blog", label: t('blog') },
     { href: "/about", label: t('about') },
-    { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "/local-artisans", label: t('localConnect') },
     { href: "/hidden-gems", label: t('hiddenGems') },
   ];
@@ -399,7 +398,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/", label: t('home') },
     { href: "/about", label: t('about') },
     { href: "/blog", label: t('blog') },
-    { href: "/suggest-bookings", label: t('suggestBookings') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
     { href: "#", label: t('helpCenter') },
     { href: "#", label: t('contactUs') },

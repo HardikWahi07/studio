@@ -238,7 +238,7 @@
   },
   "SuggestBookingsPage": {
     "title": "Suggest Bookings",
-    "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
+    "description": "Use the AI Trip Planner to get personalized booking suggestions for flights, hotels, and more based on a detailed itinerary.",
     "findButton": "Find Options"
   },
   "TripPlannerPage": {
