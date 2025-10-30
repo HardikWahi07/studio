@@ -27,7 +27,7 @@ const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
     destination: z.string().min(1, 'Destination is required.'),
     departureDate: z.string().min(1, 'Departure date is required.'),
-    tripDuration: z.coerce.number().min(1, 'Duration must be at least 1 day.').max(14, 'Duration cannot exceed 14 days.'),
+    tripDuration: z.coerce.number().min(1, 'Duration must be at least 1 day.'),
     travelers: z.coerce.number().min(1, "Please enter at least 1 traveler.").positive(),
     tripPace: z.enum(['relaxed', 'moderate', 'fast-paced']),
     travelStyle: z.enum(['solo', 'couple', 'family', 'group']),
