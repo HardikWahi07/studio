@@ -1,4 +1,7 @@
 
+'use client';
+
+import { useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
@@ -16,34 +19,41 @@ import { destinations } from '@/lib/destinations';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 import { DestinationCard } from '@/components/destination-card';
-import { getTranslations } from 'next-intl/server';
-import { getBlogs } from '@/lib/blog';
-import { format } from 'date-fns';
+import { useTranslations, useLocale } from 'next-intl';
 import type { Blog } from '@/lib/types';
+import { useOnVisible } from '@/hooks/use-on-visible';
+import { cn } from '@/lib/utils';
 
-
-export default async function DashboardPage() {
-  const t = await getTranslations('DashboardPage');
-  const blogs = await getBlogs();
+export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
+  const t = useTranslations('DashboardPage');
+  const locale = useLocale();
+  const featuresRef = useRef<HTMLDivElement>(null);
+  const destinationsRef = useRef<HTMLDivElement>(null);
+  const storiesRef = useRef<HTMLDivElement>(null);
+  const moreFeaturesRef = useRef<HTMLDivElement>(null);
+  const featuresVisible = useOnVisible(featuresRef);
+  const destinationsVisible = useOnVisible(destinationsRef);
+  const storiesVisible = useOnVisible(storiesRef);
+  const moreFeaturesVisible = useOnVisible(moreFeaturesRef);
 
   const features = [
     {
       icon: <Globe className="h-8 w-8 text-primary" />,
       title: t('feature1Title'),
       description: t('feature1Description'),
-      link: '/itinerary-planner',
+      link: `/${locale}/itinerary-planner`,
     },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
       title: t('feature2Title'),
       description: t('feature2Description'),
-      link: '/local-artisans',
+      link: `/${locale}/local-artisans`,
     },
     {
       icon: <MapPin className="h-8 w-8 text-primary" />,
       title: t('feature3Title'),
       description: t('feature3Description'),
-      link: '/hidden-gems',
+      link: `/${locale}/hidden-gems`,
     },
   ];
 
@@ -52,19 +62,19 @@ export default async function DashboardPage() {
       icon: <Wallet className="h-8 w-8 text-primary" />,
       title: t('feature4Title'),
       description: t('feature4Description'),
-      link: '/expenses',
+      link: `/${locale}/expenses`,
     },
     {
       icon: <Shield className="h-8 w-8 text-primary" />,
       title: t('feature5Title'),
       description: t('feature5Description'),
-      link: '/local-supporters',
+      link: `/${locale}/local-supporters`,
     },
     {
       icon: <Leaf className="h-8 w-8 text-primary" />,
       title: t('feature6Title'),
       description: t('feature6Description'),
-      link: '/transport',
+      link: `/${locale}/transport`,
     },
   ];
 
@@ -94,10 +104,10 @@ export default async function DashboardPage() {
             </p>
             <div className="mt-8 flex gap-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full">
-                <Link href="/itinerary-planner">{t('startPlanning')}</Link>
+                <Link href={`/${locale}/itinerary-planner`}>{t('startPlanning')}</Link>
               </Button>
                <Button asChild size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black text-lg px-8 py-6 rounded-full">
-                <Link href="/about">{t('learnMore')}</Link>
+                <Link href={`/${locale}/about`}>{t('learnMore')}</Link>
               </Button>
             </div>
              <div className="mt-8 flex gap-4">
@@ -108,9 +118,9 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-background">
+        <section ref={featuresRef} className="py-16 md:py-24 bg-background">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto features-header">
+            <div className={cn("text-center max-w-3xl mx-auto features-header fade-in-up", { 'visible': featuresVisible })}>
               <h2 className="text-4xl md:text-5xl font-bold font-headline">
                 {t('featuresTitle')} <span className='text-primary'>{t('featuresTitleHighlight')}</span>
               </h2>
@@ -121,7 +131,7 @@ export default async function DashboardPage() {
             <div className="grid gap-8 md:grid-cols-3 mt-12">
               {features.map((feature, index) => (
                 <Link href={feature.link} key={feature.title}>
-                  <Card className="text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                  <Card className={cn("text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300 fade-in-up", { 'visible': featuresVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
                       <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
                           {feature.icon}
                       </div>
@@ -138,9 +148,9 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-secondary/50">
+        <section ref={destinationsRef} className="py-16 md:py-24 bg-secondary/50">
           <div className="container mx-auto px-4">
-            <div className="text-center max-w-3xl mx-auto">
+            <div className={cn("text-center max-w-3xl mx-auto fade-in-up", { 'visible': destinationsVisible })}>
               <h2 className="text-4xl md:text-5xl font-bold font-headline">
                 {t('topDestinationsTitle')} <Globe className="inline-block h-10 w-10 text-primary" />
               </h2>
@@ -149,29 +159,31 @@ export default async function DashboardPage() {
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-              {destinations.map((dest) => (
-                  <DestinationCard key={dest.id} destination={dest} />
+              {destinations.map((dest, index) => (
+                  <div key={dest.id} className={cn("fade-in-up", { 'visible': destinationsVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
+                    <DestinationCard destination={dest} />
+                  </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="py-16 md:py-24 bg-background">
+        <section ref={storiesRef} className="py-16 md:py-24 bg-background">
             <div className="container mx-auto px-4">
-                <div className="text-center max-w-3xl mx-auto">
-                <h2 className="text-4xl md:text-5xl font-bold font-headline">
-                    {t('storiesTitle')}
-                </h2>
-                <p className="text-muted-foreground mt-4 text-lg">
-                    {t('storiesDescription')}
-                </p>
+                <div className={cn("text-center max-w-3xl mx-auto fade-in-up", { 'visible': storiesVisible })}>
+                  <h2 className="text-4xl md:text-5xl font-bold font-headline">
+                      {t('storiesTitle')}
+                  </h2>
+                  <p className="text-muted-foreground mt-4 text-lg">
+                      {t('storiesDescription')}
+                  </p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8 mt-12">
-                {blogs.slice(0,3).map(blog => {
+                {(blogs || []).slice(0,3).map((blog, index) => {
                     const readTime = Math.ceil(blog.content.split(' ').length / 200);
                     return (
-                    <Link href={`/blog/${blog.id}`} key={blog.id}>
-                      <Card className="overflow-hidden group h-full">
+                    <Link href={`/${locale}/blog/${blog.id}`} key={blog.id}>
+                      <Card className={cn("overflow-hidden group h-full fade-in-up", { 'visible': storiesVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
                           <div className="aspect-video w-full overflow-hidden">
                           <PexelsImage query={blog.imageHint || 'travel'} alt={blog.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
                           </div>
@@ -188,17 +200,17 @@ export default async function DashboardPage() {
                     )
                 })}
                 </div>
-                 <div className="text-center mt-12">
+                 <div className={cn("text-center mt-12 fade-in-up", { 'visible': storiesVisible })} style={{ transitionDelay: '450ms' }}>
                     <Button asChild>
-                        <Link href="/blog">Read More Stories</Link>
+                        <Link href={`/${locale}/blog`}>Read More Stories</Link>
                     </Button>
                 </div>
             </div>
         </section>
         
-        <section className="py-16 md:py-24 bg-secondary/50">
+        <section ref={moreFeaturesRef} className="py-16 md:py-24 bg-secondary/50">
             <div className="container mx-auto px-4">
-                 <div className="text-center max-w-3xl mx-auto features-header">
+                 <div className={cn("text-center max-w-3xl mx-auto features-header fade-in-up", { 'visible': moreFeaturesVisible })}>
                     <h2 className="text-4xl md:text-5xl font-bold font-headline">
                         {t('moreFeaturesTitle')}
                     </h2>
@@ -207,9 +219,9 @@ export default async function DashboardPage() {
                     </p>
                 </div>
                 <div className="grid gap-8 md:grid-cols-3 mt-12">
-                    {moreFeatures.map(feature => (
+                    {moreFeatures.map((feature, index) => (
                         <Link href={feature.link} key={feature.title}>
-                            <Card className="text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300">
+                            <Card className={cn("text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300 fade-in-up", { 'visible': moreFeaturesVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
                                 <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
                                     {feature.icon}
                                 </div>
@@ -225,4 +237,43 @@ export default async function DashboardPage() {
       </main>
     </div>
   );
+}
+
+// This function is assumed to be implemented in a server component or API route
+// For this example, we'll keep the client-side logic but acknowledge
+// that getBlogs should be called from the server.
+async function getBlogs(): Promise<Blog[]> {
+    // In a real app, this would be an API call, e.g., await fetch('/api/blogs')
+    return [
+      {
+        id: "1",
+        title: "10 Essential Tips for Solo Travelers",
+        content: "A guide to staying safe and sane on your solo adventures.",
+        authorId: "user1",
+        authorName: "Jane Doe",
+        authorAvatar: "",
+        createdAt: new Date(),
+        imageHint: "solo traveler sunset"
+      },
+      {
+        id: "2",
+        title: "How I Traveled Southeast Asia on a Budget",
+        content: "My journey through Vietnam, Cambodia and beyond for under $1,000.",
+        authorId: "user2",
+        authorName: "John Smith",
+        authorAvatar: "",
+        createdAt: new Date(),
+        imageHint: "southeast asia market"
+      },
+      {
+        id: "3",
+        title: "Hidden Cafes in European Cities",
+        content: "Espresso-hunting in the quiet, cozy corners of the continent.",
+        authorId: "user3",
+        authorName: "Emily White",
+        authorAvatar: "",
+        createdAt: new Date(),
+        imageHint: "european cafe"
+      },
+    ]
 }

@@ -1,8 +1,14 @@
+
+'use client';
+
+import { useRef } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
 import { useTranslations } from "next-intl";
+import { useOnVisible } from '@/hooks/use-on-visible';
+import { cn } from '@/lib/utils';
 
 const artisans = [
   {
@@ -51,6 +57,9 @@ const artisans = [
 
 export default function LocalArtisansPage() {
   const t = useTranslations('LocalArtisansPage');
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isVisible = useOnVisible(containerRef, false);
+
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
@@ -60,10 +69,10 @@ export default function LocalArtisansPage() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {artisans.map((artisan) => {
+      <div ref={containerRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {artisans.map((artisan, index) => {
           return (
-            <Card key={artisan.id} className="flex flex-col group overflow-hidden">
+            <Card key={artisan.id} className={cn("flex flex-col group overflow-hidden fade-in-up", { 'visible': isVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
               <CardHeader>
                   <div className="aspect-video w-full overflow-hidden rounded-lg -mt-2 -mx-2">
                     <PexelsImage

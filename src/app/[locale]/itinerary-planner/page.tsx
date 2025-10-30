@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -14,6 +15,8 @@ import { Loader2, Wand2, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
 import { TripItinerary } from "@/components/trip-itinerary";
+import { useOnVisible } from "@/hooks/use-on-visible";
+import { cn } from "@/lib/utils";
 
 const formSchema = z.object({
   destination: z.string().min(2, "Destination must be at least 2 characters."),
@@ -26,6 +29,8 @@ export default function ItineraryGeneratorPage() {
   const [itinerary, setItinerary] = useState<GeneratePersonalizedItineraryOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const resultsVisible = useOnVisible(resultsRef);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -137,12 +142,12 @@ export default function ItineraryGeneratorPage() {
         </div>
 
         <div className="lg:col-span-2">
-            <Card>
+            <Card ref={resultsRef}>
               <CardHeader>
                  <CardTitle>{itinerary ? itinerary.tripTitle : t('resultTitle')}</CardTitle>
                 <CardDescription>{t('resultDescription')}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className={cn("fade-in-up", { 'visible': resultsVisible })}>
                 {isLoading && (
                   <div className="flex flex-col items-center justify-center pt-10 text-center">
                       <Loader2 className="w-12 h-12 animate-spin text-primary" />

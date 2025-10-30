@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Sparkles, Dices } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useTranslations } from "next-intl";
+import { useOnVisible } from '@/hooks/use-on-visible';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   destination: z.string().min(2, "Destination must be at least 2 characters."),
@@ -33,6 +36,8 @@ export default function HiddenGemsPage() {
   const [gems, setGems] = useState<ExploreHiddenGemsOutput['gems']>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const resultsRef = useRef<HTMLDivElement>(null);
+  const resultsVisible = useOnVisible(resultsRef, false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -166,11 +171,11 @@ export default function HiddenGemsPage() {
       )}
 
       {!isLoading && gems.length > 0 && (
-        <div className="pt-8">
+        <div ref={resultsRef} className="pt-8">
           <h2 className="font-headline text-2xl font-bold mb-6">{t('discoveredGemsTitle')}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gems.map((gem, index) => (
-              <Card key={index} className="flex flex-col">
+              <Card key={index} className={cn("flex flex-col fade-in-up", { 'visible': resultsVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
                 <CardHeader>
                   <CardTitle className="font-headline text-xl">{gem.name}</CardTitle>
                 </CardHeader>

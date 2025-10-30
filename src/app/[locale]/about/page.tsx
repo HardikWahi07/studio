@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRef } from 'react';
@@ -9,6 +10,7 @@ import { doc } from 'firebase/firestore';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useTranslations } from 'next-intl';
+import { cn } from '@/lib/utils';
 
 const values = [
   {
@@ -28,7 +30,15 @@ const values = [
 export default function AboutPage() {
   const t = useTranslations('AboutPage');
   const statsRef = useRef<HTMLDivElement>(null);
-  const isVisible = useOnVisible(statsRef);
+  const visionRef = useRef<HTMLDivElement>(null);
+  const valuesRef = useRef<HTMLDivElement>(null);
+  const missionRef = useRef<HTMLDivElement>(null);
+  
+  const isStatsVisible = useOnVisible(statsRef);
+  const isVisionVisible = useOnVisible(visionRef);
+  const isValuesVisible = useOnVisible(valuesRef);
+  const isMissionVisible = useOnVisible(missionRef);
+  
   const firestore = useFirestore();
 
   const statLabels: { [key: string]: { label: string, format: (val: number) => string } } = {
@@ -57,9 +67,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="pb-16 md:pb-24">
+      <section ref={visionRef} className="pb-16 md:pb-24">
         <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto p-6 md:p-10 shadow-lg border-gray-200/80">
+          <Card className={cn("max-w-4xl mx-auto p-6 md:p-10 shadow-lg border-gray-200/80 fade-in-up", { 'visible': isVisionVisible })}>
             <CardContent className="p-0">
               <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">
                 {t('visionTitle')}
@@ -74,13 +84,14 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="pb-16 md:pb-24">
+      <section ref={valuesRef} className="pb-16 md:pb-24">
         <div className="container mx-auto px-4">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
-            {values.map((value) => (
+            {values.map((value, index) => (
               <Card
                 key={value.translationKey}
-                className="text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300"
+                className={cn("text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300 fade-in-up", { 'visible': isValuesVisible })}
+                style={{ transitionDelay: `${index * 150}ms` }}
               >
                 <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
                   {value.icon}
@@ -95,9 +106,9 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="pb-16 md:pb-24">
+      <section ref={missionRef} className="pb-16 md:pb-24">
         <div className="container mx-auto px-4">
-          <Card className="max-w-4xl mx-auto bg-gray-900 text-white text-center p-8 md:p-12 shadow-lg">
+          <Card className={cn("max-w-4xl mx-auto bg-gray-900 text-white text-center p-8 md:p-12 shadow-lg fade-in-up", { 'visible': isMissionVisible })}>
             <CardContent className="p-0">
               <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">
                 {t('missionTitle')}
@@ -118,7 +129,7 @@ export default function AboutPage() {
                 {!isLoading && appStats && Object.entries(appStats).filter(([key]) => key !== 'id').map(([key, value]) => (
                   <div key={key}>
                     <p className="text-4xl md:text-5xl font-bold">
-                      {isVisible ? (
+                      {isStatsVisible ? (
                         <AnimatedStat
                           finalValue={value}
                           label={statLabels[key].format(value)}

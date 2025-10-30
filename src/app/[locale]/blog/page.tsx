@@ -1,7 +1,7 @@
 
 'use client'
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
 import { collection, query, where, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -16,6 +16,8 @@ import { format } from 'date-fns';
 import { PexelsImage } from '@/components/pexels-image';
 import type { Blog } from '@/lib/types';
 import { useDebounce } from '@/hooks/use-debounce';
+import { useOnVisible } from '@/hooks/use-on-visible';
+import { cn } from '@/lib/utils';
 
 export default function BlogPage() {
     const t = useTranslations('BlogPage');
@@ -25,6 +27,8 @@ export default function BlogPage() {
 
     const [searchTerm, setSearchTerm] = useState('');
     const debouncedSearchTerm = useDebounce(searchTerm, 300);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const isVisible = useOnVisible(containerRef, false);
 
     const blogsQuery = useMemoFirebase(() => {
         if (!firestore) return null;
@@ -75,15 +79,15 @@ export default function BlogPage() {
                 )}
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div ref={containerRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {isLoading && [...Array(6)].map((_, i) => (
                     <Card key={i}><Skeleton className="h-96 w-full"/></Card>
                 ))}
                 
-                {!isLoading && filteredBlogs && filteredBlogs.length > 0 && filteredBlogs.map(blog => {
+                {!isLoading && filteredBlogs && filteredBlogs.length > 0 && filteredBlogs.map((blog, index) => {
                     const readTime = Math.ceil(blog.content.split(' ').length / 200);
                     return (
-                        <Card key={blog.id} className="flex flex-col group overflow-hidden">
+                        <Card key={blog.id} className={cn("flex flex-col group overflow-hidden fade-in-up", { 'visible': isVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
                            <CardHeader className="p-0">
                                 <Link href={`/${locale}/blog/${blog.id}`} className="block">
                                     <div className="aspect-video w-full overflow-hidden">
