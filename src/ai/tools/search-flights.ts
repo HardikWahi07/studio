@@ -12,16 +12,16 @@ async function getIataCode(cityName: string): Promise<string> {
         return cityName; // Fallback to city name
     }
     try {
-        const response = await fetch(`https://fly-scraper.p.rapidapi.com/endpoints/v1/autocomplete?query=${cityName}`, {
+        const response = await fetch(`https://flight-data.p.rapidapi.com/search/airport?query=${encodeURIComponent(cityName)}&limit=1`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'fly-scraper.p.rapidapi.com'
+                'X-RapidAPI-Host': 'flight-data.p.rapidapi.com'
             }
         });
         if (!response.ok) return cityName;
         const data = await response.json();
-        if (data && data.data && data.data.length > 0 && data.data[0].id) {
-            return data.data[0].id;
+        if (data && data.length > 0 && data[0].iata) {
+            return data[0].iata;
         }
     } catch (error) {
         console.error(`[searchRealtimeFlights Tool] Failed to get IATA code for ${cityName}:`, error);
@@ -62,10 +62,10 @@ export const searchRealtimeFlights = ai.defineTool(
         const originIata = await getIataCode(input.origin);
         const destinationIata = await getIataCode(input.destination);
 
-        const response = await fetch(`https://fly-scraper.p.rapidapi.com/endpoints/v1/search?origin=${originIata}&destination=${destinationIata}&date=${input.date}&currency=${input.currency}&country=US`, {
+        const response = await fetch(`https://flight-data.p.rapidapi.com/search/flights?from_code=${originIata}&to_code=${destinationIata}&date=${input.date}&currency=${input.currency}&adults=1`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'fly-scraper.p.rapidapi.com'
+                'X-RapidAPI-Host': 'flight-data.p.rapidapi.com'
             }
         });
 
@@ -76,19 +76,20 @@ export const searchRealtimeFlights = ai.defineTool(
         }
 
         const data = await response.json();
-
-        if (!data.data || !data.data.itineraries) {
+        
+        if (!data || !data.results) {
              return { flights: [] };
         }
 
-        const flights = data.data.itineraries.slice(0, 4).map((itinerary: any) => {
-            const leg = itinerary.legs[0];
+        const flights = data.results.slice(0, 4).map((itinerary: any) => {
+            const leg = itinerary.itineraries[0].segments[0];
+            const price = itinerary.fare.totalFare;
             return {
-                provider: leg.carriers[0].name,
-                details: `Flight ${leg.carriers[0].name} ${leg.segments[0].flightNumber}`,
-                duration: `${Math.floor(leg.duration/60)}h ${leg.duration % 60}m`,
-                price: itinerary.price.formatted,
-                bookingLink: itinerary.deeplink || 'https://www.example.com/book',
+                provider: leg.airline.name,
+                details: `Flight ${leg.airline.code} ${leg.flightNumber}`,
+                duration: `${Math.floor(itinerary.itineraries[0].duration/60)}h ${itinerary.itineraries[0].duration % 60}m`,
+                price: `${itinerary.fare.currency} ${price.toLocaleString()}`,
+                bookingLink: itinerary.fare.url || 'https://www.example.com/book',
             };
         });
 
