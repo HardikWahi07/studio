@@ -1,3 +1,4 @@
+
 {
   "AppLayout": {
     "home": "Inicio",
@@ -241,6 +242,12 @@
     "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
     "formTitle": "Encuentra tu Transporte",
     "formDescription": "Ingresa tu origen, destino y fecha de viaje a continuación.",
+    "fromLabel": "Desde",
+    "fromPlaceholder": "Ingresa ciudad de origen...",
+    "toLabel": "A",
+    "toPlaceholder": "Ingresa ciudad de destino...",
+    "departureLabel": "Fecha",
+    "preferencesLabel": "Preferencias",
     "findButton": "Encontrar Opciones",
     "searchingButton": "Buscando...",
     "loadingMessage": "Buscando las mejores opciones de transporte para ti...",

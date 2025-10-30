@@ -67,7 +67,6 @@ function BookingOptionCard({ opt }: { opt: BookingOption }) {
 
 export default function SuggestBookingsPage() {
     const t = useTranslations('SuggestBookingsPage');
-    const formT = useTranslations('TripPlannerPage');
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<SuggestTransportBookingsOutput | null>(null);
     const { toast } = useToast();
@@ -123,13 +122,13 @@ export default function SuggestBookingsPage() {
                     <form onSubmit={form.handleSubmit(handleSearch)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                              <FormField control={form.control} name="origin" render={({ field }) => (
-                                <FormItem><FormLabel>{formT('fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={formT('fromPlaceholder')} /><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('fromPlaceholder')} /><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="destination" render={({ field }) => (
-                                <FormItem><FormLabel>{formT('toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={formT('toPlaceholder')} /><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('toPlaceholder')} /><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="departureDate" render={({ field }) => (
-                                <FormItem><FormLabel>{formT('departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </div>
                         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">

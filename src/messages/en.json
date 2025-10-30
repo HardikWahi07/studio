@@ -1,3 +1,4 @@
+
 {
   "AppLayout": {
     "home": "Home",
@@ -241,6 +242,13 @@
     "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
     "formTitle": "Find Your Transport",
     "formDescription": "Enter your origin, destination, and travel date below.",
+    "fromLabel": "From",
+    "fromPlaceholder": "Enter origin city...",
+    "toLabel": "To",
+    "toPlaceholder": "Enter destination city...",
+    "departureLabel": "Date",
+    "preferencesLabel": "Preferences",
+    "preferencesPlaceholder": "e.g., Fastest, Cheapest, Most Eco-Friendly",
     "findButton": "Find Options",
     "searchingButton": "Searching...",
     "loadingMessage": "Finding the best transport options for you...",
