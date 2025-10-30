@@ -43,12 +43,12 @@ const prompt = ai.definePrompt({
   1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
   
   2.  **Generate Main Booking Options:**
-      - **CRITICAL: You MUST use the provided tools to find real-time travel options.**
-      - **For flights, you MUST use the 'searchRealtimeFlights' tool.** Use the user's origin, destination, and departure date. If the tool returns valid flights, integrate them as 'flight' type booking options.
-      - **For trains, you MUST use the 'searchRealtimeTrains' tool.** If it returns trains, you **MUST** then use the 'getTrainAvailability' tool for each train to check the live status (e.g., "AVAILABLE", "WL 7", etc.).
-      - **Generate 1-2 realistic mock bus options** as a fallback if flights or trains are not suitable for the route.
-      - For each option, provide the provider/name, details (like departure/arrival times, flight/train numbers), duration, price (in the requested {{{currency}}}), its eco-friendly status, and a booking URL.
-      - For train options, the availability MUST reflect the real-time status from the 'getTrainAvailability' tool. For other options, set to 'Available'.
+      - **CRITICAL: You MUST use the provided tools to find real-time travel options where appropriate.**
+      - **For flights, you MUST use the 'searchRealtimeFlights' tool.** This is a global tool.
+      - **For trains, the tools 'searchRealtimeTrains' and 'getTrainAvailability' ONLY work for journeys within India.** You MUST ONLY use these tools if the origin and destination are in India. For train journeys in other countries, you MUST generate 1-2 realistic *mock* train options.
+      - **For all other routes, generate 1-2 realistic mock bus options** as a fallback.
+      - For each option, provide the provider/name, details, duration, price (in the requested {{{currency}}}), its eco-friendly status, and a booking URL.
+      - For real train options found with tools, the availability MUST reflect the real-time status from the 'getTrainAvailability' tool (e.g., "AVAILABLE 100", "WL 7"). For mock options, set availability to 'Available'.
 
   3.  **Generate Mock Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Return an empty array for 'hotelOptions'.
