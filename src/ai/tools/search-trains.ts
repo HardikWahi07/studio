@@ -32,7 +32,7 @@ export const searchRealtimeTrains = ai.defineTool(
     }),
   },
   async (input) => {
-    console.log(`[searchRealtimeTrains Tool] V5: Searching for trains from ${input.origin} to ${input.destination}`);
+    console.log(`[searchRealtimeTrains Tool] V6: Searching for trains from ${input.origin} to ${input.destination}`);
     
     if (!process.env.RAPIDAPI_KEY) {
         console.warn("[searchRealtimeTrains Tool] RAPIDAPI_KEY environment variable not set. Returning empty array.");
@@ -73,8 +73,8 @@ export const searchRealtimeTrains = ai.defineTool(
             return { trains: [] };
         }
 
-        // The API provides many trains, let's take the first 4 for a concise list.
-        const trainsPromises = trainListData.data.slice(0, 4).map(async (train: any) => {
+        // The API provides many trains, we will process all of them.
+        const trainsPromises = trainListData.data.map(async (train: any) => {
             // Define a default travel class if not provided, preferring AC classes.
             const preferredClasses = ["3A", "2A", "1A", "SL", "CC"];
             const availableClasses = train.available_classes || [];
@@ -96,7 +96,14 @@ export const searchRealtimeTrains = ai.defineTool(
                      const availData = await availResponse.json();
                      if (availData.status && availData.data && availData.data.length > 0) {
                         const firstAvail = availData.data[0];
-                        availability = firstAvail.availability_status;
+                        // Normalize availability status
+                        if (firstAvail.availability_status.startsWith('AVAILABLE')) {
+                            availability = 'Available';
+                        } else if (firstAvail.availability_status.startsWith('WL')) {
+                            availability = 'Waitlist';
+                        } else {
+                            availability = firstAvail.availability_status; // REGRET, etc.
+                        }
                         fare = `₹${firstAvail.total_fare}`;
                      } else {
                          availability = availData.message || 'Not Available';

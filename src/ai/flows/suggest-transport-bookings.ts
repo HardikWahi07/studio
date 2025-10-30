@@ -65,8 +65,9 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
   1.  **Prioritize Trains for Indian Travel:** If the origin or destination seems to be in India (e.g., "Mumbai", "Vapi", "Delhi"), you MUST use the \`searchRealtimeTrains\` tool first.
-  2.  **Use Flights for Other Routes:** For all non-Indian routes, or if no trains are found for an Indian route, use the \`searchRealtimeFlights\` tool.
-  3.  **Combine and Return Results:** Consolidate the findings from the tools into a single list of booking options.
+  2.  **Fallback to Flights:** After searching for trains, if the tool returns no trains OR if all returned trains have an availability status that is NOT 'Available' (e.g., they are all 'Waitlist', 'Not Available', 'REGRET'), you MUST then also use the \`searchRealtimeFlights\` tool as a fallback.
+  3.  **Use Flights for Other Routes:** For all non-Indian routes, use the \`searchRealtimeFlights\` tool.
+  4.  **Combine and Return Results:** Consolidate the findings from the tools into a single list of booking options, showing both train and flight options if applicable.
 
   Return the results in the specified JSON format.
   `,

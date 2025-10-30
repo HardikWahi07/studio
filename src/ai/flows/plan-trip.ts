@@ -48,9 +48,9 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options:**
-     - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool for ground travel. The tool is smart and can handle city names directly.
-     - For all other destinations, use 'searchRealtimeFlights' for global flights.
-     - If one tool returns no options, you can try another as a fallback (e.g., if no trains, search for flights).
+     - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool for ground travel. 
+     - **FALLBACK LOGIC:** After getting train results, if all returned trains have an 'availability' status that is NOT 'Available' (e.g., they are all 'Waitlist', 'Not Available', 'REGRET'), you MUST then use the 'searchRealtimeFlights' tool as a fallback to provide flight options.
+     - For all other non-Indian destinations, use 'searchRealtimeFlights' for global flights.
      - Include provider, duration, price, eco-friendly status, booking link and availability.
   3. **Hotels:**
      - Use 'searchRealtimeHotels' unless 'accommodationType' = 'none'.
