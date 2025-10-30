@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI agent for planning a detailed, multi-day trip itinerary.
@@ -50,8 +51,8 @@ const prompt = ai.definePrompt({
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options:**
      - Use 'searchRealtimeFlights' for global flights.
-     - Use 'searchRealtimeTrains' and 'getTrainAvailability' ONLY for India.
-     - If outside India, create 1–2 mock train or bus options.
+     - **CRITICAL:** If the origin or destination city name contains 'India', you MUST prioritize using the 'searchRealtimeTrains' and 'getTrainAvailability' tools for ground travel.
+     - If the journey is outside India, create 1–2 mock train or bus options.
      - Include provider, duration, price, eco-friendly status, and booking link.
   3. **Hotels:**
      - Use 'searchRealtimeHotels' unless 'accommodationType' = 'none'.
@@ -84,7 +85,8 @@ const planTripFlow = ai.defineFlow(
       llmResponse = await prompt(input);
     } catch (err) {
       console.error("❌ LLM prompt failed:", err);
-      llmResponse = { output: null };
+      // Ensure we always have an llmResponse object to check
+      llmResponse = { output: null }; 
     }
 
     let output = llmResponse?.output;
