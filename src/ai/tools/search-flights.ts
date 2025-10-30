@@ -12,16 +12,16 @@ async function getIataCode(cityName: string): Promise<string> {
         return cityName; // Fallback to city name
     }
     try {
-        const response = await fetch(`https://skyscanner44.p.rapidapi.com/autocomplete?query=${cityName}`, {
+        const response = await fetch(`https://fly-scraper.p.rapidapi.com/endpoints/v1/autocomplete?query=${cityName}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'skyscanner44.p.rapidapi.com'
+                'X-RapidAPI-Host': 'fly-scraper.p.rapidapi.com'
             }
         });
         if (!response.ok) return cityName;
         const data = await response.json();
-        if (data && data.length > 0 && data[0].iata_code) {
-            return data[0].iata_code;
+        if (data && data.data && data.data.length > 0 && data.data[0].id) {
+            return data.data[0].id;
         }
     } catch (error) {
         console.error(`[searchRealtimeFlights Tool] Failed to get IATA code for ${cityName}:`, error);
@@ -62,35 +62,33 @@ export const searchRealtimeFlights = ai.defineTool(
         const originIata = await getIataCode(input.origin);
         const destinationIata = await getIataCode(input.destination);
 
-        const response = await fetch(`https://skyscanner44.p.rapidapi.com/search?adults=1&origin=${originIata}&destination=${destinationIata}&departureDate=${input.date}&currency=${input.currency}`, {
+        const response = await fetch(`https://fly-scraper.p.rapidapi.com/endpoints/v1/search?origin=${originIata}&destination=${destinationIata}&date=${input.date}&currency=${input.currency}&country=US`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'skyscanner44.p.rapidapi.com'
+                'X-RapidAPI-Host': 'fly-scraper.p.rapidapi.com'
             }
         });
 
         if (!response.ok) {
-            console.error(`[searchRealtimeFlights Tool] API error: ${response.statusText}`);
+            const errorBody = await response.text();
+            console.error(`[searchRealtimeFlights Tool] API error: ${response.statusText}`, errorBody);
             return { flights: [] };
         }
 
         const data = await response.json();
 
-        if (!data.itineraries || !data.itineraries.buckets) {
+        if (!data.data || !data.data.itineraries) {
              return { flights: [] };
         }
 
-        const flights = data.itineraries.buckets.slice(0, 4).map((bucket: any) => {
-            const item = bucket.items[0];
-            const price = item.price.formatted;
-            const leg = item.legs[0];
-
+        const flights = data.data.itineraries.slice(0, 4).map((itinerary: any) => {
+            const leg = itinerary.legs[0];
             return {
-                provider: leg.carriers.marketing[0].name,
-                details: `Flight ${leg.carriers.marketing[0].name} ${leg.flightNumbers[0].flightNumber}`,
-                duration: `${leg.durationInMinutes}m`,
-                price: price,
-                bookingLink: item.deeplink || 'https://www.example.com/book',
+                provider: leg.carriers[0].name,
+                details: `Flight ${leg.carriers[0].name} ${leg.segments[0].flightNumber}`,
+                duration: `${Math.floor(leg.duration/60)}h ${leg.duration % 60}m`,
+                price: itinerary.price.formatted,
+                bookingLink: itinerary.deeplink || 'https://www.example.com/book',
             };
         });
 
