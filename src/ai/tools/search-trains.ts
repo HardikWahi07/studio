@@ -4,7 +4,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'zod';
+import { z } from 'genkit';
 import { getStationCode } from './get-station-code';
 import { format } from 'date-fns';
 
