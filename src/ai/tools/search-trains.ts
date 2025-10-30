@@ -51,7 +51,7 @@ export const searchRealtimeTrains = ai.defineTool(
         }
         
         console.log(`[searchRealtimeTrains Tool] Found station codes: ${originStationCode} -> ${destinationStationCode}. Searching trains...`);
-        const formattedDate = format(new Date(input.date), 'YYYY-MM-DD');
+        const formattedDate = format(new Date(input.date), 'yyyy-MM-dd');
 
         const response = await fetch(`https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDate}`, {
             headers: {
@@ -81,7 +81,7 @@ export const searchRealtimeTrains = ai.defineTool(
             let fare: string | undefined = undefined;
 
             try {
-                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${travelClass}&quota=GN`, {
+                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${travelClass}&quota=GN&date=${formattedDate}`, {
                      headers: {
                         'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
                         'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
@@ -91,13 +91,14 @@ export const searchRealtimeTrains = ai.defineTool(
                      const availData = await availResponse.json();
                      if (availData.status && availData.data && availData.data.length > 0) {
                         const firstAvail = availData.data[0];
-                        availability = firstAvail.availability;
-                        fare = `₹${firstAvail.fare}`;
+                        availability = firstAvail.availability_status;
+                        fare = `₹${firstAvail.total_fare}`;
                      } else {
-                         availability = 'Not Available';
+                         availability = availData.message || 'Not Available';
                      }
                  } else {
-                     console.warn(`[searchRealtimeTrains Tool] Could not fetch availability for train ${train.train_number}, status: ${availResponse.status}`);
+                     const errorText = await availResponse.text();
+                     console.warn(`[searchRealtimeTrains Tool] Could not fetch availability for train ${train.train_number}, status: ${availResponse.status}, body: ${errorText}`);
                      availability = 'Error';
                  }
             } catch (e) {
