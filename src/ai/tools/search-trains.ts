@@ -17,7 +17,7 @@ export const searchRealtimeTrains = ai.defineTool(
       origin: z.string().describe('The origin city for the train journey (e.g., "Mumbai", "Vapi").'),
       destination: z.string().describe('The destination city for the train journey (e.g., "Delhi", "Lucknow").'),
       date: z.string().describe('The date of travel in YYYY-MM-DD format.'),
-      travelClass: z.string().optional().describe('The class of travel to check (e.g., "3A", "SL", "2A"). If not provided, a default will be used.'),
+      travelClass: z.string().optional().describe('The class of travel to check (e.g., "3A" for AC 3 Tier, "SL" for Sleeper). If not provided, a default will be used.'),
     }),
     outputSchema: z.object({
         trains: z.array(z.object({
@@ -79,8 +79,10 @@ export const searchRealtimeTrains = ai.defineTool(
             const travelClass = input.travelClass || train.available_classes[0] || "SL";
             
             let availability = 'N/A';
+            let fare: string | undefined = undefined;
+
             try {
-                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/getFare?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}`, {
+                 const availResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${travelClass}&quota=GN`, {
                      headers: {
                         'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
                         'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
@@ -88,9 +90,10 @@ export const searchRealtimeTrains = ai.defineTool(
                  });
                  if (availResponse.ok) {
                      const availData = await availResponse.json();
-                     if (availData.status && availData.data) {
-                         const classInfo = availData.data.find((c: any) => c.class_type === travelClass);
-                         availability = classInfo ? classInfo.availability : 'Not Available';
+                     if (availData.status && availData.data && availData.data.length > 0) {
+                        const firstAvail = availData.data[0];
+                        availability = firstAvail.availability;
+                        fare = `₹${firstAvail.fare}`;
                      } else {
                          availability = 'Not Available';
                      }
@@ -109,7 +112,7 @@ export const searchRealtimeTrains = ai.defineTool(
                 departureTime: train.from_sta,
                 arrivalTime: train.to_sta,
                 duration: train.duration,
-                fare: train.fare ? `₹${train.fare}` : undefined,
+                fare: fare,
                 travelClass: travelClass,
                 availability: availability
             };
