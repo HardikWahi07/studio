@@ -239,9 +239,9 @@
   "SuggestBookingsPage": {
     "title": "Suggest Transport Bookings",
     "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, greenest option for your journey.",
-    "findButton": "Find Options",
     "formTitle": "Find Your Transport",
     "formDescription": "Enter your origin, destination, and travel date below.",
+    "findButton": "Find Options",
     "searchingButton": "Searching...",
     "loadingMessage": "Finding the best transport options for you...",
     "resultsTitle": "Suggested Transport Options",
@@ -336,3 +336,5 @@
     "successDescription": "Your travel story is now live for everyone to see."
   }
 }
+
+    

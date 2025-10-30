@@ -239,9 +239,9 @@
   "SuggestBookingsPage": {
     "title": "Sugerir Reservas de Transporte",
     "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
-    "findButton": "Encontrar Opciones",
     "formTitle": "Encuentra tu Transporte",
     "formDescription": "Ingresa tu origen, destino y fecha de viaje a continuación.",
+    "findButton": "Encontrar Opciones",
     "searchingButton": "Buscando...",
     "loadingMessage": "Buscando las mejores opciones de transporte para ti...",
     "resultsTitle": "Opciones de Transporte Sugeridas",
@@ -336,3 +336,5 @@
     "successDescription": "Tu historia de viaje ya está disponible para que todos la vean."
   }
 }
+
+    
