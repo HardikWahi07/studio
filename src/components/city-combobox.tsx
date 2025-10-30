@@ -61,14 +61,11 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
 
   const handleSelect = (currentValue: string) => {
     onValueChange(currentValue === value ? "" : currentValue)
-    setSearchTerm("")
-    setSuggestions([])
     setOpen(false)
   }
 
-  // Correctly determine the display value. If a value is selected, show the first part (the city name).
-  // Otherwise, show the placeholder.
-  const displayValue = value ? value.split(',')[0] : (placeholder || t('selectPlaceholder'));
+  // Display the full value if it exists, otherwise the placeholder.
+  const displayValue = value || (placeholder || t('selectPlaceholder'));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -79,7 +76,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
           aria-expanded={open}
           className="w-full justify-between font-normal"
         >
-          {displayValue}
+          <span className="truncate">{displayValue}</span>
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
