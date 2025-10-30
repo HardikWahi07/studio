@@ -61,13 +61,15 @@ export const searchRealtimeTrains = ai.defineTool(
         });
 
         if (!response.ok) {
-            console.error(`[searchRealtimeTrains Tool] API error: ${response.statusText}`);
+            const errorBody = await response.text();
+            console.error(`[searchRealtimeTrains Tool] API error fetching trains: ${response.statusText}`, errorBody);
             return { trains: [] };
         }
         
         const data = await response.json();
         
         if (!data.data || data.data.length === 0) {
+            console.log(`[searchRealtimeTrains Tool] No trains found from API for ${originStationCode} to ${destinationStationCode} on ${input.date}.`);
             return { trains: [] };
         }
 
@@ -89,10 +91,15 @@ export const searchRealtimeTrains = ai.defineTool(
                          const availData = await availResponse.json();
                          if (availData.data.length > 0) {
                              availability = availData.data[0].status;
+                         } else {
+                             availability = 'Not Available'
                          }
+                     } else {
+                         console.warn(`[searchRealtimeTrains Tool] Could not fetch availability for train ${train.train_number}, status: ${availResponse.status}`);
+                         availability = 'Error';
                      }
                  } catch (e) {
-                     console.error(`[searchRealtimeTrains Tool] Could not fetch availability for train ${train.train_number}`, e);
+                     console.error(`[searchRealtimeTrains Tool] Exception when fetching availability for train ${train.train_number}`, e);
                  }
              }
 

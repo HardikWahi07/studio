@@ -48,9 +48,9 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options:**
-     - Use 'searchRealtimeFlights' for global flights.
      - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool for ground travel. This tool can handle city names directly.
-     - For other regions, do NOT create mock train or bus options. Only provide data from available tools.
+     - **FALLBACK:** If 'searchRealtimeTrains' returns no available trains, you MUST then use 'searchRealtimeFlights' to find flight options instead.
+     - For all other destinations, use 'searchRealtimeFlights' for global flights.
      - Include provider, duration, price, eco-friendly status, booking link and availability.
   3. **Hotels:**
      - Use 'searchRealtimeHotels' unless 'accommodationType' = 'none'.
@@ -64,7 +64,7 @@ const prompt = ai.definePrompt({
      - If peak season or holiday (e.g., Diwali, Christmas), add contextual warnings.
      - Mark train waitlist or festival rush as warnings when needed.
 
-  Output must strictly follow the JSON schema. If data is unavailable, use realistic mock placeholders for itinerary details, but only use real data for booking options.
+  Output must strictly follow the JSON schema.
   `,
 });
 
