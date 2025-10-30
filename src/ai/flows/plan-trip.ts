@@ -11,6 +11,7 @@ import { PlanTripInputSchema, PlanTripOutputSchema, type PlanTripInput, type Pla
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
 import { getTrainAvailability } from '../tools/get-train-availability';
+import { searchRealtimeHotels } from '../tools/search-hotels';
 
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   return planTripFlow(input);
@@ -20,7 +21,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: PlanTripInputSchema },
   output: { schema: PlanTripOutputSchema },
-  tools: [searchRealtimeFlights, searchRealtimeTrains, getTrainAvailability],
+  tools: [searchRealtimeFlights, searchRealtimeTrains, getTrainAvailability, searchRealtimeHotels],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -50,10 +51,10 @@ const prompt = ai.definePrompt({
       - For each option, provide the provider/name, details, duration, price (in the requested {{{currency}}}), its eco-friendly status, and a booking URL.
       - For real train options found with tools, the availability MUST reflect the real-time status from the 'getTrainAvailability' tool (e.g., "AVAILABLE 100", "WL 7"). For mock options, set availability to 'Available'.
 
-  3.  **Generate Mock Hotel Options:**
+  3.  **Generate Real Hotel Options:**
       - If the user's accommodation preference ('accommodationType') is 'none', you MUST NOT suggest any hotels. Return an empty array for 'hotelOptions'.
-      - Otherwise, suggest 3-4 realistic but *mock* hotel options based on accommodation preference ({{{accommodationType}}}) and budget ({{{accommodationBudget}}}).
-      - Provide name, style, estimated price, and mock rating.
+      - Otherwise, you **MUST use the 'searchRealtimeHotels' tool** to find 3-4 real hotel options based on the destination and user preferences.
+      - Provide name, style, estimated price, rating, and a valid booking link from the tool's output.
       - **CRITICAL: The 'bookingLink' for hotels MUST be a single, valid, unbroken URL string with no spaces.**
   
   4.  **Generate Local Transport Options:**

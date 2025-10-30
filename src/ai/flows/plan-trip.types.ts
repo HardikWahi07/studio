@@ -58,7 +58,7 @@ const HotelOptionSchema = z.object({
   style: z.string().describe("e.g., 'Luxury', 'Boutique', 'Budget-friendly'"),
   pricePerNight: z.string().describe("Estimated price per night in the requested currency."),
   rating: z.number().describe("e.g., 4.5"),
-  bookingLink: z.string().url().describe("A mock URL to a hotel booking page."),
+  bookingLink: z.string().url().describe("A valid URL to a hotel booking page with no spaces."),
 });
 
 const LocalTransportOptionSchema = z.object({
@@ -75,7 +75,7 @@ export const PlanTripOutputSchema = z.object({
   journeyToHub: z.array(TransportSegmentSchema).optional().describe("A detailed, multi-modal plan to get from the user's origin to the nearest major transport hub (airport/train station). This should only be populated if the origin is not itself a major hub."),
   itinerary: z.array(DayPlanSchema),
   bookingOptions: z.array(BookingOptionSchema).describe("A list of booking options for the main journey from origin to destination, using real-time data when possible."),
-  hotelOptions: z.array(HotelOptionSchema).optional().describe("A list of 3-4 mock hotel suggestions based on user preferences."),
+  hotelOptions: z.array(HotelOptionSchema).optional().describe("A list of 3-4 hotel suggestions based on user preferences, using real-time data where possible."),
   localTransportOptions: z.array(LocalTransportOptionSchema).optional().describe("A list of recommended local transport options for getting around the destination city."),
 });
 export type PlanTripOutput = z.infer<typeof PlanTripOutputSchema>;
