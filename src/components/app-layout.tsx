@@ -387,6 +387,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/", label: t('home') },
     { href: "/my-trips", label: t('myTrips') },
     { href: "/trip-planner", label: t('aiTripPlanner') },
+    { href: "/suggest-bookings", label: t('suggestBookings') },
     { href: "/booking", label: t('booking') },
     { href: "/blog", label: t('blog') },
     { href: "/about", label: t('about') },
@@ -560,3 +561,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+    
