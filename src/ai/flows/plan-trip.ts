@@ -50,7 +50,7 @@ const prompt = ai.definePrompt({
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options:**
      - Use 'searchRealtimeFlights' for global flights.
-     - **CRITICAL:** If the origin or destination city name contains 'India', you MUST prioritize using the 'searchRealtimeTrains' and 'getTrainAvailability' tools for ground travel.
+     - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool for ground travel. This tool can handle city names directly.
      - For other regions, do NOT create mock train or bus options. Only provide data from available tools.
      - Include provider, duration, price, eco-friendly status, and booking link.
   3. **Hotels:**
@@ -81,6 +81,7 @@ const planTripFlow = ai.defineFlow(
 
     // 🛡️ Safety wrapper for LLM call
     try {
+      console.log('[/src/ai/flows/plan-trip.ts] Calling prompt with input: ', input);
       llmResponse = await prompt(input);
     } catch (err) {
       console.error("❌ LLM prompt failed:", err);

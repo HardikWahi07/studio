@@ -5,14 +5,16 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
+import { getStationCode } from './get-station-code';
+
 
 export const searchRealtimeTrains = ai.defineTool(
   {
     name: 'searchRealtimeTrains',
-    description: 'Searches for real-time train options between two cities. This tool is for travel within India.',
+    description: 'Searches for real-time train options between two cities. This tool is for travel within India. It can take city names as input.',
     inputSchema: z.object({
-      origin: z.string().describe('The origin city for the train journey.'),
-      destination: z.string().describe('The destination city for the train journey.'),
+      origin: z.string().describe('The origin city for the train journey (e.g., "Mumbai", "Vapi").'),
+      destination: z.string().describe('The destination city for the train journey (e.g., "Delhi", "Lucknow").'),
     }),
     outputSchema: z.object({
         trains: z.array(z.object({
@@ -35,7 +37,20 @@ export const searchRealtimeTrains = ai.defineTool(
     }
 
     try {
-        const response = await fetch(`https://indian-railway-api.p.rapidapi.com/api/v1/trains/betweenStations?from=${input.origin}&to=${input.destination}&date=2024-12-01`, {
+        // First, get the station codes for the origin and destination
+        const [originStationCode, destinationStationCode] = await Promise.all([
+            getStationCode(input.origin),
+            getStationCode(input.destination),
+        ]);
+
+        if (!originStationCode || !destinationStationCode) {
+            console.error(`[searchRealtimeTrains Tool] Could not find station codes for ${input.origin} or ${input.destination}.`);
+            return { trains: [] };
+        }
+        
+        console.log(`[searchRealtimeTrains Tool] Found station codes: ${originStationCode} -> ${destinationStationCode}`);
+
+        const response = await fetch(`https://indian-railway-api.p.rapidapi.com/api/v1/trains/betweenStations?from=${originStationCode}&to=${destinationStationCode}&date=2024-12-01`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
                 'X-RapidAPI-Host': 'indian-railway-api.p.rapidapi.com'
