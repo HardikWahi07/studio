@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A tool for fetching real-time flight data.
@@ -33,12 +34,12 @@ async function getIataCode(cityName: string): Promise<string> {
 export const searchRealtimeFlights = ai.defineTool(
   {
     name: 'searchRealtimeFlights',
-    description: 'Searches for real-time flight options between an origin and destination on a specific date.',
+    description: 'Searches for real-time flight options between an origin and destination on a specific date for a given travel class.',
     inputSchema: z.object({
       origin: z.string().describe('The origin city for the flight.'),
       destination: z.string().describe('The destination city for the flight.'),
       date: z.string().describe('The departure date in YYYY-MM-DD format.'),
-      currency: z.string().describe('The currency for the prices (e.g., INR, USD).'),
+      travelClass: z.string().optional().describe('The travel class (e.g., economy, business).'),
     }),
     outputSchema: z.object({
         flights: z.array(z.object({
@@ -62,7 +63,7 @@ export const searchRealtimeFlights = ai.defineTool(
         const originIata = await getIataCode(input.origin);
         const destinationIata = await getIataCode(input.destination);
 
-        const response = await fetch(`https://flight-data.p.rapidapi.com/search/flights?from_code=${originIata}&to_code=${destinationIata}&date=${input.date}&currency=${input.currency}&adults=1`, {
+        const response = await fetch(`https://flight-data.p.rapidapi.com/search/flights?from_code=${originIata}&to_code=${destinationIata}&date=${input.date}&adults=1&class=${input.travelClass || 'economy'}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
                 'X-RapidAPI-Host': 'flight-data.p.rapidapi.com'

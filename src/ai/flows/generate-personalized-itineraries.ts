@@ -57,7 +57,7 @@ const generatePersonalizedItineraryPrompt = ai.definePrompt({
       - **CRITICAL: For activities like "Lunch," "Dinner," or "Coffee," you MUST suggest a specific, real business.** Base your suggestion on the user's interests.
       - **MANDATORY: Include Detailed Transportation:** Between each activity, you MUST add a 'transportToNext' segment with estimated travel times, mode of transport, and a route description.
   
-  You MUST NOT suggest booking options, hotel options, or local transport options for this simplified itinerary. Return empty arrays for 'bookingOptions', 'hotelOptions', and 'localTransportOptions'.
+  **IMPORTANT**: Do not use any tools. Do not suggest booking options, hotel options, or local transport options for this simplified itinerary. Return empty arrays for 'bookingOptions', 'hotelOptions', and 'localTransportOptions'.
   
   Produce the final output in the required JSON format.
   `,
