@@ -19,8 +19,8 @@ const SuggestTransportBookingsInputSchema = z.object({
   destination: z.string().describe('The travel destination.'),
   departureDate: z.string().describe('The date of departure in YYYY-MM-DD format.'),
   currency: z.string().describe('The currency for costs (e.g., USD, EUR, INR).'),
-  planeClass: z.string().optional().describe('Preferred airline travel class.'),
-  trainClass: z.string().optional().describe('Preferred train travel class.'),
+  planeClass: z.string().optional().describe('Preferred airline travel class (e.g., "economy", "business").'),
+  trainClass: z.string().optional().describe('Preferred train travel class (e.g., "SL" for Sleeper, "3A" for AC 3 Tier).'),
 });
 export type SuggestTransportBookingsInput = z.infer<typeof SuggestTransportBookingsInputSchema>;
 
@@ -68,10 +68,9 @@ const prompt = ai.definePrompt({
   - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
-  1.  **Prioritize Trains for Indian Travel:** If the origin or destination seems to be in India (e.g., "Mumbai", "Vapi", "Delhi"), you MUST use the \`searchRealtimeTrains\` tool first, passing the user's 'trainClass' preference.
-  2.  **Fallback to Flights:** After searching for trains, if the tool returns no trains OR if all returned trains have an availability status that is NOT 'Available' (e.g., they are all 'Waitlist', 'Not Available', 'REGRET'), you MUST then also use the \`searchRealtimeFlights\` tool as a fallback, passing the user's 'planeClass' preference.
-  3.  **Use Flights for Other Routes:** For all non-Indian routes, use the \`searchRealtimeFlights\` tool, passing the user's 'planeClass' preference.
-  4.  **Combine and Return Results:** Consolidate the findings from the tools into a single list of booking options, showing both train and flight options if applicable.
+  1.  **Prioritize Trains for Indian Travel:** If the origin or destination seems to be in India (e.g., "Mumbai", "Vapi", "Delhi"), you MUST use the \`searchRealtimeTrains\` tool first.
+  2.  **Use Flights for Other Routes:** For all non-Indian routes, use the \`searchRealtimeFlights\` tool. You may also search for trains if the route is within Europe.
+  3.  **Combine and Return Results:** Consolidate the findings from all tool calls into a single list of booking options.
 
   Return the results in the specified JSON format.
   `,

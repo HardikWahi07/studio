@@ -18,23 +18,22 @@ export const searchRealtimeHotels = ai.defineTool(
       checkoutDate: z.string().describe('The check-out date in YYYY-MM-DD format.'),
       travelers: z.number().describe('The number of adults staying.'),
       currency: z.string().describe('The currency for prices (e.g., USD, EUR).'),
+      accommodationBudget: z.enum(['budget', 'moderate', 'luxury']).optional().describe('The budget for accommodation.'),
     }),
-    outputSchema: z.object({
-        hotels: z.array(z.object({
-            name: z.string(),
-            style: z.string().describe("e.g., 'Luxury', 'Boutique', 'Budget-friendly'"),
-            pricePerNight: z.string(),
-            rating: z.number(),
-            bookingLink: z.string().url(),
-        }))
-    }),
+    outputSchema: z.array(z.object({
+        name: z.string(),
+        style: z.string().describe("e.g., 'Luxury', 'Boutique', 'Budget-friendly'"),
+        pricePerNight: z.string(),
+        rating: z.number(),
+        bookingLink: z.string().url(),
+    })),
   },
   async (input) => {
     console.log(`[searchRealtimeHotels Tool] Searching for hotels in ${input.destination}`);
     
     if (!process.env.RAPIDAPI_KEY) {
         console.warn("[searchRealtimeHotels Tool] RAPIDAPI_KEY environment variable not set. Returning empty array.");
-        return { hotels: [] };
+        return [];
     }
     
     try {
@@ -48,13 +47,13 @@ export const searchRealtimeHotels = ai.defineTool(
 
         if (!destResponse.ok) {
             console.error(`[searchRealtimeHotels Tool] API error getting dest ID: ${destResponse.statusText}`);
-            return { hotels: [] };
+            return [];
         }
         
         const destData = await destResponse.json();
         if (!destData || destData.length === 0) {
             console.error(`[searchRealtimeHotels Tool] No destination ID found for ${input.destination}`);
-            return { hotels: [] };
+            return [];
         }
         const destinationId = destData[0].dest_id;
         const destType = destData[0].dest_type;
@@ -73,9 +72,19 @@ export const searchRealtimeHotels = ai.defineTool(
             locale: 'en-gb',
             page_number: '0',
             include_adjacency: 'true',
-            categories_filter_ids: 'class::2,class::3,class::4,class::5', // Filter for 2-5 star hotels
             children_number: '0',
         });
+        
+        // Map budget to star rating
+        const starMap = {
+          budget: 'class::2,class::3', // 2 & 3 stars
+          moderate: 'class::3,class::4', // 3 & 4 stars
+          luxury: 'class::5', // 5 stars
+        };
+        if (input.accommodationBudget) {
+          searchParams.append('categories_filter_ids', starMap[input.accommodationBudget]);
+        }
+
 
         const hotelsResponse = await fetch(`https://booking-com.p.rapidapi.com/v1/hotels/search?${searchParams.toString()}`, {
              headers: {
@@ -87,16 +96,16 @@ export const searchRealtimeHotels = ai.defineTool(
         if (!hotelsResponse.ok) {
             const errorBody = await hotelsResponse.text();
             console.error(`[searchRealtimeHotels Tool] API error searching hotels: ${hotelsResponse.statusText}`, errorBody);
-            return { hotels: [] };
+            return [];
         }
         
         const hotelsData = await hotelsResponse.json();
         
         if (!hotelsData || !hotelsData.result) {
-             return { hotels: [] };
+             return [];
         }
 
-        const hotels = hotelsData.result.slice(0, 4).map((hotel: any) => {
+        const hotels = hotelsData.result.slice(0, 3).map((hotel: any) => {
             const price = hotel.composite_price_breakdown?.gross_amount_per_night?.value || hotel.min_total_price;
             return {
                 name: hotel.hotel_name,
@@ -107,11 +116,11 @@ export const searchRealtimeHotels = ai.defineTool(
             };
         });
 
-        return { hotels };
+        return hotels;
 
     } catch (error) {
         console.error("[searchRealtimeHotels Tool] Failed to fetch hotels:", error);
-        return { hotels: [] };
+        return [];
     }
   }
 );

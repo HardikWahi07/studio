@@ -17,10 +17,20 @@ import {
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
 import { searchRealtimeHotels } from '../tools/search-hotels';
+import { add } from 'date-fns';
+import { z } from 'zod';
 
 // 🧠 Public function called by frontend
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
-  return planTripFlow(input);
+  // Ensure checkoutDate is calculated for the hotel tool
+  const checkinDate = new Date(input.departureDate);
+  const checkoutDate = add(checkinDate, { days: input.tripDuration });
+
+  const flowInput: PlanTripInput & { checkoutDate: string } = {
+    ...input,
+    checkoutDate: checkoutDate.toISOString().split('T')[0]
+  };
+  return planTripFlow(flowInput);
 }
 
 const longTripSummaryPrompt = ai.definePrompt({
@@ -55,7 +65,7 @@ const longTripSummaryPrompt = ai.definePrompt({
 // 🗣️ Define the prompt
 const prompt = ai.definePrompt({
   name: 'planTripPrompt',
-  input: { schema: PlanTripInputSchema },
+  input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })) },
   output: { schema: PlanTripOutputSchema },
   tools: [searchRealtimeFlights, searchRealtimeTrains, searchRealtimeHotels],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
@@ -74,25 +84,26 @@ const prompt = ai.definePrompt({
   - **Train Class Preference:** {{{trainClass}}}
   - **Interests & Food Preferences:** {{{interests}}}
   - **Desired Currency for Costs:** {{{currency}}}
+  - **Check-out Date for Hotels:** {{{checkoutDate}}}
 
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options:**
      - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool with the user's specified 'trainClass'.
-     - **FALLBACK LOGIC:** After getting train results, if all returned trains have an 'availability' status that is NOT 'Available' (e.g., they are all 'Waitlist', 'Not Available', 'REGRET'), you MUST then use the 'searchRealtimeFlights' tool with the user's specified 'planeClass' as a fallback to provide flight options.
+     - **FALLBACK LOGIC:** If the train search returns no trains, or if all returned trains have an 'availability' status that is NOT 'Available', you MUST then also use the 'searchRealtimeFlights' tool with the user's specified 'planeClass' to provide flight options as a backup.
      - For all other non-Indian destinations, use 'searchRealtimeFlights' with the user's 'planeClass' to find global flights.
-     - Include provider, duration, price, eco-friendly status, booking link and availability.
+     - You can also use the train search tool for European routes if it seems appropriate.
+     - Combine results from all tool calls into a single bookingOptions array.
   3. **Hotels:**
-     - Use 'searchRealtimeHotels' unless 'accommodationType' = 'none'.
+     - Use 'searchRealtimeHotels' unless 'accommodationType' is 'none'. The checkout date is provided.
      - Always return valid URLs with no spaces.
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
   5. **Day-by-Day Itinerary:**
      - Each day = title + summary.
      - Activities must include time, location, description, cost, and transportToNext.
-     - Suggest real restaurants for meals.
+     - Suggest real restaurants for meals based on interests.
   6. **Travel Advisory:**
      - If peak season or holiday (e.g., Diwali, Christmas), add contextual warnings.
-     - Mark train waitlist or festival rush as warnings when needed.
 
   Output must strictly follow the JSON schema.
   `,
@@ -102,7 +113,7 @@ const prompt = ai.definePrompt({
 const planTripFlow = ai.defineFlow(
   {
     name: 'planTripFlow',
-    inputSchema: PlanTripInputSchema,
+    inputSchema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })),
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
