@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,11 +11,7 @@ import { Input } from '@/components/ui/input';
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles } from 'lucide-react';
-import { useTranslations } from 'next-intl';
-import { suggestTransportBookings, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
-import { useSettings } from '@/context/settings-context';
 import type { BookingOption } from '@/ai/flows/plan-trip.types';
-import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 
 const formSchema = z.object({
@@ -111,11 +106,8 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
 
 
 export default function SuggestBookingsPage() {
-    const t = useTranslations('SuggestBookingsPage');
     const [isLoading, setIsLoading] = useState(false);
-    const [results, setResults] = useState<SuggestTransportBookingsOutput | null>(null);
-    const { toast } = useToast();
-    const { currency } = useSettings();
+    const [results, setResults] = useState<{bookingOptions: BookingOption[]} | null>(null);
 
 
     const form = useForm<z.infer<typeof formSchema>>({
@@ -143,19 +135,19 @@ export default function SuggestBookingsPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">Suggest Transport Bookings</h1>
         <p className="text-muted-foreground max-w-2xl">
-          {t('description')}
+          Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, most eco-friendly option for your trip.
         </p>
       </div>
 
         <Card>
             <CardHeader>
                 <CardTitle>
-                    {t('formTitle')}
+                    Describe Your Journey
                 </CardTitle>
                  <CardDescription>
-                    {t('formDescription')}
+                    Tell us where you're going and we'll find the best options for you.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -163,17 +155,17 @@ export default function SuggestBookingsPage() {
                     <form onSubmit={form.handleSubmit(handleSearch)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                              <FormField control={form.control} name="origin" render={({ field }) => (
-                                <FormItem><FormLabel>{t('fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('fromPlaceholder')} /><FormMessage /></FormItem>
+                                <FormItem><FormLabel>From</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Enter origin city..." /><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="destination" render={({ field }) => (
-                                <FormItem><FormLabel>{t('toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('toPlaceholder')} /><FormMessage /></FormItem>
+                                <FormItem><FormLabel>To</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Enter destination city..." /><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="departureDate" render={({ field }) => (
-                                <FormItem><FormLabel>{t('departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </div>
                         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                            {isLoading ? <><Loader2 className="animate-spin mr-2" /> {t('searchingButton')}</> : <><Search className="mr-2" /> {t('findButton')}</>}
+                            {isLoading ? <><Loader2 className="animate-spin mr-2" /> Searching...</> : <><Search className="mr-2" /> Find Options</>}
                         </Button>
                     </form>
                 </Form>
@@ -183,18 +175,18 @@ export default function SuggestBookingsPage() {
         {isLoading && (
             <div className="flex flex-col items-center justify-center pt-10 text-center">
                 <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                <p className="mt-4 text-lg font-semibold text-muted-foreground">{t('loadingMessage')}</p>
+                <p className="mt-4 text-lg font-semibold text-muted-foreground">Finding the best options for you...</p>
             </div>
         )}
 
         {results && (
             <div className="pt-6 space-y-6">
-                 <h2 className="font-headline text-2xl font-bold">{t('resultsTitle')}</h2>
+                 <h2 className="font-headline text-2xl font-bold">Available Journey Options</h2>
                  <div className="space-y-4">
                     {results.bookingOptions.length > 0 ? (
                         results.bookingOptions.map((opt, index) => <BookingOptionCard key={index} opt={opt} />)
                     ) : (
-                        <p className="text-muted-foreground text-center py-8">{t('noResults')}</p>
+                        <p className="text-muted-foreground text-center py-8">No Options Found. Try changing your search criteria.</p>
                     )}
                  </div>
             </div>

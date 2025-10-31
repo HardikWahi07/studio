@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState } from 'react';
@@ -19,7 +17,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { LogIn, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AuthDialog } from './auth-dialog';
-import { useTranslations } from 'next-intl';
 import { useTheme } from 'next-themes';
 
 interface AuthButtonProps {
@@ -30,7 +27,6 @@ interface AuthButtonProps {
 export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
   const { user, isUserLoading } = useUser();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
-  const t = useTranslations('AuthButton');
   const { theme } = useTheme();
 
   const buttonColorClass = isHomePage && !isScrolled && theme === 'dark'
@@ -58,12 +54,12 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           <DropdownMenuLabel className="font-normal">
             <div className="flex flex-col space-y-1">
-              <p className="text-sm font-medium leading-none">{user.displayName || t('welcome')}</p>
+              <p className="text-sm font-medium leading-none">{user.displayName || "Welcome"}</p>
               <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
             </div>
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleSignOut}>{t('logout')}</DropdownMenuItem>
+          <DropdownMenuItem onClick={handleSignOut}>Log out</DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -76,11 +72,9 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
         variant="ghost"
         className={cn("hidden sm:inline-flex items-center gap-2 hover:bg-black/5", buttonColorClass)}
       >
-        <LogIn className="w-4 h-4" /> {t('login')}
+        <LogIn className="w-4 h-4" /> Login
       </Button>
       <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
     </>
   );
 }
-
-    

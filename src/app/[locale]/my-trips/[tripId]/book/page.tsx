@@ -9,7 +9,6 @@ import type { PlanTripOutput, BookingOption, HotelOption } from '@/ai/flows/plan
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Briefcase, Plane, Train, Bus, Leaf, Hotel, Star, Clock, CarFront, CheckCircle, ShoppingCart, Award, BadgeEuro, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { useLocale } from 'next-intl';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
@@ -96,11 +95,9 @@ function HotelOptionCard({ opt }: { opt: HotelOption }) {
     )
 }
 
-export default function BookTripPage({ params: paramsPromise }: { params: Promise<{ tripId: string }> }) {
-    const params = React.use(paramsPromise);
+export default function BookTripPage({ params }: { params: { tripId: string } }) {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
-    const locale = useLocale();
     const router = useRouter();
     const { toast } = useToast();
     const tripId = params.tripId;
@@ -146,7 +143,7 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
                 description: "Your trip status has been updated.",
             });
             if (forceRefetch) forceRefetch();
-            router.push(`/${locale}/my-trips`);
+            router.push(`/my-trips`);
         } catch(e) {
             toast({
                 title: "Update Failed",
@@ -196,7 +193,7 @@ export default function BookTripPage({ params: paramsPromise }: { params: Promis
             <div className="container mx-auto">
                 <div className="flex flex-wrap justify-between items-center mb-4 gap-4">
                     <Button asChild variant="outline">
-                        <Link href={`/${locale}/my-trips/${tripId}`}>
+                        <Link href={`/my-trips/${tripId}`}>
                             <ArrowLeft className="mr-2" />
                             Back to Itinerary
                         </Link>

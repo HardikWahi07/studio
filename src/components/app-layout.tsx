@@ -1,12 +1,9 @@
-
 "use client"
 
 import * as React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useSettings } from "@/context/settings-context"
-import { useTranslations } from 'next-intl';
-import { useLocale } from 'next-intl';
 import { useUser } from "@/firebase"
 import { useTheme } from "next-themes";
 
@@ -14,18 +11,13 @@ import {
   Menu,
   Briefcase,
   Users,
-  Plane,
   ChevronDown,
   Wand2,
   Globe,
   CircleDollarSign,
-  Heart,
-  Shield,
   LifeBuoy,
   HelpCircle,
   Mail,
-  Book,
-  Ticket,
   User,
   LogIn,
 } from "lucide-react"
@@ -215,9 +207,8 @@ const currencies = [
 
 function NavLink({ href, children, className }: { href: string, children: React.ReactNode, className?: string }) {
   const pathname = usePathname()
-  const locale = useLocale();
-  const fullHref = `/${locale}${href === '/' ? '' : href}`;
-  const isActive = pathname === fullHref;
+  const fullHref = href;
+  const isActive = pathname === fullHref || (href !== '/' && pathname.startsWith(fullHref));
 
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
@@ -235,9 +226,6 @@ function NavLink({ href, children, className }: { href: string, children: React.
 }
 
 function TravelToolsDropdown() {
-  const t = useTranslations('AppLayout');
-  const authT = useTranslations('AuthButton');
-  const locale = useLocale();
   const pathname = usePathname();
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
@@ -245,15 +233,15 @@ function TravelToolsDropdown() {
   const linkColorClass = isHomePage && !isScrolled && theme === 'dark' ? "text-white" : "text-foreground";
 
   const travelTools = [
-    { href: "/expenses", icon: Users, label: t('expenseSplitter') },
-    { href: "/local-supporters", icon: Shield, label: t('localSupporters') },
-    { href: "/suggest-bookings", icon: Briefcase, label: t('smartTransport') },
-    { href: "/itinerary-planner", icon: Wand2, label: t('aiItineraryGenerator') },
-    { href: "/safety", icon: LifeBuoy, label: t('safety') },
+    { href: "/expenses", icon: Users, label: 'Expense Splitter' },
+    { href: "/local-supporters", icon: Users, label: 'Local Supporters' },
+    { href: "/suggest-bookings", icon: Briefcase, label: 'Smart Transport' },
+    { href: "/itinerary-planner", icon: Wand2, label: 'AI Itinerary Generator' },
+    { href: "/safety", icon: LifeBuoy, label: 'Safety Companion' },
   ];
   const supportLinks = [
-      { href: "#", icon: HelpCircle, label: t('helpCenter') },
-      { href: "#", icon: Mail, label: t('contactUs') },
+      { href: "#", icon: HelpCircle, label: 'Help Center' },
+      { href: "#", icon: Mail, label: 'Contact Us' },
   ]
   const isActive = travelTools.some(tool => pathname.endsWith(tool.href));
   
@@ -261,14 +249,14 @@ function TravelToolsDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className={cn("text-sm font-medium hover:text-primary focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : linkColorClass)}>
-          {t('travelTools')}
+          Travel Tools
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         {travelTools.map(tool => (
           <DropdownMenuItem key={tool.label} asChild>
-            <Link href={`/${locale}${tool.href}`} className="flex items-center gap-2">
+            <Link href={tool.href} className="flex items-center gap-2">
               <tool.icon className="w-4 h-4"/>
               {tool.label}
             </Link>
@@ -290,10 +278,9 @@ function TravelToolsDropdown() {
 
 function useScrollState() {
   const pathname = usePathname();
-  const locale = useLocale();
   const [isScrolled, setIsScrolled] = React.useState(false);
 
-  const isHomePage = pathname === `/${locale}` || pathname === '/';
+  const isHomePage = pathname === `/` || pathname === '/en';
 
   React.useEffect(() => {
     if (!isHomePage) {
@@ -309,7 +296,7 @@ function useScrollState() {
     handleScroll();
     
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [pathname, locale, isHomePage]);
+  }, [pathname, isHomePage]);
 
   return { isScrolled, isHomePage };
 }
@@ -322,7 +309,8 @@ function LanguageSelector() {
     const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
     
     const handleLanguageChange = (langCode: string) => {
-      const newPath = pathname.replace(/^\/[a-z]{2}/, `/${langCode}`);
+      // This is a simplified approach. In a real app, you might need to handle more complex path replacements.
+      const newPath = pathname.replace(/^\/(en|es|fr|de|hi)/, `/${langCode}`);
       router.push(newPath);
     }
 
@@ -372,9 +360,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, isUserLoading } = useUser();
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
-  const t = useTranslations('AppLayout');
-  const authT = useTranslations('AuthButton');
-  const locale = useLocale();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
 
   const [isMounted, setIsMounted] = React.useState(false);
@@ -383,55 +368,55 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loggedInNavItems = [
-    { href: "/", label: t('home') },
-    { href: "/my-trips", label: t('myTrips') },
-    { href: "/trip-planner", label: t('aiTripPlanner') },
-    { href: "/suggest-bookings", label: t('suggestBookings') },
-    { href: "/booking", label: t('booking') },
-    { href: "/blog", label: t('blog') },
-    { href: "/about", label: t('about') },
-    { href: "/local-artisans", label: t('localConnect') },
-    { href: "/hidden-gems", label: t('hiddenGems') },
+    { href: "/", label: "Home" },
+    { href: "/my-trips", label: "My Trips" },
+    { href: "/trip-planner", label: "AI Trip Planner" },
+    { href: "/suggest-bookings", label: "Suggest Bookings" },
+    { href: "/booking", label: "My Bookings" },
+    { href: "/blog", label: "Blog" },
+    { href: "/about", label: "About" },
+    { href: "/local-artisans", label: "Local Connect" },
+    { href: "/hidden-gems", label: "Hidden Gems" },
   ];
   
   const loggedOutNavItems = [
-    { href: "/", label: t('home') },
-    { href: "/about", label: t('about') },
-    { href: "/blog", label: t('blog') },
-    { href: "/trip-planner", label: t('aiTripPlanner') },
-    { href: "/suggest-bookings", label: t('suggestBookings') },
-    { href: "#", label: t('helpCenter') },
-    { href: "#", label: t('contactUs') },
+    { href: "/", label: "Home" },
+    { href: "/about", label: "About" },
+    { href: "/blog", label: "Blog" },
+    { href: "/trip-planner", label: "AI Trip Planner" },
+    { href: "/suggest-bookings", label: "Suggest Bookings" },
+    { href: "#", label: "Help Center" },
+    { href: "#", label: "Contact Us" },
   ];
 
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
   const allNavItems = user ? [...loggedInNavItems, ...[
-      { href: "/expenses", label: t('expenseSplitter') },
-      { href: "/local-supporters", label: t('localSupporters') },
-      { href: "/suggest-bookings", label: t('smartTransport') },
-      { href: "/itinerary-planner", label: t('aiItineraryGenerator') },
-      { href: "/safety", label: t('safety') },
-      { href: '#', label: t('helpCenter') },
-      { href: '#', label: t('contactUs') },
+      { href: "/expenses", label: "Expense Splitter" },
+      { href: "/local-supporters", label: "Local Supporters" },
+      { href: "/suggest-bookings", label: "Smart Transport" },
+      { href: "/itinerary-planner", label: "AI Itinerary Generator" },
+      { href: "/safety", label: "Safety Companion" },
+      { href: '#', label: "Help Center" },
+      { href: '#', label: "Contact Us" },
     ]] : loggedOutNavItems;
 
   const footerQuickLinks = [
-    { key: "plan", href: `/${locale}/trip-planner`, label: t('planTrip') },
-    { key: "connect", href: `/${locale}/local-artisans`, label: t('localConnect') },
-    { key: "gems", href: `/${locale}/hidden-gems`, label: t('hiddenGems') },
+    { key: "plan", href: "/trip-planner", label: "Plan a Trip" },
+    { key: "connect", href: "/local-artisans", label: "Local Connect" },
+    { key: "gems", href: "/hidden-gems", label: "Hidden Gems" },
   ];
 
   const footerCompanyLinks = [
-    { key: "about", href: `/${locale}/about`, label: t('aboutUs') },
-    { key: "blog", href: `/${locale}/blog`, label: t('blog') },
-    { key: "work", href: "#", label: t('workWithUs') },
+    { key: "about", href: "/about", label: "About Us" },
+    { key: "blog", href: "/blog", label: "Blog" },
+    { key: "work", href: "#", label: "Work with Us" },
   ];
 
   const footerSupportLinks = [
-    { key: "help", href: "#", label: t('helpCenter') },
-    { key: "faq", href: "#", label: t('faq') },
-    { key: "contact", href: "#", label: t('contactUs') },
-    { key: "tos", href: "#", label: t('termsOfService') },
+    { key: "help", href: "#", label: "Help Center" },
+    { key: "faq", href: "#", label: "FAQ" },
+    { key: "contact", href: "#", label: "Contact Us" },
+    { key: "tos", href: "#", label: "Terms of Service" },
   ];
 
   const logoColor = isHomePage && !isScrolled && theme === 'dark' ? 'text-white' : 'text-primary';
@@ -445,11 +430,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
            {isMounted ? (
-            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
+            <Link href="/" className="mr-6 flex items-center gap-2">
                <Logo className={logoColor} />
             </Link>
            ) : (
-            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
+            <Link href="/" className="mr-6 flex items-center gap-2">
               <Logo className="text-primary" />
             </Link>
            )}
@@ -476,7 +461,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <SheetTrigger asChild>
                 <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isMounted && isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">{t('toggleNavigation')}</span>
+                  <span className="sr-only">Toggle navigation menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
@@ -497,14 +482,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       ) : (
                         <Button onClick={() => setIsAuthDialogOpen(true)} className="flex items-center gap-4 justify-start" variant="outline">
                            <LogIn />
-                           {authT('login')}
+                           Login
                         </Button>
                       )}
                       <DropdownMenuSeparator />
                       {allNavItems.map((item) => (
                         <Link
                           key={item.label}
-                          href={item.href === '#' ? '#' : `/${locale}${item.href}`}
+                          href={item.href}
                           className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                         >
                           {item.label}
@@ -525,11 +510,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="md:col-span-2 lg:col-span-1">
               <Logo className="text-white" />
               <p className="text-sm text-gray-400 mt-4">
-                {t('footerDescription')}
+                The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.
               </p>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('quickLinks')}</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Quick Links</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerQuickLinks.map(link => (
                     <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
@@ -537,7 +522,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('company')}</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Company</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerCompanyLinks.map(link => (
                     <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
@@ -545,7 +530,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('support')}</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Support</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerSupportLinks.map(link => (
                     <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
@@ -554,12 +539,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="mt-10 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
-            {t('copyright')}
+            © 2024 TripMind. All rights reserved. Plan Smart. Travel Green.
           </div>
         </div>
       </footer>
     </div>
   )
 }
-
-    

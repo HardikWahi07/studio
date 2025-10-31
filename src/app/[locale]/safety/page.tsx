@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Loader2, Shield, AlertTriangle, Hospital, LifeBuoy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { useTranslations } from 'next-intl';
 
 const formSchema = z.object({
   location: z.string().min(2, "Location is required."),
@@ -21,7 +19,6 @@ const formSchema = z.object({
 });
 
 export default function SafetyPage() {
-  const t = useTranslations('SafetyPage');
   const [assistance, setAssistance] = useState<GetSafetyAssistanceOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -46,8 +43,8 @@ export default function SafetyPage() {
     } catch (error) {
       console.error("Failed to get safety assistance:", error);
       toast({
-        title: t('toastErrorTitle'),
-        description: t('toastErrorDescription'),
+        title: "Error",
+        description: "Failed to get assistance. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -60,10 +57,10 @@ export default function SafetyPage() {
       <div className="space-y-2">
         <h1 className="font-headline text-3xl md:text-4xl font-bold flex items-center gap-2">
           <Shield className="w-8 h-8 text-primary" />
-          {t('title')}
+          Safety Companion
         </h1>
         <p className="text-muted-foreground max-w-2xl">
-          {t('description')}
+          Feeling lost or need help? Your AI safety companion, powered by local knowledge, is here to assist you in any situation.
         </p>
       </div>
       
@@ -71,8 +68,8 @@ export default function SafetyPage() {
         <div className="space-y-8">
           <Card>
             <CardHeader>
-              <CardTitle>{t('formTitle')}</CardTitle>
-              <CardDescription>{t('formDescription')}</CardDescription>
+              <CardTitle>Get Assistance</CardTitle>
+              <CardDescription>Describe your situation, and our AI will provide guidance.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -82,9 +79,9 @@ export default function SafetyPage() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('locationLabel')}</FormLabel>
+                        <FormLabel>Your Location</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('locationPlaceholder')} {...field} />
+                          <Input placeholder="e.g., Madrid, Spain" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -95,10 +92,10 @@ export default function SafetyPage() {
                     name="situation"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('situationLabel')}</FormLabel>
+                        <FormLabel>What is the situation?</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder={t('situationPlaceholder')}
+                            placeholder="e.g., I'm lost near the train station"
                             className="resize-none"
                             rows={4}
                             {...field}
@@ -112,12 +109,12 @@ export default function SafetyPage() {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t('gettingHelpButton')}
+                        Getting Help...
                       </>
                     ) : (
                       <>
                         <LifeBuoy className="mr-2 h-4 w-4" />
-                        {t('getHelpButton')}
+                        Get Help
                       </>
                     )}
                   </Button>
@@ -132,7 +129,7 @@ export default function SafetyPage() {
             {(isLoading || assistance) && (
             <Card>
               <CardHeader>
-                <CardTitle>{t('resultsTitle')}</CardTitle>
+                <CardTitle>Your Safety Guide</CardTitle>
               </CardHeader>
               <CardContent>
                  {isLoading && (
@@ -145,15 +142,15 @@ export default function SafetyPage() {
                 {assistance && (
                   <div className="space-y-6">
                     <div>
-                      <h3 className="font-bold flex items-center gap-2 mb-2"><AlertTriangle className="text-yellow-500" />{t('alertsTitle')}</h3>
+                      <h3 className="font-bold flex items-center gap-2 mb-2"><AlertTriangle className="text-yellow-500" />Safety Alerts</h3>
                       <p className="text-muted-foreground">{assistance.safetyAlert}</p>
                     </div>
                     <div>
-                      <h3 className="font-bold flex items-center gap-2 mb-2"><Hospital className="text-red-500" />{t('hospitalsTitle')}</h3>
+                      <h3 className="font-bold flex items-center gap-2 mb-2"><Hospital className="text-red-500" />Nearby Hospitals</h3>
                       <pre className="text-sm whitespace-pre-wrap font-sans text-muted-foreground">{assistance.nearbyHospitals}</pre>
                     </div>
                     <div>
-                      <h3 className="font-bold flex items-center gap-2 mb-2"><LifeBuoy className="text-primary"/>{t('guidanceTitle')}</h3>
+                      <h3 className="font-bold flex items-center gap-2 mb-2"><LifeBuoy className="text-primary"/>Your Local Supporter's Guidance</h3>
                       <p className="text-muted-foreground whitespace-pre-wrap">{assistance.assistanceMessage}</p>
                     </div>
                   </div>
@@ -165,7 +162,7 @@ export default function SafetyPage() {
             {!isLoading && !assistance && (
               <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg min-h-[400px]">
                 <Shield className="h-12 w-12 text-muted-foreground" />
-                <p className="mt-4 text-muted-foreground">{t('waitingMessage')}</p>
+                <p className="mt-4 text-muted-foreground">Your safety guide will appear here.</p>
               </Card>
             )}
 

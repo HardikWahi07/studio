@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useForm } from 'react-hook-form';
@@ -6,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useUser, useFirestore } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useLocale, useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -24,11 +22,9 @@ const blogSchema = z.object({
 });
 
 export default function CreateBlogPage() {
-    const t = useTranslations('CreateBlogPage');
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const router = useRouter();
-    const locale = useLocale();
     const { toast } = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -57,17 +53,17 @@ export default function CreateBlogPage() {
             });
 
             toast({
-                title: t('successTitle'),
-                description: t('successDescription'),
+                title: "Post Published!",
+                description: "Your story is now live for the community to see.",
             });
 
-            router.push(`/${locale}/blog/${newDocRef.id}`);
+            router.push(`/blog/${newDocRef.id}`);
 
         } catch (error) {
             console.error("Blog post creation failed:", error);
             toast({
-                title: t('errorTitle'),
-                description: t('errorDescription'),
+                title: "Publishing Failed",
+                description: "We couldn't publish your post. Please try again.",
                 variant: 'destructive'
             });
             setIsSubmitting(false);
@@ -96,8 +92,8 @@ export default function CreateBlogPage() {
         <main className="flex-1 p-4 md:p-8">
             <Card className="max-w-4xl mx-auto">
                 <CardHeader>
-                    <CardTitle className="font-headline text-3xl">{t('title')}</CardTitle>
-                    <CardDescription>{t('description')}</CardDescription>
+                    <CardTitle className="font-headline text-3xl">Create a New Blog Post</CardTitle>
+                    <CardDescription>Share your travel story with the TripMind community.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -107,9 +103,9 @@ export default function CreateBlogPage() {
                                 name="title"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('titleLabel')}</FormLabel>
+                                        <FormLabel>Post Title</FormLabel>
                                         <FormControl>
-                                            <Input placeholder={t('titlePlaceholder')} {...field} />
+                                            <Input placeholder="e.g. My Unforgettable Week in Bali" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -120,7 +116,7 @@ export default function CreateBlogPage() {
                                 name="content"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('contentLabel')}</FormLabel>
+                                        <FormLabel>Your Story</FormLabel>
                                         <FormControl>
                                             <Textarea rows={10} placeholder="Share your adventure..." {...field} />
                                         </FormControl>
@@ -133,9 +129,9 @@ export default function CreateBlogPage() {
                                 name="imageHint"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>{t('imageHintLabel')}</FormLabel>
+                                        <FormLabel>Cover Image Hint</FormLabel>
                                         <FormControl>
-                                            <Input placeholder={t('imageHintPlaceholder')} {...field} />
+                                            <Input placeholder="e.g. 'Sunset over rice paddies'" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -145,12 +141,12 @@ export default function CreateBlogPage() {
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        {t('publishingButton')}
+                                        Publishing...
                                     </>
                                 ) : (
                                     <>
                                         <PenSquare className="mr-2 h-4 w-4" />
-                                        {t('publishButton')}
+                                        Publish Story
                                     </>
                                 )}
                             </Button>
@@ -161,5 +157,3 @@ export default function CreateBlogPage() {
         </main>
     );
 }
-
-    

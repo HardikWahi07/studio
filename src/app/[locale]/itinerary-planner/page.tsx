@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef } from "react";
@@ -13,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Wand2, Map } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslations } from "next-intl";
 import { TripItinerary } from "@/components/trip-itinerary";
 import { useOnVisible } from "@/hooks/use-on-visible";
 import { cn } from "@/lib/utils";
@@ -25,7 +23,6 @@ const formSchema = z.object({
 });
 
 export default function ItineraryGeneratorPage() {
-  const t = useTranslations('ItineraryPlannerPage');
   const [itinerary, setItinerary] = useState<GeneratePersonalizedItineraryOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -50,8 +47,8 @@ export default function ItineraryGeneratorPage() {
     } catch (error) {
       console.error("Failed to generate itinerary:", error);
       toast({
-        title: t('toastErrorTitle'),
-        description: t('toastErrorDescription'),
+        title: "Error",
+        description: "Failed to generate itinerary. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -62,9 +59,9 @@ export default function ItineraryGeneratorPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">AI Itinerary Generator</h1>
         <p className="text-muted-foreground max-w-2xl">
-          {t('description')}
+          Let our AI craft the perfect, personalized travel plan for you. Just enter your preferences below and watch the magic.
         </p>
       </div>
 
@@ -72,8 +69,8 @@ export default function ItineraryGeneratorPage() {
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle>{t('formTitle')}</CardTitle>
-              <CardDescription>{t('formDescription')}</CardDescription>
+              <CardTitle>Your Trip Details</CardTitle>
+              <CardDescription>Fill out the form to get started.</CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
@@ -83,9 +80,9 @@ export default function ItineraryGeneratorPage() {
                     name="destination"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('destinationLabel')}</FormLabel>
+                        <FormLabel>Destination</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('destinationPlaceholder')} {...field} />
+                          <Input placeholder="e.g., Kyoto, Japan" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -96,9 +93,9 @@ export default function ItineraryGeneratorPage() {
                     name="budget"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('budgetLabel')}</FormLabel>
+                        <FormLabel>Budget</FormLabel>
                         <FormControl>
-                          <Input placeholder={t('budgetPlaceholder')} {...field} />
+                          <Input placeholder="e.g., Moderate" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -109,10 +106,10 @@ export default function ItineraryGeneratorPage() {
                     name="interests"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t('interestsLabel')}</FormLabel>
+                        <FormLabel>Interests & Preferences</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder={t('interestsPlaceholder')}
+                            placeholder="e.g., Interested in historic temples, local cuisine, nature walks, and minimal travel between locations."
                             className="resize-none"
                             rows={4}
                             {...field}
@@ -126,12 +123,12 @@ export default function ItineraryGeneratorPage() {
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        {t('generatingButton')}
+                        Generating...
                       </>
                     ) : (
                       <>
                         <Wand2 className="mr-2 h-4 w-4" />
-                        {t('generateButton')}
+                        Generate Itinerary
                       </>
                     )}
                   </Button>
@@ -144,8 +141,8 @@ export default function ItineraryGeneratorPage() {
         <div className="lg:col-span-2">
             <Card ref={resultsRef}>
               <CardHeader>
-                 <CardTitle>{itinerary ? itinerary.tripTitle : t('resultTitle')}</CardTitle>
-                <CardDescription>{t('resultDescription')}</CardDescription>
+                 <CardTitle>{itinerary ? itinerary.tripTitle : "Your Personalized Itinerary"}</CardTitle>
+                <CardDescription>Your AI-generated trip plan will appear here.</CardDescription>
               </CardHeader>
               <CardContent className={cn("fade-in-up", { 'visible': resultsVisible })}>
                 {isLoading && (
@@ -157,7 +154,7 @@ export default function ItineraryGeneratorPage() {
                 {!isLoading && !itinerary && (
                   <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[300px]">
                     <Map className="h-12 w-12 text-muted-foreground" />
-                    <p className="mt-4 text-muted-foreground">{t('waitingMessage')}</p>
+                    <p className="mt-4 text-muted-foreground">Your itinerary is waiting to be created.</p>
                   </div>
                 )}
                 {itinerary && (

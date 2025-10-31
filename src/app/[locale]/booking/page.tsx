@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -8,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Briefcase, Calendar, CheckCircle, Users } from 'lucide-react';
 import { format } from 'date-fns';
-import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -25,7 +23,6 @@ type LocalBooking = {
 };
 
 export default function BookingPage() {
-    const t = useTranslations('BookingPage');
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
 
@@ -75,10 +72,10 @@ export default function BookingPage() {
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
                 <h1 className="font-headline text-3xl md:text-4xl font-bold">
-                     {t('title')}
+                     My Bookings
                 </h1>
                 <p className="text-muted-foreground max-w-2xl">
-                    {t('description')}
+                    Manage all your confirmed journeys and experiences with local supporters.
                 </p>
             </div>
 

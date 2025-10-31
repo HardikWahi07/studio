@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -11,16 +10,12 @@ import { TripItinerary } from '@/components/trip-itinerary';
 import { ArrowLeft, Briefcase, ShoppingCart, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useLocale } from 'next-intl';
 
 type TripData = PlanTripOutput & { tripTitle: string; status?: 'Booked' | 'Pending' };
 
-export default function TripDetailsPage({ params: paramsPromise }: { params: Promise<{ tripId: string }> }) {
-    // React.use() is a modern way to resolve promises in components
-    const params = React.use(paramsPromise);
+export default function TripDetailsPage({ params }: { params: { tripId: string } }) {
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
-    const locale = useLocale();
     const tripId = params.tripId;
 
     const tripDocRef = useMemoFirebase(() => {
@@ -82,14 +77,14 @@ export default function TripDetailsPage({ params: paramsPromise }: { params: Pro
             <div className="container mx-auto">
                  <div className="flex justify-between items-center mb-4">
                     <Button asChild variant="outline">
-                        <Link href={`/${locale}/my-trips`}>
+                        <Link href="/my-trips">
                             <ArrowLeft className="mr-2" />
                             Back to My Trips
                         </Link>
                     </Button>
                     {trip && (
                         <Button asChild>
-                            <Link href={`/${locale}/my-trips/${tripId}/book`}>
+                            <Link href={`/my-trips/${tripId}/book`}>
                                 <ShoppingCart className="mr-2" />
                                 Suggest Bookings
                             </Link>

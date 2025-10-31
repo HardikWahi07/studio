@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRef, useMemo } from 'react';
@@ -19,14 +18,11 @@ import { destinations as allDestinations } from '@/lib/destinations';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 import { DestinationCard } from '@/components/destination-card';
-import { useTranslations, useLocale } from 'next-intl';
 import type { Blog } from '@/lib/types';
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
 
 export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
-  const t = useTranslations('DashboardPage');
-  const locale = useLocale();
   const featuresRef = useRef<HTMLDivElement>(null);
   const destinationsRef = useRef<HTMLDivElement>(null);
   const storiesRef = useRef<HTMLDivElement>(null);
@@ -36,47 +32,47 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
   const storiesVisible = useOnVisible(storiesRef);
   const moreFeaturesVisible = useOnVisible(moreFeaturesRef);
 
-  const destinations = allDestinations;
+  const destinations = allDestinations.slice(0, 3);
 
   const features = [
     {
       icon: <Globe className="h-8 w-8 text-primary" />,
-      title: t('feature1Title'),
-      description: t('feature1Description'),
-      link: `/${locale}/itinerary-planner`,
+      title: "AI Trip Planner",
+      description: "Smart itineraries tailored to your preferences, budget, and travel style.",
+      link: `/itinerary-planner`,
     },
     {
       icon: <Users className="h-8 w-8 text-primary" />,
-      title: t('feature2Title'),
-      description: t('feature2Description'),
-      link: `/${locale}/local-artisans`,
+      title: "Local Connect",
+      description: "Discover authentic experiences from local artisans and guides.",
+      link: `/local-artisans`,
     },
     {
       icon: <MapPin className="h-8 w-8 text-primary" />,
-      title: t('feature3Title'),
-      description: t('feature3Description'),
-      link: `/${locale}/hidden-gems`,
+      title: "Hidden Gems",
+      description: "Uncover secret spots and off-the-beaten-path destinations.",
+      link: `/hidden-gems`,
     },
   ];
 
   const moreFeatures = [
     {
       icon: <Wallet className="h-8 w-8 text-primary" />,
-      title: t('feature4Title'),
-      description: t('feature4Description'),
-      link: `/${locale}/expenses`,
+      title: "Expense Splitter",
+      description: "Track and split trip costs",
+      link: `/expenses`,
     },
     {
       icon: <Shield className="h-8 w-8 text-primary" />,
-      title: t('feature5Title'),
-      description: t('feature5Description'),
-      link: `/${locale}/local-supporters`,
+      title: "Local Supporters",
+      description: "Connect with real locals for help",
+      link: `/local-supporters`,
     },
     {
       icon: <Leaf className="h-8 w-8 text-primary" />,
-      title: t('feature6Title'),
-      description: t('feature6Description'),
-      link: `/${locale}/suggest-bookings`,
+      title: "Eco Score",
+      description: "Track your green impact",
+      link: `/suggest-bookings`,
     },
   ];
 
@@ -96,26 +92,26 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
           <div className="relative z-20 flex flex-col items-center justify-center text-center px-4">
             <div className='flex items-center gap-2 mb-4'>
                 <Sparkles className='w-5 h-5 text-white' />
-                <p className='font-bold text-white tracking-widest'>{t('heroSubtitle')}</p>
+                <p className='font-bold text-white tracking-widest'>AI-POWERED TRAVEL ASSISTANT</p>
             </div>
             <h1 className="font-headline text-5xl md:text-7xl font-bold">
-              {t('heroTitle1')} <span className='text-primary'>{t('heroTitle2')}</span><br/> {t('heroTitle3')}
+              Plan Smart. <span className='text-primary'>Travel Green.</span><br/> Enjoy More.
             </h1>
             <p className="mt-4 text-lg md:text-xl max-w-3xl text-gray-200">
-              {t('heroDescription')}
+              Your intelligent travel companion that helps you discover hidden gems, book eco-friendly transport, and create unforgettable experiences—all while keeping your carbon footprint low.
             </p>
             <div className="mt-8 flex gap-4">
               <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground text-lg px-8 py-6 rounded-full">
-                <Link href={`/${locale}/itinerary-planner`}>{t('startPlanning')}</Link>
+                <Link href="/itinerary-planner">Start Planning</Link>
               </Button>
                <Button asChild size="lg" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-black text-lg px-8 py-6 rounded-full">
-                <Link href={`/${locale}/about`}>{t('learnMore')}</Link>
+                <Link href="/about">Learn More</Link>
               </Button>
             </div>
              <div className="mt-8 flex gap-4">
-                 <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Sparkles className="w-4 h-4 mr-2 text-primary"/>{t('aiPowered')}</div>
-                <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Leaf className="w-4 h-4 mr-2 text-primary"/>{t('greenAndIntuitive')}</div>
-                <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Users className="w-4 h-4 mr-2 text-primary"/>{t('userFriendly')}</div>
+                 <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Sparkles className="w-4 h-4 mr-2 text-primary"/>AI-Powered</div>
+                <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Leaf className="w-4 h-4 mr-2 text-primary"/>Green & Intuitive</div>
+                <div className="bg-white/20 backdrop-blur-sm border-gray-300/50 text-white py-2 px-4 rounded-full text-sm font-medium inline-flex items-center"><Users className="w-4 h-4 mr-2 text-primary"/>User-Friendly</div>
             </div>
           </div>
         </section>
@@ -124,10 +120,10 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
           <div className="container mx-auto px-4">
             <div className={cn("text-center max-w-3xl mx-auto features-header fade-in-up", { 'visible': featuresVisible })}>
               <h2 className="text-4xl md:text-5xl font-bold font-headline">
-                {t('featuresTitle')} <span className='text-primary'>{t('featuresTitleHighlight')}</span>
+                Everything You Need for the <span className='text-primary'>Perfect Trip</span>
               </h2>
               <p className="text-muted-foreground mt-4 text-lg">
-                {t('featuresDescription')}
+                Powerful features designed to make your travel planning seamless and sustainable.
               </p>
             </div>
             <div className="grid gap-8 md:grid-cols-3 mt-12">
@@ -154,14 +150,14 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
           <div className="container mx-auto px-4">
             <div className={cn("text-center max-w-3xl mx-auto fade-in-up", { 'visible': destinationsVisible })}>
               <h2 className="text-4xl md:text-5xl font-bold font-headline">
-                {t('topDestinationsTitle')} <Globe className="inline-block h-10 w-10 text-primary" />
+                Top Destinations This Month <Globe className="inline-block h-10 w-10 text-primary" />
               </h2>
               <p className="text-muted-foreground mt-4 text-lg">
-                {t('topDestinationsDescription')}
+                Explore the most popular destinations trending among travelers worldwide.
               </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-12">
-              {destinations.slice(0, 3).map((dest, index) => (
+              {destinations.map((dest, index) => (
                   <div key={dest.id} className={cn("fade-in-up", { 'visible': destinationsVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
                     <DestinationCard destination={dest} />
                   </div>
@@ -174,17 +170,17 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
             <div className="container mx-auto px-4">
                 <div className={cn("text-center max-w-3xl mx-auto fade-in-up", { 'visible': storiesVisible })}>
                   <h2 className="text-4xl md:text-5xl font-bold font-headline">
-                      {t('storiesTitle')}
+                      Local Stories & Travel Tips
                   </h2>
                   <p className="text-muted-foreground mt-4 text-lg">
-                      {t('storiesDescription')}
+                      Get inspired by real travelers and learn from their experiences.
                   </p>
                 </div>
                 <div className="grid md:grid-cols-3 gap-8 mt-12">
                 {(blogs || []).slice(0,3).map((blog, index) => {
                     const readTime = Math.ceil(blog.content.split(' ').length / 200);
                     return (
-                    <Link href={`/${locale}/blog/${blog.id}`} key={blog.id}>
+                    <Link href={`/blog/${blog.id}`} key={blog.id}>
                       <Card className={cn("overflow-hidden group h-full fade-in-up", { 'visible': storiesVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
                           <div className="aspect-video w-full overflow-hidden">
                           <PexelsImage query={blog.imageHint || 'travel'} alt={blog.title} width={400} height={225} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"/>
@@ -204,7 +200,7 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
                 </div>
                  <div className={cn("text-center mt-12 fade-in-up", { 'visible': storiesVisible })} style={{ transitionDelay: '450ms' }}>
                     <Button asChild>
-                        <Link href={`/${locale}/blog`}>Read More Stories</Link>
+                        <Link href="/blog">Read More Stories</Link>
                     </Button>
                 </div>
             </div>
@@ -214,10 +210,10 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
             <div className="container mx-auto px-4">
                  <div className={cn("text-center max-w-3xl mx-auto features-header fade-in-up", { 'visible': moreFeaturesVisible })}>
                     <h2 className="text-4xl md:text-5xl font-bold font-headline">
-                        {t('moreFeaturesTitle')}
+                        More Features
                     </h2>
                     <p className="text-muted-foreground mt-4 text-lg">
-                        {t('moreFeaturesDescription')}
+                        Everything you need for a perfect trip.
                     </p>
                 </div>
                 <div className="grid gap-8 md:grid-cols-3 mt-12">

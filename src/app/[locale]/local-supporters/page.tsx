@@ -1,9 +1,7 @@
-
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
-import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, where, orderBy, doc, writeBatch, serverTimestamp } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { useFirestore, useUser } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -11,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MessageSquare, MapPin, Users, Search, Check, Loader2, Car, Coffee } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useTranslations } from 'next-intl';
 import {
   Dialog,
   DialogContent,
@@ -109,7 +106,6 @@ const serviceIcons = {
 }
 
 export default function LocalSupportersPage() {
-    const t = useTranslations('LocalSupportersPage');
     const firestore = useFirestore();
     const { user } = useUser();
     const { toast } = useToast();
@@ -236,9 +232,9 @@ export default function LocalSupportersPage() {
             return (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Users className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">{t('noSupportersTitle', {city: searchLocation})}</h3>
+                    <h3 className="mt-4 font-bold text-lg">{`No Supporters Found in ${searchLocation}`}</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
-                       {t('noSupportersDescription')}
+                       We're still building our network. Try searching for another city, or check back soon!
                     </p>
                 </Card>
             );
@@ -309,7 +305,7 @@ export default function LocalSupportersPage() {
                              </div>
                             <Button className="w-full" variant="outline">
                                 <MessageSquare className="mr-2 h-4 w-4" />
-                                {t('messageButton')}
+                                Message
                             </Button>
                         </CardFooter>
                     </Card>
@@ -344,27 +340,27 @@ export default function LocalSupportersPage() {
 
             <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
                 <div className="space-y-2">
-                    <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+                    <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Supporters</h1>
                     <p className="text-muted-foreground max-w-2xl">
-                        {t('description')}
+                        Connect with friendly locals who are happy to help. Get tips, ask questions, or just get a friendly suggestion when you're feeling lost.
                     </p>
                 </div>
 
                 <Card>
                     <CardHeader>
-                        <CardTitle>{t('findSupporterTitle')}</CardTitle>
-                        <CardDescription>{t('findSupporterDescription')}</CardDescription>
+                        <CardTitle>Find a Supporter</CardTitle>
+                        <CardDescription>Enter a city to find locals who can help. We'll try to autodetect your location.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSearch} className="flex gap-2">
                             <Input 
-                                placeholder={t('searchPlaceholder')}
+                                placeholder="e.g., Madrid, Spain"
                                 value={searchLocation}
                                 onChange={(e) => setSearchLocation(e.target.value)}
                             />
                             <Button type="submit">
                                 <Search className="mr-2 h-4 w-4" />
-                                {t('searchButton')}
+                                Search
                             </Button>
                         </form>
                     </CardContent>

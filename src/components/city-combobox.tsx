@@ -1,9 +1,7 @@
-
 "use client"
 
 import * as React from "react"
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react"
-import { useTranslations } from 'next-intl';
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -34,7 +32,6 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
   const [searchTerm, setSearchTerm] = React.useState("")
   const [suggestions, setSuggestions] = React.useState<string[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
-  const t = useTranslations('CityCombobox');
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
@@ -65,7 +62,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
   }
 
   // Display the full value if it exists, otherwise the placeholder.
-  const displayValue = value || (placeholder || t('selectPlaceholder'));
+  const displayValue = value || (placeholder || "Select city...");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -83,7 +80,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
           <CommandInput
-            placeholder={t('searchPlaceholder')}
+            placeholder="Search city..."
             value={searchTerm}
             onValueChange={setSearchTerm}
           />
@@ -94,7 +91,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
               </div>
             )}
             {!isLoading && debouncedSearchTerm.length > 1 && suggestions.length === 0 && (
-              <CommandEmpty>{t('noCityFound')}</CommandEmpty>
+              <CommandEmpty>No city found.</CommandEmpty>
             )}
             <CommandGroup>
               {suggestions.map((city, index) => (

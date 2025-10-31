@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useRef } from 'react';
@@ -9,26 +8,27 @@ import { AnimatedStat } from '@/components/animated-stat';
 import { doc } from 'firebase/firestore';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 
 const values = [
   {
     icon: <Cpu className="h-10 w-10 text-primary" />,
-    translationKey: 'value1'
+    title: 'AI Engine',
+    description: 'Smart Planning',
   },
   {
     icon: <Leaf className="h-10 w-10 text-primary" />,
-    translationKey: 'value2'
+    title: 'Eco Focus',
+    description: 'Sustainability',
   },
   {
     icon: <Heart className="h-10 w-10 text-primary" />,
-    translationKey: 'value3'
+    title: 'User First',
+    description: 'Experience',
   },
 ];
 
 export default function AboutPage() {
-  const t = useTranslations('AboutPage');
   const statsRef = useRef<HTMLDivElement>(null);
   const visionRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef<HTMLDivElement>(null);
@@ -42,9 +42,9 @@ export default function AboutPage() {
   const firestore = useFirestore();
 
   const statLabels: { [key: string]: { label: string, format: (val: number) => string } } = {
-    routesPlanned: { label: t('routesPlanned'), format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
-    happyTravelers: { label: t('happyTravelers'), format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
-    destinations: { label: t('destinations'), format: (val) => `${val}+` },
+    routesPlanned: { label: 'Routes Planned', format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
+    happyTravelers: { label: 'Happy Travelers', format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
+    destinations: { label: 'Destinations', format: (val) => `${val}+` },
   };
 
   const statsDocRef = useMemoFirebase(() => {
@@ -59,10 +59,10 @@ export default function AboutPage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <h1 className="font-headline text-4xl md:text-6xl font-bold">
-            {t('title')}
+            About TripMind
           </h1>
           <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            {t('subtitle')}
+            The smarter, greener, easier way to explore
           </p>
         </div>
       </section>
@@ -72,12 +72,12 @@ export default function AboutPage() {
           <Card className={cn("max-w-4xl mx-auto p-6 md:p-10 shadow-lg border-gray-200/80 fade-in-up", { 'visible': isVisionVisible })}>
             <CardContent className="p-0">
               <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">
-                {t('visionTitle')}
+                Our Vision
               </h2>
               <div className="space-y-4 text-muted-foreground text-base md:text-lg">
-                <p>{t('visionP1')}</p>
-                <p>{t('visionP2')}</p>
-                <p>{t('visionP3')}</p>
+                <p>TripMind was born from a simple idea: travel should be both exciting and responsible. We believe that technology can help us explore the world while protecting it for future generations.</p>
+                <p>Our AI-powered platform makes it easy to plan trips that are not only memorable but also sustainable. From finding hidden gems to calculating carbon footprints, we put the power of smart travel in your hands.</p>
+                <p>Built for Hackathon 2025, TripMind represents our commitment to innovation, sustainability, and creating meaningful travel experiences that connect people with places and cultures.</p>
               </div>
             </CardContent>
           </Card>
@@ -89,16 +89,16 @@ export default function AboutPage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-4xl mx-auto">
             {values.map((value, index) => (
               <Card
-                key={value.translationKey}
+                key={value.title}
                 className={cn("text-center p-8 h-full feature-card border-gray-200/80 shadow-sm hover:shadow-lg transition-shadow duration-300 fade-in-up", { 'visible': isValuesVisible })}
                 style={{ transitionDelay: `${index * 150}ms` }}
               >
                 <div className="inline-block p-4 bg-primary/10 rounded-full mb-4">
                   {value.icon}
                 </div>
-                <h3 className="text-xl font-bold">{t(`${value.translationKey}Title`)}</h3>
+                <h3 className="text-xl font-bold">{value.title}</h3>
                 <p className="text-muted-foreground mt-1">
-                  {t(`${value.translationKey}Description`)}
+                  {value.description}
                 </p>
               </Card>
             ))}
@@ -111,10 +111,10 @@ export default function AboutPage() {
           <Card className={cn("max-w-4xl mx-auto bg-gray-900 text-white text-center p-8 md:p-12 shadow-lg fade-in-up", { 'visible': isMissionVisible })}>
             <CardContent className="p-0">
               <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">
-                {t('missionTitle')}
+                Our Mission
               </h2>
               <p className="text-lg md:text-2xl max-w-3xl mx-auto italic text-gray-300">
-                {t('missionStatement')}
+                "To empower travelers with AI-driven insights that make every journey smarter, greener, and more enriching—while supporting local communities and protecting our planet."
               </p>
               <div
                 ref={statsRef}

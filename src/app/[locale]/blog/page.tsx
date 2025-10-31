@@ -1,9 +1,8 @@
-
 'use client'
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useCollection, useUser, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection, query, where, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +10,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, PenSquare, BookOpen } from 'lucide-react';
 import Link from 'next/link';
-import { useTranslations, useLocale } from 'next-intl';
 import { format } from 'date-fns';
 import { PexelsImage } from '@/components/pexels-image';
 import type { Blog } from '@/lib/types';
@@ -20,8 +18,6 @@ import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
 
 export default function BlogPage() {
-    const t = useTranslations('BlogPage');
-    const locale = useLocale();
     const { user } = useUser();
     const firestore = useFirestore();
 
@@ -55,15 +51,15 @@ export default function BlogPage() {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
-                <p className="text-muted-foreground max-w-2xl">{t('description')}</p>
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">Travel Stories & Blog</h1>
+                <p className="text-muted-foreground max-w-2xl">Get inspired by real adventures from the TripMind community.</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                 <div className="relative w-full md:max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input 
-                        placeholder={t('searchPlaceholder')} 
+                        placeholder="Search for stories or destinations..." 
                         className="pl-10"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -71,9 +67,9 @@ export default function BlogPage() {
                 </div>
                 {user && (
                     <Button asChild>
-                        <Link href={`/${locale}/blog/create`}>
+                        <Link href="/blog/create">
                             <PenSquare className="mr-2 h-4 w-4" />
-                            {t('createButton')}
+                            Write a Story
                         </Link>
                     </Button>
                 )}
@@ -89,7 +85,7 @@ export default function BlogPage() {
                     return (
                         <Card key={blog.id} className={cn("flex flex-col group overflow-hidden fade-in-up", { 'visible': isVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
                            <CardHeader className="p-0">
-                                <Link href={`/${locale}/blog/${blog.id}`} className="block">
+                                <Link href={`/blog/${blog.id}`} className="block">
                                     <div className="aspect-video w-full overflow-hidden">
                                         <PexelsImage 
                                             query={blog.imageHint || 'travel journal'} 
@@ -101,7 +97,7 @@ export default function BlogPage() {
                                 </Link>
                            </CardHeader>
                            <CardContent className="p-6 flex-grow">
-                                <Link href={`/${locale}/blog/${blog.id}`} className="block">
+                                <Link href={`/blog/${blog.id}`} className="block">
                                     <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">{blog.title}</CardTitle>
                                 </Link>
                                 <p className="text-muted-foreground text-sm mt-2 line-clamp-3">{blog.content}</p>
@@ -130,7 +126,7 @@ export default function BlogPage() {
             
             {!isLoading && (!filteredBlogs || filteredBlogs.length === 0) && (
                 <div className="text-center py-16">
-                    <p className="text-muted-foreground">{t('noPosts')}</p>
+                    <p className="text-muted-foreground">No blog posts found. Why not be the first to share a story?</p>
                 </div>
             )}
         </main>

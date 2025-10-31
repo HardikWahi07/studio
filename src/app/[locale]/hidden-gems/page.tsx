@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef } from "react";
@@ -13,7 +12,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Sparkles, Dices } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { useTranslations } from "next-intl";
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
 
@@ -32,7 +30,6 @@ const randomInterests = [
 ];
 
 export default function HiddenGemsPage() {
-  const t = useTranslations('HiddenGemsPage');
   const [gems, setGems] = useState<ExploreHiddenGemsOutput['gems']>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
@@ -56,8 +53,8 @@ export default function HiddenGemsPage() {
     } catch (error) {
       console.error("Failed to explore hidden gems:", error);
       toast({
-        title: t('toastErrorTitle'),
-        description: t('toastErrorDescription'),
+        title: "Error",
+        description: "Failed to find gems. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -74,8 +71,8 @@ export default function HiddenGemsPage() {
     } else {
       form.setFocus("destination");
       toast({
-        title: t('toastSpontaneityTitle'),
-        description: t('toastSpontaneityDescription'),
+        title: "Destination Needed",
+        description: "Please enter a destination to be spontaneous!",
       });
     }
   };
@@ -83,16 +80,16 @@ export default function HiddenGemsPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">Hidden Gems Explorer</h1>
         <p className="text-muted-foreground max-w-2xl">
-          {t('description')}
+          Venture off the beaten path. Discover authentic local spots and experiences that guidebooks won't show you.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>{t('formTitle')}</CardTitle>
-          <CardDescription>{t('formDescription')}</CardDescription>
+          <CardTitle>Find Your Next Adventure</CardTitle>
+          <CardDescription>Enter a destination and your interests to get started.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -103,9 +100,9 @@ export default function HiddenGemsPage() {
                   name="destination"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('destinationLabel')}</FormLabel>
+                      <FormLabel>Destination</FormLabel>
                       <FormControl>
-                        <Input placeholder={t('destinationPlaceholder')} {...field} />
+                        <Input placeholder="e.g., Lisbon, Portugal" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -116,10 +113,10 @@ export default function HiddenGemsPage() {
                   name="interests"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('interestsLabel')}</FormLabel>
+                      <FormLabel>Interests</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder={t('interestsPlaceholder')}
+                          placeholder="e.g., Vintage shops, seafood, scenic viewpoints"
                           className="resize-none"
                           {...field}
                         />
@@ -134,18 +131,18 @@ export default function HiddenGemsPage() {
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      {t('searchingButton')}
+                      Searching...
                     </>
                   ) : (
                     <>
                       <Sparkles className="mr-2 h-4 w-4" />
-                      {t('findGemsButton')}
+                      Find Gems
                     </>
                   )}
                 </Button>
                 <Button type="button" variant="outline" className="w-full sm:w-auto" onClick={handleSpontaneity} disabled={isLoading}>
                   <Dices className="mr-2 h-4 w-4" />
-                  {t('spontaneityButton')}
+                  Spontaneity Button
                 </Button>
               </div>
             </form>
@@ -172,7 +169,7 @@ export default function HiddenGemsPage() {
 
       {!isLoading && gems.length > 0 && (
         <div ref={resultsRef} className="pt-8">
-          <h2 className="font-headline text-2xl font-bold mb-6">{t('discoveredGemsTitle')}</h2>
+          <h2 className="font-headline text-2xl font-bold mb-6">Your Discovered Gems</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {gems.map((gem, index) => (
               <Card key={index} className={cn("flex flex-col fade-in-up", { 'visible': resultsVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
@@ -182,7 +179,7 @@ export default function HiddenGemsPage() {
                 <CardContent className="flex-grow flex flex-col justify-between space-y-4">
                   <p className="text-muted-foreground">{gem.description}</p>
                   <div>
-                    <h4 className="font-bold text-sm mb-2 text-primary">{t('whyAuthentic')}</h4>
+                    <h4 className="font-bold text-sm mb-2 text-primary">Why it's authentic:</h4>
                     <p className="text-sm border-l-2 border-primary pl-3">{gem.whyAuthentic}</p>
                   </div>
                 </CardContent>
