@@ -24,23 +24,6 @@ import type { Blog } from '@/lib/types';
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
 
-// Fisher-Yates shuffle algorithm
-const shuffleArray = <T>(array: T[]): T[] => {
-  let currentIndex = array.length, randomIndex;
-  const newArray = [...array]; // Create a copy to avoid mutating the original
-
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    [newArray[currentIndex], newArray[randomIndex]] = [
-      newArray[randomIndex], newArray[currentIndex]];
-  }
-
-  return newArray;
-};
-
-
 export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
   const t = useTranslations('DashboardPage');
   const locale = useLocale();
@@ -53,7 +36,7 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
   const storiesVisible = useOnVisible(storiesRef);
   const moreFeaturesVisible = useOnVisible(moreFeaturesRef);
 
-  const destinations = useMemo(() => shuffleArray(allDestinations), []);
+  const destinations = allDestinations;
 
   const features = [
     {
