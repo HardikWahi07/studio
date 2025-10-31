@@ -14,6 +14,8 @@ import { PlusCircle, Trash2, Users, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 type Trip = {
     id: string;
@@ -66,53 +68,81 @@ export default function ExpenseWorkspacePage() {
   const participants = useMemo(() => trip?.expenseParticipants || [], [trip]);
   const isLoading = isLoadingTrip || isLoadingExpenses;
 
-  const handleAddParticipant = async () => {
-    if (newParticipant && !participants.includes(newParticipant) && tripDocRef) {
-      await updateDoc(tripDocRef, {
-        expenseParticipants: arrayUnion(newParticipant)
-      });
-      setNewParticipant("");
+  const handleAddParticipant = () => {
+    if (newParticipant && !participants.includes(newParticipant) && tripDocRef && firestore) {
+      const updatedData = { expenseParticipants: arrayUnion(newParticipant) };
+      updateDoc(tripDocRef, updatedData)
+        .then(() => {
+          setNewParticipant("");
+        })
+        .catch(() => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: tripDocRef.path,
+            operation: 'update',
+            requestResourceData: updatedData,
+          }));
+        });
     }
   };
   
-  const handleRemoveParticipant = async (name: string) => {
-    if (tripDocRef) {
-      await updateDoc(tripDocRef, {
-        expenseParticipants: arrayRemove(name)
-      });
-      // Optionally, decide how to handle expenses paid by the removed participant.
-      // For now, we leave them, but they could be deleted or re-assigned.
+  const handleRemoveParticipant = (name: string) => {
+    if (tripDocRef && firestore) {
+      const updatedData = { expenseParticipants: arrayRemove(name) };
+      updateDoc(tripDocRef, updatedData)
+        .catch(() => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: tripDocRef.path,
+            operation: 'update',
+            requestResourceData: updatedData,
+          }));
+        });
     }
   }
 
-  const handleAddExpense = async (e: React.FormEvent) => {
+  const handleAddExpense = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tripDocRef) return;
+    if (!tripDocRef || !firestore || !user) return;
     
     const numAmount = parseFloat(amount);
     if (!description || !numAmount || !paidBy) {
       alert("Please fill out all expense fields.");
       return;
     }
-
-    await addDoc(collection(tripDocRef, 'expenses'), {
+    
+    const expenseData = {
       description,
       amount: numAmount,
       paidBy,
       tripId,
-      userId: user?.uid,
-    });
+      userId: user.uid,
+    };
 
-    // Reset form
-    setDescription("");
-    setAmount("");
-    setPaidBy("");
+    addDoc(collection(tripDocRef, 'expenses'), expenseData)
+      .then(() => {
+        // Reset form on success
+        setDescription("");
+        setAmount("");
+        setPaidBy("");
+      })
+      .catch(() => {
+        errorEmitter.emit('permission-error', new FirestorePermissionError({
+          path: `${tripDocRef.path}/expenses`,
+          operation: 'create',
+          requestResourceData: expenseData,
+        }));
+      });
   };
 
-  const handleRemoveExpense = async (expenseId: string) => {
+  const handleRemoveExpense = (expenseId: string) => {
     if (!tripDocRef) return;
     const expenseDocRef = doc(tripDocRef, 'expenses', expenseId);
-    await deleteDoc(expenseDocRef);
+    deleteDoc(expenseDocRef)
+        .catch(() => {
+            errorEmitter.emit('permission-error', new FirestorePermissionError({
+                path: expenseDocRef.path,
+                operation: 'delete',
+            }));
+        });
   };
 
   const totalSpent = useMemo(() => {
@@ -183,7 +213,7 @@ export default function ExpenseWorkspacePage() {
                       value={newParticipant}
                       onChange={(e) => setNewParticipant(e.target.value)}
                       placeholder="Add new participant name..."
-                      onKeyDown={(e) => e.key === 'Enter' && handleAddParticipant()}
+                      onKeyDown={(e) => {if (e.key === 'Enter') handleAddParticipant()}}
                   />
                   <Button onClick={handleAddParticipant}>Add Participant</Button>
               </div>
