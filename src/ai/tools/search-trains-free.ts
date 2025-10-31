@@ -1,14 +1,12 @@
-
 'use server';
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import fetch from 'node-fetch';
-import { add, format } from 'date-fns';
 
 const SearchRealtimeTrainsFreeInputSchema = z.object({
-  fromStationCode: z.string().describe('The station code for the origin, e.g., "NDLS" for New Delhi.'),
-  toStationCode: z.string().describe('The station code for the destination, e.g., "BCT" for Mumbai Central.'),
+  fromCity: z.string().describe('The name of the origin city, e.g., "Mumbai".'),
+  toCity: z.string().describe('The name of the destination city, e.g., "Delhi".'),
   departureDate: z.string().describe('The date of departure in YYYY-MM-DD format.'),
 });
 
@@ -34,6 +32,28 @@ const SearchRealtimeTrainsFreeOutputSchema = z.object({
   trains: z.array(TrainOptionSchema),
 });
 
+// Helper to get station code from city name
+async function getStationCode(city: string): Promise<string | null> {
+    const url = `https://indianrailapi.com/api/v2/StationCodeToName/apikey/d990263a1d99913990d9320875f2316a/name/${encodeURIComponent(city)}`;
+    try {
+        const response = await fetch(url);
+        if (!response.ok) {
+            console.error(`IndianRailAPI (Station Search) error: ${response.status} ${response.statusText}`);
+            return null;
+        }
+        const data: any = await response.json();
+        // Find the most relevant station code, often the first one or one that matches common patterns
+        if (data.ResponseCode === 200 && data.Stations && data.Stations.length > 0) {
+            return data.Stations[0].StationCode; // Return the first result
+        }
+        return null;
+    } catch (error) {
+        console.error('Failed to fetch station code from IndianRailAPI:', error);
+        return null;
+    }
+}
+
+
 async function getTrains(from: string, to: string, date: string): Promise<any> {
     const formattedDate = date.replace(/-/g, ''); // Convert YYYY-MM-DD to YYYYMMDD
     const url = `https://indianrailapi.com/api/v2/TrainBetweenStation/apikey/d990263a1d99913990d9320875f2316a/from/${from}/to/${to}/date/${formattedDate}`;
@@ -41,7 +61,7 @@ async function getTrains(from: string, to: string, date: string): Promise<any> {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            console.error(`IndianRailAPI error: ${response.status} ${response.statusText}`);
+            console.error(`IndianRailAPI (Train Search) error: ${response.status} ${response.statusText}`);
             return null;
         }
         const data = await response.json();
@@ -56,14 +76,23 @@ async function getTrains(from: string, to: string, date: string): Promise<any> {
 export const searchRealtimeTrainsFree = ai.defineTool(
   {
     name: 'searchRealtimeTrainsFree',
-    description: 'Searches for trains between two stations in India for a given date using a free public API.',
+    description: 'Searches for trains between two cities in India for a given date using a free public API.',
     inputSchema: SearchRealtimeTrainsFreeInputSchema,
     outputSchema: SearchRealtimeTrainsFreeOutputSchema,
   },
   async (input) => {
-    console.log('[searchRealtimeTrainsFree] Searching trains with input:', input);
+    console.log('[searchRealtimeTrainsFree] Searching trains for cities:', input);
+
+    const fromStationCode = await getStationCode(input.fromCity);
+    const toStationCode = await getStationCode(input.toCity);
+
+    if (!fromStationCode || !toStationCode) {
+        console.warn(`[searchRealtimeTrainsFree] Could not find station codes for ${input.fromCity} -> ${input.toCity}.`);
+        return { trains: [] };
+    }
     
-    const apiResult = await getTrains(input.fromStationCode, input.toStationCode, input.departureDate);
+    console.log(`[searchRealtimeTrainsFree] Found station codes: ${fromStationCode} -> ${toStationCode}`);
+    const apiResult = await getTrains(fromStationCode, toStationCode, input.departureDate);
 
     if (!apiResult || apiResult.ResponseCode !== 200 || !apiResult.Trains) {
       console.warn('[searchRealtimeTrainsFree] No trains found or API error.');
