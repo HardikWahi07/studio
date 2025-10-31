@@ -1,7 +1,6 @@
 
 'use client';
 
-import { useEffect } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, query, where, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { PlusCircle, Briefcase, Loader2, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { PexelsImage } from '@/components/pexels-image';
 import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
+import { useMemo } from 'react';
 
 type Trip = PlanTripOutput & {
   id: string;
@@ -19,16 +19,23 @@ type Trip = PlanTripOutput & {
   hasExpenseSplitter?: boolean;
 };
 
-function SelectTripDialog({ onTripSelected }: { onTripSelected: (trip: Trip) => void }) {
+function SelectTripDialog({ onTripSelected, activeSplitterIds }: { onTripSelected: (trip: Trip) => void, activeSplitterIds: Set<string> }) {
   const { user } = useUser();
   const firestore = useFirestore();
 
   const tripsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
-    return query(collection(firestore, 'users', user.uid, 'trips'), where('hasExpenseSplitter', '!=', true));
+    // Fetch ALL trips. Filtering will happen on the client.
+    return query(collection(firestore, 'users', user.uid, 'trips'));
   }, [user, firestore]);
 
-  const { data: trips, isLoading } = useCollection<Trip>(tripsQuery);
+  const { data: allTrips, isLoading } = useCollection<Trip>(tripsQuery);
+  
+  // Filter out the trips that already have an active splitter
+  const availableTrips = useMemo(() => {
+      if (!allTrips) return [];
+      return allTrips.filter(trip => !activeSplitterIds.has(trip.id));
+  }, [allTrips, activeSplitterIds]);
 
   return (
     <DialogContent>
@@ -38,13 +45,13 @@ function SelectTripDialog({ onTripSelected }: { onTripSelected: (trip: Trip) => 
       </DialogHeader>
       <div className="space-y-2 py-4 max-h-[60vh] overflow-y-auto">
         {isLoading && <div className="flex justify-center"><Loader2 className="animate-spin" /></div>}
-        {!isLoading && !trips?.length && (
+        {!isLoading && !availableTrips?.length && (
           <div className="text-center text-muted-foreground p-4">
             <p>No trips available to create a splitter for.</p>
             <Button variant="link" asChild><Link href="/trip-planner">Plan a new trip</Link></Button>
           </div>
         )}
-        {trips?.map(trip => (
+        {availableTrips?.map(trip => (
           <DialogTrigger asChild key={trip.id}>
             <button
               onClick={() => onTripSelected(trip)}
@@ -70,23 +77,21 @@ export default function ExpensesDashboardPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // This query will fetch trips that ALREADY have an expense splitter activated.
   const activeSplittersQuery = useMemoFirebase(() => {
       if (!user || !firestore) return null;
       return query(collection(firestore, 'users', user.uid, 'trips'), where('hasExpenseSplitter', '==', true));
   }, [user, firestore]);
 
   const { data: activeSplitters, isLoading: isLoadingSplitters } = useCollection<Trip>(activeSplittersQuery);
-
+  
+  const activeSplitterIds = useMemo(() => new Set(activeSplitters?.map(t => t.id) || []), [activeSplitters]);
 
   const handleTripSelected = async (trip: Trip) => {
     if (!user || !firestore) return;
 
-    // Mark the trip in Firestore as having an expense splitter.
     const tripRef = doc(firestore, 'users', user.uid, 'trips', trip.id);
     try {
         await updateDoc(tripRef, { hasExpenseSplitter: true });
-        // The useCollection hook will automatically update the UI.
     } catch(e) {
         console.error("Failed to activate expense splitter:", e);
     }
@@ -125,7 +130,7 @@ export default function ExpensesDashboardPage() {
               <PlusCircle className="mr-2" /> New Splitter
             </Button>
           </DialogTrigger>
-          <SelectTripDialog onTripSelected={handleTripSelected} />
+          <SelectTripDialog onTripSelected={handleTripSelected} activeSplitterIds={activeSplitterIds} />
         </Dialog>
       </div>
 
@@ -159,5 +164,3 @@ export default function ExpensesDashboardPage() {
     </main>
   );
 }
-
-    
