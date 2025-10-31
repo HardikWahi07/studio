@@ -13,7 +13,7 @@ export async function handleGoogleSignIn() {
     return result.user;
   } catch (error: any) {
     console.error('Error during Google sign-in:', error);
-    if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
+    if (error.code === 'auth/popup-blocked' || error.code === 'auth/popup-closed-by-user') {
       // If popup is blocked, fall back to redirect method.
       // This will navigate the user to the Google sign-in page
       // and then redirect back to your app.
