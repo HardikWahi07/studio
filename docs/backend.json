@@ -96,6 +96,10 @@
                 "type": "string"
             },
             "description": "List of participant names for the expense splitter."
+        },
+        "hasExpenseSplitter": {
+            "type": "boolean",
+            "description": "Indicates if an expense splitter has been activated for this trip."
         }
       },
       "required": [

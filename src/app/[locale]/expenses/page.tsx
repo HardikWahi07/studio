@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, where, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from '@/components/ui/dialog';
@@ -16,6 +16,7 @@ type Trip = PlanTripOutput & {
   id: string;
   destination: string;
   tripTitle: string;
+  hasExpenseSplitter?: boolean;
 };
 
 function SelectTripDialog({ onTripSelected }: { onTripSelected: (trip: Trip) => void }) {
@@ -24,7 +25,7 @@ function SelectTripDialog({ onTripSelected }: { onTripSelected: (trip: Trip) => 
 
   const tripsQuery = useMemoFirebase(() => {
     if (!user || !firestore) return null;
-    return query(collection(firestore, 'users', user.uid, 'trips'), orderBy('createdAt', 'desc'));
+    return query(collection(firestore, 'users', user.uid, 'trips'), where('hasExpenseSplitter', '!=', true));
   }, [user, firestore]);
 
   const { data: trips, isLoading } = useCollection<Trip>(tripsQuery);
@@ -39,7 +40,7 @@ function SelectTripDialog({ onTripSelected }: { onTripSelected: (trip: Trip) => 
         {isLoading && <div className="flex justify-center"><Loader2 className="animate-spin" /></div>}
         {!isLoading && !trips?.length && (
           <div className="text-center text-muted-foreground p-4">
-            <p>No trips found.</p>
+            <p>No trips available to create a splitter for.</p>
             <Button variant="link" asChild><Link href="/trip-planner">Plan a new trip</Link></Button>
           </div>
         )}
@@ -67,16 +68,33 @@ function SelectTripDialog({ onTripSelected }: { onTripSelected: (trip: Trip) => 
 
 export default function ExpensesDashboardPage() {
   const { user, isUserLoading } = useUser();
-  const [activeSplitters, setActiveSplitters] = useState<Trip[]>([]);
+  const firestore = useFirestore();
 
-  const handleTripSelected = (trip: Trip) => {
-    // Avoid adding duplicates
-    if (!activeSplitters.some(t => t.id === trip.id)) {
-      setActiveSplitters(prev => [...prev, trip]);
+  // This query will fetch trips that ALREADY have an expense splitter activated.
+  const activeSplittersQuery = useMemoFirebase(() => {
+      if (!user || !firestore) return null;
+      return query(collection(firestore, 'users', user.uid, 'trips'), where('hasExpenseSplitter', '==', true));
+  }, [user, firestore]);
+
+  const { data: activeSplitters, isLoading: isLoadingSplitters } = useCollection<Trip>(activeSplittersQuery);
+
+
+  const handleTripSelected = async (trip: Trip) => {
+    if (!user || !firestore) return;
+
+    // Mark the trip in Firestore as having an expense splitter.
+    const tripRef = doc(firestore, 'users', user.uid, 'trips', trip.id);
+    try {
+        await updateDoc(tripRef, { hasExpenseSplitter: true });
+        // The useCollection hook will automatically update the UI.
+    } catch(e) {
+        console.error("Failed to activate expense splitter:", e);
     }
   };
 
-  if (isUserLoading) {
+  const isLoading = isUserLoading || isLoadingSplitters;
+
+  if (isLoading) {
     return <div className="flex-1 p-8 flex justify-center items-center"><Loader2 className="animate-spin" /></div>
   }
   
@@ -111,7 +129,7 @@ export default function ExpensesDashboardPage() {
         </Dialog>
       </div>
 
-      {activeSplitters.length === 0 ? (
+      {(activeSplitters && activeSplitters.length === 0) ? (
         <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg min-h-[400px]">
             <Briefcase className="h-16 w-16 text-muted-foreground/50" />
             <h3 className="mt-4 font-bold text-lg">No Active Splitters</h3>
@@ -121,7 +139,7 @@ export default function ExpensesDashboardPage() {
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {activeSplitters.map(trip => (
+          {activeSplitters?.map(trip => (
             <Link key={trip.id} href={`/expenses/${trip.id}/workspace`}>
               <Card className="h-full group hover:shadow-lg transition-shadow">
                 <CardHeader className="p-0">
@@ -141,3 +159,5 @@ export default function ExpensesDashboardPage() {
     </main>
   );
 }
+
+    
