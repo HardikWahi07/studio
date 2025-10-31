@@ -28,7 +28,11 @@
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
     "contactUs": "Contáctanos",
-    "safety": "Compañero de Seguridad"
+    "safety": "Compañero de Seguridad",
+    "dataSources": "Fuentes de Datos",
+    "dataSourcesP1": "Para proporcionar una experiencia rica e interactiva sin requerir que los usuarios se registren para obtener múltiples claves de API, TripMind utiliza una combinación de datos simulados y enlaces profundos inteligentes a sitios de reserva reales.",
+    "dataSourcesP2": "Las opciones de trenes, vuelos y hoteles son generadas por nuestra IA para ser realistas. Cuando haces clic en 'Reservar', se te lleva a una página de búsqueda pre-llenada en un sitio de confianza como Google Flights, IRCTC o Booking.com, donde puedes ver los precios en tiempo real y finalizar tu reserva.",
+    "dataSourcesP3": "Este enfoque 'Gratis para Siempre' nos permite ofrecer una potente herramienta de planificación de viajes que es gratuita e inmediatamente útil."
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
@@ -327,5 +331,32 @@
     "searchPlaceholder": "Buscar historias o destinos...",
     "createButton": "Escribir una Historia",
     "noPosts": "No se encontraron publicaciones de blog. ¿Por qué no ser el primero en compartir una historia?"
+  },
+  "BookTripPage": {
+    "backToItinerary": "Volver al Itinerario",
+    "scheduleReminder": "Programar Recordatorio",
+    "tripIsBooked": "Este viaje está reservado",
+    "markAsBooked": "Marcar como Reservado",
+    "title": "Reservas Sugeridas para",
+    "description": "Aquí están las opciones sugeridas por la IA para tu viaje. Haz clic en 'Reservar' para visitar el sitio del proveedor.",
+    "transportTitle": "Transporte a",
+    "transportDescription": "Nuestra IA ha encontrado estas opciones para tu tramo principal de viaje.",
+    "hotelTitle": "Opciones de Hotel",
+    "hotelDescription": "Lugares recomendados para alojarse según tus preferencias.",
+    "tripNotFoundTitle": "Viaje no encontrado",
+    "tripNotFoundDescription": "No pudimos encontrar el viaje que estás buscando.",
+    "tripBookedTitle": "¡Viaje Reservado!",
+    "tripBookedDescription": "El estado de tu viaje ha sido actualizado.",
+    "updateFailedTitle": "Error al Actualizar",
+    "updateFailedDescription": "No se pudo actualizar el estado del viaje. Por favor, inténtalo de nuevo.",
+    "setReminderTitle": "Establecer un Recordatorio",
+    "setReminderDescription": "Establecer un recordatorio para tu viaje a {tripTitle}",
+    "pickDate": "Elige una fecha",
+    "setReminderButton": "Establecer Recordatorio",
+    "reminderErrorTitle": "No se ha seleccionado fecha",
+    "reminderErrorDescription": "Por favor, selecciona una fecha para el recordatorio.",
+    "reminderSuccessTitle": "¡Recordatorio Establecido!",
+    "reminderSuccessDescription": "Te recordaremos tu viaje a",
+    "on": "el"
   }
 }

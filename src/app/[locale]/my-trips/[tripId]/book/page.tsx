@@ -1,17 +1,24 @@
+
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PlanTripOutput, BookingOption, HotelOption } from '@/ai/flows/plan-trip.types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Briefcase, Plane, Train, Bus, Leaf, Hotel, Star, Clock, CarFront, CheckCircle, ShoppingCart, Award, BadgeEuro, Sparkles } from 'lucide-react';
+import { ArrowLeft, Briefcase, Plane, Train, Bus, Leaf, Hotel, Star, Clock, CarFront, CheckCircle, ShoppingCart, Award, BadgeEuro, Sparkles, Calendar as CalendarIcon, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { useTranslations } from '@/hooks/use-translations';
 
 type TripData = PlanTripOutput & { tripTitle: string; destination: string; status?: 'Booked' | 'Pending' };
 
@@ -21,6 +28,68 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     bus: <Bus className="h-6 w-6 text-orange-500" />,
     driving: <CarFront className="h-6 w-6 text-gray-500" />,
 };
+
+function ReminderDialog({ trip }: { trip: TripData }) {
+    const t = useTranslations();
+    const [reminderDate, setReminderDate] = useState<Date | undefined>();
+    const { toast } = useToast();
+
+    const handleSetReminder = () => {
+        if (!reminderDate) {
+            toast({
+                title: t('BookTripPage.reminderErrorTitle'),
+                description: t('BookTripPage.reminderErrorDescription'),
+                variant: 'destructive'
+            });
+            return;
+        }
+        toast({
+            title: t('BookTripPage.reminderSuccessTitle'),
+            description: `${t('BookTripPage.reminderSuccessDescription')} ${trip.tripTitle} ${t('BookTripPage.on')} ${format(reminderDate, 'PPP')}.`
+        });
+    }
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button variant="outline"><Bell className="mr-2" />{t('BookTripPage.scheduleReminder')}</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{t('BookTripPage.setReminderTitle')}</DialogTitle>
+                    <DialogDescription>{t('BookTripPage.setReminderDescription', { tripTitle: trip.tripTitle })}</DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                     <Popover>
+                        <PopoverTrigger asChild>
+                            <Button
+                            variant={"outline"}
+                            className={cn(
+                                "w-full justify-start text-left font-normal",
+                                !reminderDate && "text-muted-foreground"
+                            )}
+                            >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {reminderDate ? format(reminderDate, "PPP") : <span>{t('BookTripPage.pickDate')}</span>}
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0">
+                            <Calendar
+                                mode="single"
+                                selected={reminderDate}
+                                onSelect={setReminderDate}
+                                initialFocus
+                            />
+                        </PopoverContent>
+                    </Popover>
+                </div>
+                <DialogFooter>
+                    <Button onClick={handleSetReminder}>{t('BookTripPage.setReminderButton')}</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
 
 function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recommendation?: 'Best' | 'Cheapest' | 'Eco-Friendly' }) {
     const { toast } = useToast();
@@ -96,6 +165,7 @@ function HotelOptionCard({ opt }: { opt: HotelOption }) {
 }
 
 export default function BookTripPage({ params }: { params: { tripId: string } }) {
+    const t = useTranslations();
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const router = useRouter();
@@ -139,15 +209,15 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
         try {
             await updateDoc(tripDocRef, { status: 'Booked' });
             toast({
-                title: "Trip Booked!",
-                description: "Your trip status has been updated.",
+                title: t('BookTripPage.tripBookedTitle'),
+                description: t('BookTripPage.tripBookedDescription'),
             });
             if (forceRefetch) forceRefetch();
             router.push(`/my-trips`);
         } catch(e) {
             toast({
-                title: "Update Failed",
-                description: "Could not update trip status. Please try again.",
+                title: t('BookTripPage.updateFailedTitle'),
+                description: t('BookTripPage.updateFailedDescription'),
                 variant: 'destructive',
             });
         }
@@ -176,9 +246,9 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
                 <div className="container mx-auto">
                     <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                         <Briefcase className="h-16 w-16 text-muted-foreground/50" />
-                        <h3 className="mt-4 font-bold text-lg">Trip Not Found</h3>
+                        <h3 className="mt-4 font-bold text-lg">{t('BookTripPage.tripNotFoundTitle')}</h3>
                         <p className="mt-2 text-muted-foreground max-w-sm">
-                            We couldn't find the trip you're looking for.
+                            {t('BookTripPage.tripNotFoundDescription')}
                         </p>
                     </Card>
                 </div>
@@ -195,27 +265,30 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
                     <Button asChild variant="outline">
                         <Link href={`/my-trips/${tripId}`}>
                             <ArrowLeft className="mr-2" />
-                            Back to Itinerary
+                            {t('BookTripPage.backToItinerary')}
                         </Link>
                     </Button>
-                    {isBooked ? (
-                        <div className="inline-flex items-center gap-2 text-green-600 font-semibold bg-green-100 dark:bg-green-900/50 px-4 py-2 rounded-full">
-                            <CheckCircle /> This trip is booked
-                        </div>
-                    ) : (
-                         <Button onClick={handleConfirmBooking}>
-                            <CheckCircle className="mr-2" />
-                            Mark as Booked
-                        </Button>
-                    )}
+                    <div className="flex items-center gap-2">
+                        <ReminderDialog trip={trip}/>
+                        {isBooked ? (
+                            <div className="inline-flex items-center gap-2 text-green-600 font-semibold bg-green-100 dark:bg-green-900/50 px-4 py-2 rounded-full">
+                                <CheckCircle /> {t('BookTripPage.tripIsBooked')}
+                            </div>
+                        ) : (
+                            <Button onClick={handleConfirmBooking}>
+                                <CheckCircle className="mr-2" />
+                                {t('BookTripPage.markAsBooked')}
+                            </Button>
+                        )}
+                    </div>
                  </div>
 
                 <div className="space-y-2">
                     <h1 className="font-headline text-3xl md:text-4xl font-bold flex items-center gap-2">
-                        <ShoppingCart /> Suggested Bookings for {trip.destination}
+                        <ShoppingCart /> {t('BookTripPage.title')} {trip.destination}
                     </h1>
                     <p className="text-muted-foreground max-w-2xl">
-                        Here are the AI-suggested options for your trip. Click "Book" to visit the provider's site.
+                        {t('BookTripPage.description')}
                     </p>
                 </div>
 
@@ -223,8 +296,8 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
                     {trip.bookingOptions && trip.bookingOptions.length > 0 && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Plane /> Transport to {trip.destination}</CardTitle>
-                                <CardDescription>Our AI has found these options for your main travel leg.</CardDescription>
+                                <CardTitle className="flex items-center gap-2"><Plane /> {t('BookTripPage.transportTitle')} {trip.destination}</CardTitle>
+                                <CardDescription>{t('BookTripPage.transportDescription')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {sortedBookingOptions.cheapest && <BookingOptionCard opt={sortedBookingOptions.cheapest} recommendation="Cheapest" />}
@@ -238,8 +311,8 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
                     {trip.hotelOptions && trip.hotelOptions.length > 0 && (
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Hotel /> Hotel Options</CardTitle>
-                                <CardDescription>Recommended places to stay based on your preferences.</CardDescription>
+                                <CardTitle className="flex items-center gap-2"><Hotel /> {t('BookTripPage.hotelTitle')}</CardTitle>
+                                <CardDescription>{t('BookTripPage.hotelDescription')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                {trip.hotelOptions.map((opt, idx) => (
