@@ -161,7 +161,7 @@
     "reminderErrorTitle": "کوئی تاریخ منتخب نہیں کی گئی",
     "reminderErrorDescription": "براہ کرم یاد دہانی کے لیے ایک تاریخ منتخب کریں۔",
     "reminderSuccessTitle": "یاد دہانی سیٹ!",
-    "reminderSuccessDescription": "ہم آپ کو آپ کے سفر کے بارے میں یاد دلائیں گے",
+    "reminderSuccessDescription": "ہم آپ کو آپ کے سفر کے بارے में یاد دلائیں گے",
     "on": "پر"
   },
    "SuggestBookingsPage": {
@@ -183,5 +183,3 @@
     "toastErrorDescription": "بکنگ کی تجاویز حاصل کرنے میں ناکام۔ براہ کرم دوبارہ کوشش کریں۔"
   }
 }
-
-    

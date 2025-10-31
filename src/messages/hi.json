@@ -180,7 +180,7 @@
       "toastErrorDescription": "यात्रा योजना बनाने में विफल। कृपया पुन: प्रयास करें।",
       "loginToPlan": "यात्रा की योजना बनाने के लिए कृपया लॉग इन करें।",
       "toastLoginTitle": "कृपया लॉग इन करें",
-      "toastLoginDescription": "यात्रा की योजना बनाने के लिए आपको लॉग इन होना चाहिए।",
+      "toastLoginDescription": "यात्रा की योजना बनाने के لیے آپ کو लॉग इन होना चाहिए।",
       "loadingMessage": "आपके लिए सर्वोत्तम विकल्प खोज रहा है...",
       "planeClassEconomy": "इकॉनमी",
       "planeClassPremiumEconomy": "प्रीमियम इकॉनमी",
@@ -224,7 +224,7 @@
       "transportTitle": "के लिए परिवहन",
       "transportDescription": "हमारे AI ने आपकी मुख्य यात्रा के लिए ये विकल्प ढूंढे हैं।",
       "hotelTitle": "होटल विकल्प",
-      "hotelDescription": "आपकी प्राथमिकताओं के आधार पर रहने के लिए अनुशंसित स्थान।",
+      "hotelDescription": "आपकी प्राथमिकताओं के आधार पर रहने के لیے अनुशंसित स्थान।",
       "tripNotFoundTitle": "यात्रा नहीं मिली",
       "tripNotFoundDescription": "हम वह यात्रा नहीं ढूंढ सके जिसे आप ढूंढ रहे हैं।",
       "tripBookedTitle": "यात्रा बुक हो गई!",
@@ -236,11 +236,9 @@
       "pickDate": "एक तारीख चुनें",
       "setReminderButton": "अनुस्मारक सेट करें",
       "reminderErrorTitle": "कोई तारीख नहीं चुनी गई",
-      "reminderErrorDescription": "कृपया अनुस्मारक के लिए एक तारीख चुनें।",
+      "reminderErrorDescription": "कृपया अनुस्मारक کے लिए ایک तारीख चुनें।",
       "reminderSuccessTitle": "अनुस्मारक सेट!",
       "reminderSuccessDescription": "हम आपको आपकी यात्रा के बारे में याद दिलाएंगे",
       "on": "को"
     }
 }
-
-    
