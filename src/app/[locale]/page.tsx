@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
@@ -15,7 +15,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import { PexelsImage } from '@/components/pexels-image';
-import { destinations } from '@/lib/destinations';
+import { destinations as allDestinations } from '@/lib/destinations';
 import { Card, CardContent } from '@/components/ui/card';
 import { HeroVideo } from '@/components/hero-video';
 import { DestinationCard } from '@/components/destination-card';
@@ -23,6 +23,23 @@ import { useTranslations, useLocale } from 'next-intl';
 import type { Blog } from '@/lib/types';
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
+
+// Fisher-Yates shuffle algorithm
+const shuffleArray = <T>(array: T[]): T[] => {
+  let currentIndex = array.length, randomIndex;
+  const newArray = [...array]; // Create a copy to avoid mutating the original
+
+  while (currentIndex !== 0) {
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    [newArray[currentIndex], newArray[randomIndex]] = [
+      newArray[randomIndex], newArray[currentIndex]];
+  }
+
+  return newArray;
+};
+
 
 export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
   const t = useTranslations('DashboardPage');
@@ -35,6 +52,8 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
   const destinationsVisible = useOnVisible(destinationsRef);
   const storiesVisible = useOnVisible(storiesRef);
   const moreFeaturesVisible = useOnVisible(moreFeaturesRef);
+
+  const destinations = useMemo(() => shuffleArray(allDestinations), []);
 
   const features = [
     {
