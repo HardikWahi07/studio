@@ -1,5 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
+import fetch from "node-fetch";
 
 // This is a mock API implementation.
 // In a real application, you would fetch this data from a live train API.
