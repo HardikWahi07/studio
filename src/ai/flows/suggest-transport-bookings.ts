@@ -13,8 +13,6 @@ import {
     type SuggestTransportBookingsInput,
     type SuggestTransportBookingsOutput
 } from './suggest-transport-bookings.types';
-import { format } from 'date-fns';
-
 
 /**
  * Public function to be called by the frontend to get transport suggestions.
@@ -47,8 +45,7 @@ const prompt = ai.definePrompt({
   2.  **Generate Mock Options with Smart Links (CRITICAL URL FORMATTING):**
       - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters.
       - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid, URL-encoded Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN_IATA}+to+{DESTINATION_IATA}+on+{YYYY-MM-DD}\`.
-      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL in the format: \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`.
-      - **Train Availability (India):** For Indian trains, availability MUST be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
+      - **TRAINS (India):** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for Indian trains MUST be \`https://www.irctc.co.in/nget/train-search\`. Do NOT add any parameters. Availability must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
       
   3.  **Format Output:** Structure the results into journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs.
   
@@ -64,9 +61,7 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     outputSchema: SuggestTransportBookingsOutputSchema,
   },
   async (input) => {
-    // Reformat date for Ixigo URL
-    const ixigoDate = format(new Date(input.departureDate), 'ddMMyyyy');
-    const flowInput = { ...input, ixigoDate };
+    const flowInput = { ...input };
 
     const { output } = await prompt(flowInput);
 

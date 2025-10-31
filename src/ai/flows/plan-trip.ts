@@ -20,12 +20,10 @@ import { z } from 'zod';
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   const checkinDate = new Date(input.departureDate);
   const checkoutDate = add(checkinDate, { days: input.tripDuration });
-  const ixigoDate = format(checkinDate, 'ddMMyyyy');
 
   const flowInput = {
     ...input,
     checkoutDate: checkoutDate.toISOString().split('T')[0],
-    ixigoDate: ixigoDate
   };
   return planTripFlow(flowInput);
 }
@@ -33,7 +31,7 @@ export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
 // 🗣️ Define the prompt
 const prompt = ai.definePrompt({
   name: 'planTripPrompt',
-  input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string(), ixigoDate: z.string() })) },
+  input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })) },
   output: { schema: PlanTripOutputSchema },
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
@@ -52,7 +50,6 @@ const prompt = ai.definePrompt({
   - **Interests & Food Preferences:** {{{interests}}}
   - **Desired Currency for Costs:** {{{currency}}}
   - **Hotel Check-out Date:** {{{checkoutDate}}} (Format: YYYY-MM-DD)
-  - **Train Booking Date for Ixigo:** {{{ixigoDate}}} (Format: DDMMYYYY)
 
 
   **Your Task:**
@@ -64,8 +61,7 @@ const prompt = ai.definePrompt({
   2.  **Generate Main Booking Options (CRITICAL URL FORMATTING):**
       - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters.
       - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid, URL-encoded Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN_IATA}+to+{DESTINATION_IATA}+on+{YYYY-MM-DD}\`.
-      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL in the format: \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`.
-      - **Train Availability (India):** For Indian trains, availability must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
+      - **TRAINS (India):** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for Indian trains MUST be \`https://www.irctc.co.in/nget/train-search\`. Do NOT add any other parameters. Availability must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
 
   3.  **Hotels:**
       - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` MUST be a valid, URL-encoded Booking.com search URL: \`https://www.booking.com/searchresults.html?ss={DESTINATION}&checkin={YYYY-MM-DD}&checkout={YYYY-MM-DD}\`.
@@ -88,7 +84,7 @@ const prompt = ai.definePrompt({
 const planTripFlow = ai.defineFlow(
   {
     name: 'planTripFlow',
-    inputSchema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string(), ixigoDate: z.string() })),
+    inputSchema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })),
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
