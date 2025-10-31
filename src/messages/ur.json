@@ -138,5 +138,32 @@
     "searchPlaceholder": "کہانیوں یا منزلوں کی تلاش کریں...",
     "createButton": "ایک کہانی لکھیں",
     "noPosts": "کوئی بلاگ پوسٹ نہیں ملا۔ کیوں نہ آپ پہلی کہانی شیئر کریں؟"
+  },
+  "BookTripPage": {
+    "backToItinerary": "سفر نامے پر واپس جائیں",
+    "scheduleReminder": "یاد دہانی کا شیڈول بنائیں",
+    "tripIsBooked": "یہ سفر بک ہو چکا ہے",
+    "markAsBooked": "بک کے طور پر نشان زد کریں",
+    "title": "کے لیے تجویز کردہ بکنگ",
+    "description": "آپ کے سفر کے لیے AI کی تجویز کردہ آپشنز یہاں ہیں۔ فراہم کنندہ کی سائٹ پر جانے کے لیے 'بک' پر کلک کریں۔",
+    "transportTitle": "کے لیے ٹرانسپورٹ",
+    "transportDescription": "ہمارے AI نے آپ کے مرکزی سفر کے لیے یہ آپشنز تلاش کیے ہیں۔",
+    "hotelTitle": "ہوٹل کے آپشنز",
+    "hotelDescription": "آپ کی ترجیحات کی بنیاد پر رہنے کے لیے تجویز کردہ مقامات۔",
+    "tripNotFoundTitle": "سفر نہیں ملا",
+    "tripNotFoundDescription": "ہم وہ سفر نہیں ڈھونڈ سکے جسے آپ تلاش کر رہے ہیں۔",
+    "tripBookedTitle": "سفر بک ہو گیا!",
+    "tripBookedDescription": "آپ کے سفر کی حیثیت اپ ڈیٹ کر دی گئی ہے۔",
+    "updateFailedTitle": "اپ ڈیٹ ناکام",
+    "updateFailedDescription": "سفر کی حیثیت اپ ڈیٹ نہیں ہو سکی۔ براہ کرم دوبارہ کوشش کریں۔",
+    "setReminderTitle": "ایک یاد دہانی سیٹ کریں",
+    "setReminderDescription": "اپنے سفر کے لیے ایک یاد دہانی سیٹ کریں {tripTitle}",
+    "pickDate": "ایک تاریخ منتخب کریں",
+    "setReminderButton": "یاد دہانی سیٹ کریں",
+    "reminderErrorTitle": "کوئی تاریخ منتخب نہیں کی گئی",
+    "reminderErrorDescription": "براہ کرم یاد دہانی کے لیے ایک تاریخ منتخب کریں۔",
+    "reminderSuccessTitle": "یاد دہانی سیٹ!",
+    "reminderSuccessDescription": "ہم آپ کو آپ کے سفر کے بارے میں یاد دلائیں گے",
+    "on": "پر"
   }
 }

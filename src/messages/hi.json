@@ -215,5 +215,32 @@
       "searchPlaceholder": "कहानियों या गंतव्यों की खोज करें...",
       "createButton": "एक कहानी लिखें",
       "noPosts": "कोई ब्लॉग पोस्ट नहीं मिला। क्यों न आप पहली कहानी साझा करें?"
+    },
+    "BookTripPage": {
+      "backToItinerary": "यात्रा कार्यक्रम पर वापस जाएं",
+      "scheduleReminder": "अनुस्मारक शेड्यूल करें",
+      "tripIsBooked": "यह यात्रा बुक हो गई है",
+      "markAsBooked": "बुक के रूप में चिह्नित करें",
+      "title": "के लिए सुझाए गए बुकिंग",
+      "description": "आपकी यात्रा के लिए AI द्वारा सुझाए गए विकल्प यहां दिए गए हैं। प्रदाता की साइट पर जाने के लिए 'बुक' पर क्लिक करें।",
+      "transportTitle": "के लिए परिवहन",
+      "transportDescription": "हमारे AI ने आपकी मुख्य यात्रा के लिए ये विकल्प ढूंढे हैं।",
+      "hotelTitle": "होटल विकल्प",
+      "hotelDescription": "आपकी प्राथमिकताओं के आधार पर रहने के लिए अनुशंसित स्थान।",
+      "tripNotFoundTitle": "यात्रा नहीं मिली",
+      "tripNotFoundDescription": "हम वह यात्रा नहीं ढूंढ सके जिसे आप ढूंढ रहे हैं।",
+      "tripBookedTitle": "यात्रा बुक हो गई!",
+      "tripBookedDescription": "आपकी यात्रा की स्थिति अपडेट कर दी गई है।",
+      "updateFailedTitle": "अपडेट विफल",
+      "updateFailedDescription": "यात्रा की स्थिति अपडेट नहीं हो सकी। कृपया पुन: प्रयास करें।",
+      "setReminderTitle": "एक अनुस्मारक सेट करें",
+      "setReminderDescription": "अपनी यात्रा के लिए एक अनुस्मारक सेट करें {tripTitle}",
+      "pickDate": "एक तारीख चुनें",
+      "setReminderButton": "अनुस्मारक सेट करें",
+      "reminderErrorTitle": "कोई तारीख नहीं चुनी गई",
+      "reminderErrorDescription": "कृपया अनुस्मारक के लिए एक तारीख चुनें।",
+      "reminderSuccessTitle": "अनुस्मारक सेट!",
+      "reminderSuccessDescription": "हम आपको आपकी यात्रा के बारे में याद दिलाएंगे",
+      "on": "को"
     }
 }
