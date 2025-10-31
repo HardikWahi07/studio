@@ -58,7 +58,7 @@ const prompt = ai.definePrompt({
 
   1.  **ANALYZE THE ROUTE (CRITICAL LOGIC):**
       - **Nearest Hubs:** First, determine the nearest major airport (IATA code) and railway station (station code) for both the origin and destination.
-      - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example: Leg 1 flight to the nearest airport, Leg 2 ground transport.
+      - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example: Leg 1 flight to the nearest airport, Leg 2 ground transport. For a "Vapi to Lohegaon" query, the AI must generate the train route from Vapi (VAPI) to Pune (PUNE).
 
   2.  **GENERATE BOOKING OPTIONS WITH SMART LINKS:**
 
@@ -66,9 +66,9 @@ const prompt = ai.definePrompt({
         - **FORMAT:** \`https://www.google.com/travel/flights?q=flights%20from%20{ORIGIN_IATA}%20to%20{DESTINATION_IATA}%20on%20{YYYY-MM-DD}\`
         - **EXAMPLE:** For a flight from Mumbai (BOM) to Delhi (DEL) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=flights%20from%20BOM%20to%20DEL%20on%202025-12-20\`
 
-      - **TRAINS:** The \`bookingLink\` MUST also be a valid, URL-encoded Google Flights search URL, which can handle train searches.
-        - **FORMAT:** \`https://www.google.com/travel/flights?q=trains%20from%20{ORIGIN_STATION_CODE}%20to%20{DESTINATION_STATION_CODE}%20on%20{YYYY-MM-DD}\`
-        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=trains%20from%20VAPI%20to%20PUNE%20on%202025-12-20\`
+      - **TRAINS:** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL.
+        - **FORMAT:** \`https://www.ixigo.com/trains/search/{ORIGIN_STATION_CODE}/{DESTINATION_STATION_CODE}/{DDMMYYYY}\`
+        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 20-12-2025, the URL is: \`https://www.ixigo.com/trains/search/VAPI/PUNE/20122025\`
         - Provide mock availability data ('Available', 'Waitlist', 'Sold Out').
 
       - **HOTELS:** The \`bookingLink\` MUST be a valid, URL-encoded Booking.com search URL.
