@@ -130,14 +130,13 @@ service cloud.firestore {
       }
 
       function isExistingOwner(userId) {
-        return isOwner(userId) && exists(resource);
+        return isOwner(userId) && exists(/databases/$(database)/documents/users/$(userId)/trips/$(tripId));
       }
 
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow update, delete: if isOwner(userId) && exists(resource);
     }
 
     /**
@@ -264,3 +263,4 @@ service cloud.firestore {
     }
   }
 }
+    

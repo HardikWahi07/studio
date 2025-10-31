@@ -2,8 +2,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
+import { doc, collection, query, updateDoc, arrayUnion, arrayRemove, addDoc, deleteDoc } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -15,8 +15,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
+type Trip = {
+    id: string;
+    tripTitle: string;
+    expenseParticipants?: string[];
+}
+
 type Expense = {
-  id: number;
+  id: string;
   description: string;
   amount: number;
   paidBy: string;
@@ -33,49 +39,69 @@ export default function ExpenseWorkspacePage() {
   const params = useParams();
   const tripId = params.tripId as string;
 
-  // Fetch trip details to display trip title
-  const tripDocRef = useMemoFirebase(() => {
-    if (!user || !firestore) return null;
-    return doc(firestore, 'users', user.uid, 'trips', tripId);
-  }, [user, firestore, tripId]);
-
-  const { data: trip, isLoading: isLoadingTrip } = useDoc(tripDocRef);
-
-  // State Management for this workspace
-  const [participants, setParticipants] = useState<string[]>([]);
+  // State for the "add participant" form
   const [newParticipant, setNewParticipant] = useState("");
-  const [expenses, setExpenses] = useState<Expense[]>([]);
+  
+  // State for the "add expense" form
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState<string>("");
   const [paidBy, setPaidBy] = useState<string>("");
 
-  const handleAddParticipant = () => {
-    if (newParticipant && !participants.includes(newParticipant)) {
-      setParticipants([...participants, newParticipant]);
+  // Firestore ref for the trip document
+  const tripDocRef = useMemoFirebase(() => {
+    if (!user || !firestore || !tripId) return null;
+    return doc(firestore, 'users', user.uid, 'trips', tripId);
+  }, [user, firestore, tripId]);
+  
+  // Firestore ref for the expenses subcollection
+  const expensesQuery = useMemoFirebase(() => {
+    if (!tripDocRef) return null;
+    return query(collection(tripDocRef, 'expenses'));
+  }, [tripDocRef]);
+  
+  // Hooks to get live data from Firestore
+  const { data: trip, isLoading: isLoadingTrip } = useDoc<Trip>(tripDocRef);
+  const { data: expenses, isLoading: isLoadingExpenses } = useCollection<Expense>(expensesQuery);
+
+  const participants = useMemo(() => trip?.expenseParticipants || [], [trip]);
+  const isLoading = isLoadingTrip || isLoadingExpenses;
+
+  const handleAddParticipant = async () => {
+    if (newParticipant && !participants.includes(newParticipant) && tripDocRef) {
+      await updateDoc(tripDocRef, {
+        expenseParticipants: arrayUnion(newParticipant)
+      });
       setNewParticipant("");
     }
   };
   
-  const handleRemoveParticipant = (name: string) => {
-    setParticipants(participants.filter(p => p !== name));
-    setExpenses(expenses.filter(e => e.paidBy !== name));
+  const handleRemoveParticipant = async (name: string) => {
+    if (tripDocRef) {
+      await updateDoc(tripDocRef, {
+        expenseParticipants: arrayRemove(name)
+      });
+      // Optionally, decide how to handle expenses paid by the removed participant.
+      // For now, we leave them, but they could be deleted or re-assigned.
+    }
   }
 
-  const handleAddExpense = (e: React.FormEvent) => {
+  const handleAddExpense = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!tripDocRef) return;
+    
     const numAmount = parseFloat(amount);
     if (!description || !numAmount || !paidBy) {
       alert("Please fill out all expense fields.");
       return;
     }
 
-    const newExpense: Expense = {
-      id: Date.now(),
+    await addDoc(collection(tripDocRef, 'expenses'), {
       description,
       amount: numAmount,
       paidBy,
-    };
-    setExpenses([...expenses, newExpense]);
+      tripId,
+      userId: user?.uid,
+    });
 
     // Reset form
     setDescription("");
@@ -83,24 +109,28 @@ export default function ExpenseWorkspacePage() {
     setPaidBy("");
   };
 
-  const handleRemoveExpense = (expenseId: number) => {
-    setExpenses(expenses.filter(e => e.id !== expenseId));
+  const handleRemoveExpense = async (expenseId: string) => {
+    if (!tripDocRef) return;
+    const expenseDocRef = doc(tripDocRef, 'expenses', expenseId);
+    await deleteDoc(expenseDocRef);
   };
 
   const totalSpent = useMemo(() => {
-    return expenses.reduce((acc, expense) => acc + expense.amount, 0);
+    return expenses?.reduce((acc, expense) => acc + expense.amount, 0) || 0;
   }, [expenses]);
   
   const balances = useMemo<Balance[]>(() => {
-    if (participants.length === 0) return [];
+    if (!participants || participants.length === 0 || !expenses) return [];
   
     const totalContributions: { [key: string]: number } = {};
     participants.forEach(p => totalContributions[p] = 0);
     expenses.forEach(e => {
-        totalContributions[e.paidBy] = (totalContributions[e.paidBy] || 0) + e.amount;
+        if(e.paidBy in totalContributions) {
+            totalContributions[e.paidBy] += e.amount;
+        }
     });
 
-    const sharePerPerson = totalSpent > 0 && participants.length > 0 ? totalSpent / participants.length : 0;
+    const sharePerPerson = totalSpent / participants.length;
 
     return participants.map(p => ({
         name: p,
@@ -109,7 +139,7 @@ export default function ExpenseWorkspacePage() {
 
   }, [expenses, participants, totalSpent]);
 
-  if (isLoadingTrip) {
+  if (isLoading) {
       return (
           <main className="flex-1 p-4 md:p-8 space-y-8">
               <Skeleton className="h-8 w-1/4" />
@@ -213,7 +243,7 @@ export default function ExpenseWorkspacePage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {expenses.length > 0 ? expenses.map(expense => (
+                  {expenses && expenses.length > 0 ? expenses.map(expense => (
                     <TableRow key={expense.id}>
                       <TableCell className="font-medium">{expense.description}</TableCell>
                       <TableCell>{expense.paidBy}</TableCell>
@@ -262,3 +292,5 @@ export default function ExpenseWorkspacePage() {
     </main>
   );
 }
+
+    

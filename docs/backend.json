@@ -89,6 +89,13 @@
             "Booked"
           ],
           "description": "Booking status of the trip."
+        },
+        "expenseParticipants": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "List of participant names for the expense splitter."
         }
       },
       "required": [
@@ -126,6 +133,10 @@
           "type": "number",
           "description": "Amount of the expense."
         },
+        "paidBy": {
+            "type": "string",
+            "description": "Name of the participant who paid for the expense."
+        },
         "date": {
           "type": "string",
           "description": "Date of the expense.",
@@ -138,7 +149,7 @@
         "userId",
         "description",
         "amount",
-        "date"
+        "paidBy"
       ]
     },
     "LocalBusiness": {
