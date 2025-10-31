@@ -445,7 +445,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { key: "tos", href: "#", label: t('AppLayout.termsOfService') },
   ];
 
-  const logoColor = isHomePage && !isScrolled && isMounted && theme === 'dark' ? 'text-white' : 'text-primary';
   const hamburgerClasses = cn(
       "lg:hidden",
       isMounted && isHomePage && !isScrolled 
@@ -465,7 +464,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
             <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-              <Logo className={logoColor} />
+              <Logo />
             </Link>
           {isMounted && !isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
