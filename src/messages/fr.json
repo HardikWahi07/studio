@@ -1,0 +1,25 @@
+
+{
+    "CreateBlogPage": {
+        "title": "Créer un nouvel article de blog",
+        "description": "Partagez votre récit de voyage avec la communauté TripMind.",
+        "titleLabel": "Titre de l'article",
+        "titlePlaceholder": "Ex: Ma semaine inoubliable à Bali",
+        "contentLabel": "Votre histoire",
+        "imageHintLabel": "Indice pour l'image de couverture",
+        "imageHintPlaceholder": "Ex: 'Coucher de soleil sur les rizières'",
+        "publishButton": "Publier l'histoire",
+        "publishingButton": "Publication...",
+        "successTitle": "Article publié !",
+        "successDescription": "Votre histoire est maintenant visible par la communauté.",
+        "errorTitle": "Échec de la publication",
+        "errorDescription": "Nous n'avons pas pu publier votre article. Veuillez réessayer."
+    },
+    "BlogPage": {
+        "title": "Récits de voyage & Blog",
+        "description": "Laissez-vous inspirer par de vraies aventures de la communauté TripMind.",
+        "searchPlaceholder": "Rechercher des histoires ou des destinations...",
+        "createButton": "Écrire une histoire",
+        "noPosts": "Aucun article de blog trouvé. Pourquoi ne pas être le premier à partager une histoire ?"
+    }
+}

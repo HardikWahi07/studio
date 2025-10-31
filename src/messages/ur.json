@@ -119,5 +119,27 @@
     "trainClassAC2": "AC 2-ٹیر",
     "trainClassACFirst": "AC فرسٹ کلاس",
     "trainClassChairCar": "AC چیئر کار"
+  },
+  "CreateBlogPage": {
+    "title": "ایک نیا بلاگ پوسٹ بنائیں",
+    "description": "ٹرپ مائنڈ کمیونٹی کے ساتھ اپنی سفری کہانی شیئر کریں۔",
+    "titleLabel": "پوسٹ کا عنوان",
+    "titlePlaceholder": "مثلاً، بالی میں میرا ناقابل فراموش ہفتہ",
+    "contentLabel": "آپ کی کہانی",
+    "imageHintLabel": "کور تصویر کے لیے اشارہ",
+    "imageHintPlaceholder": "مثلاً، 'چاول کے کھیتوں پر غروب آفتاب'",
+    "publishButton": "کہانی شائع کریں",
+    "publishingButton": "شائع ہو رہا ہے...",
+    "successTitle": "پوسٹ شائع ہو گیا!",
+    "successDescription": "آپ کی کہانی اب کمیونٹی کے دیکھنے کے لیے لائیو ہے۔",
+    "errorTitle": "اشاعت میں ناکامی",
+    "errorDescription": "ہم آپ کی پوسٹ شائع نہیں کر سکے۔ براہ کرم دوبارہ کوشش کریں۔"
+  },
+  "BlogPage": {
+    "title": "سفری کہانیاں اور بلاگ",
+    "description": "ٹرپ مائنڈ کمیونٹی کے حقیقی مہم جوئیوں سے متاثر ہوں۔",
+    "searchPlaceholder": "کہانیوں یا منزلوں کی تلاش کریں...",
+    "createButton": "ایک کہانی لکھیں",
+    "noPosts": "کوئی بلاگ پوسٹ نہیں ملا۔ کیوں نہ آپ پہلی کہانی شیئر کریں؟"
   }
 }
