@@ -10,7 +10,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { searchRealtimeFlights } from '../tools/search-flights';
 
 // Define Zod schemas for input and output
 const SuggestTransportBookingsInputSchema = z.object({
@@ -61,8 +60,8 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  tools: [searchRealtimeFlights],
-  prompt: `You are an intelligent travel booking assistant. Your task is to find the best flight options for a user's journey using the available tools.
+  tools: [],
+  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey. You do not have access to real-time data, so you must generate realistic mock options.
 
   **User's Request:**
   - **From:** {{{origin}}}
@@ -70,13 +69,14 @@ const prompt = ai.definePrompt({
   - **On:** {{{departureDate}}}
   - **Currency:** {{{currency}}}
   - **Plane Class:** {{{planeClass}}}
+  - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
 
-  1.  **Find Flights:** Use the 'searchRealtimeFlights' tool to find flights from the 'origin' to the 'destination'.
-  2.  **Format Output:** Structure the results as a single journey leg. The 'leg' number should be 1, and the 'description' should be "Flights from {{{origin}}} to {{{destination}}}". Place all the flight options you find into the 'options' array for this leg.
+  1.  **Generate Mock Options:** Create a list of 2-3 realistic mock transport options. This could include flights, trains, or a combination. For example, if the user is traveling from a small town to a large city, you might suggest a taxi to the nearest major airport, then a flight.
+  2.  **Format Output:** Structure the results as one or more journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs. Place the mock options you generate into the 'options' array for the appropriate leg.
   
-  **IMPORTANT:** Only search for flights. Do not use any other transport types or attempt to create multi-leg journeys.
+  **IMPORTANT:** Do not use any tools. Generate plausible-looking data for all fields, including provider, price, duration, and booking links (use example.com).
   `,
 });
 

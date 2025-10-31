@@ -14,9 +14,6 @@ import {
   type PlanTripOutput 
 } from './plan-trip.types';
 
-import { searchRealtimeFlights } from '../tools/search-flights';
-import { searchRealtimeTrains } from '../tools/search-trains';
-import { searchRealtimeHotels } from '../tools/search-hotels';
 import { add } from 'date-fns';
 import { z } from 'zod';
 
@@ -67,7 +64,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })) },
   output: { schema: PlanTripOutputSchema },
-  tools: [searchRealtimeFlights, searchRealtimeTrains, searchRealtimeHotels],
+  tools: [],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -89,14 +86,10 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options (CRITICAL LOGIC):**
-     - **Use Your Judgment:** As a world-class planner, decide if a flight or train is more logical for the main journey. For long-distance travel (e.g., Delhi to Goa, New York to Los Angeles), flights are almost always better. For shorter, regional travel (e.g., Paris to Brussels), trains are often a great choice.
-     - **Primary Search:** Use 'searchRealtimeFlights' for flights or 'searchRealtimeTrains' for trains based on your expert decision. For trains in India, a duration under 12 hours is reasonable.
-     - **MANDATORY FALLBACK:** If your primary search (whether for flights or trains) yields no results, you MUST try the other option. For example, if you search for flights and find none, you MUST then search for trains. If you search for trains and find none, you MUST then search for flights.
-     - **MANDATORY HUB SEARCH:** If BOTH primary and fallback searches from the exact origin/destination fail, you must then identify the nearest major transport hub (e.g., a large international airport or central train station) for BOTH the origin and destination and perform the search again between these hubs.
-     - **Final Output:** Combine all valid, available results from your successful tool calls into a single 'bookingOptions' array.
+     - Generate a few mock booking options for flights or trains. Do not use any tools.
+     - Combine all valid, available results into a single 'bookingOptions' array.
   3. **Hotels:**
-     - Use 'searchRealtimeHotels' unless 'accommodationType' is 'none'. The checkout date is provided.
-     - Always return valid URLs with no spaces.
+     - Generate a few mock hotel options unless 'accommodationType' is 'none'.
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
   5. **Day-by-Day Itinerary:**
      - Each day = title + summary.
