@@ -28,28 +28,39 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey by creating smart, pre-filled URLs to real booking websites.
+  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey by creating valid, working deep-links to real booking websites.
 
   **User's Request:**
   - **From:** {{{origin}}}
   - **To:** {{{destination}}}
-  - **On:** {{{departureDate}}}
+  - **On:** {{{departureDate}}} (Format: YYYY-MM-DD)
   - **Currency:** {{{currency}}}
 
-  **Your Task:**
+  **CRITICAL TASK: GENERATE VALID, RELIABLE BOOKING LINKS**
 
-  1.  **Analyze the Route (CRITICAL LOGIC):**
+  You MUST generate a valid, URL-encoded \`bookingLink\` for every transport option. Follow these rules precisely:
+
+  1.  **ANALYZE THE ROUTE (CRITICAL LOGIC):**
       - **Nearest Hubs:** First, determine the nearest major airport (IATA code) and railway station (station code) for both the origin and destination.
       - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example: Leg 1 flight to the nearest airport, Leg 2 ground transport.
 
-  2.  **Generate Mock Options with Smart Links (CRITICAL URL FORMATTING):**
-      - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters.
-      - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid, URL-encoded Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN_IATA}+to+{DESTINATION_IATA}+on+{YYYY-MM-DD}\`.
-      - **TRAINS (India):** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for Indian trains MUST be \`https://www.irctc.co.in/nget/train-search\`. Do NOT add any parameters. Availability must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
+  2.  **GENERATE MOCK OPTIONS WITH SMART LINKS:**
+
+      - **FLIGHTS:** The \`bookingLink\` MUST be a valid, URL-encoded Google Flights search URL.
+        - **FORMAT:** \`https://www.google.com/travel/flights?q=flights%20from%20{ORIGIN_IATA}%20to%20{DESTINATION_IATA}%20on%20{YYYY-MM-DD}\`
+        - **EXAMPLE:** For a flight from Mumbai (BOM) to Delhi (DEL) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=flights%20from%20BOM%20to%20DEL%20on%202025-12-20\`
+
+      - **TRAINS (India):** The \`bookingLink\` MUST be a link to the official IRCTC search page. This page does not support query parameters.
+        - **FORMAT:** \`https://www.irctc.co.in/nget/train-search\`
+        - **IMPORTANT:** Provide realistic MOCK availability data ('Available', 'Waitlist', 'Sold Out'). The user will have to manually enter the details on the site.
       
-  3.  **Format Output:** Structure the results into journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs.
+      - **OTHER TRANSPORT (Bus, Taxi, etc.):** For other transport types where a direct booking link is not feasible, generate a reliable Google Search link that will help the user find booking options.
+        - **FORMAT:** \`https://www.google.com/search?q={URL_ENCODED_QUERY}\`
+        - **EXAMPLE:** For a bus from Pune to Mumbai, the query would be 'bus%20from%20Pune%20to%20Mumbai' and the URL would be \`https://www.google.com/search?q=bus%20from%20Pune%20to%20Mumbai\`
+
+  3.  **FORMAT OUTPUT:** Structure the results into journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs.
   
-  Return a valid JSON object that strictly follows the output schema.
+  Return a valid JSON object that strictly follows the output schema. NO spaces or invalid characters in URLs.
   `,
 });
 
@@ -61,9 +72,7 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     outputSchema: SuggestTransportBookingsOutputSchema,
   },
   async (input) => {
-    const flowInput = { ...input };
-
-    const { output } = await prompt(flowInput);
+    const { output } = await prompt(input);
 
     // Ensure the output is not null and conforms to the schema
     if (!output || !Array.isArray(output.journey)) {
