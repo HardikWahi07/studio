@@ -193,7 +193,7 @@ const currencies = [
     { code: "SZL", label: "SZL (L)" },
     { code: "THB", label: "THB (฿)" },
     { code: "TJS", label: "TJS (SM)" },
-    { code: "TMT", label: "T (T)" },
+    { code: "TMT", label: "TMT (T)" },
     { code: "TND", label: "TND (DT)" },
     { code: "TOP", label: "TOP (T$)" },
     { code: "TRY", label: "TRY (₺)" },
@@ -573,7 +573,19 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      {!isHelpChatOpen && (
+        <Button
+          onClick={() => setIsHelpChatOpen(true)}
+          className="fixed bottom-4 left-4 z-40 h-14 w-14 rounded-full shadow-lg"
+          size="icon"
+          aria-label="Open help chat"
+        >
+          <HelpCircle className="h-6 w-6" />
+        </Button>
+      )}
       <HelpChatbox isOpen={isHelpChatOpen} onOpenChange={setIsHelpChatOpen} />
     </div>
   )
 }
+
+    
