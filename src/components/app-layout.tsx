@@ -573,7 +573,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
-      {!isHelpChatOpen && (
+      {isMounted && !isHelpChatOpen && (
         <Button
           onClick={() => setIsHelpChatOpen(true)}
           className="fixed bottom-4 left-4 z-40 h-14 w-14 rounded-full shadow-lg"
@@ -587,5 +587,3 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-    
