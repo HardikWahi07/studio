@@ -18,28 +18,21 @@ const HelpChatInputSchema = z.object({
 export type HelpChatInput = z.infer<typeof HelpChatInputSchema>;
 
 export async function getHelpChatResponse(input: HelpChatInput): Promise<string> {
-    // Combine history and the new query into a single messages array for the flow
-    const messages = [
-        ...input.history,
-        { role: 'user' as const, content: input.query }
-    ];
-    const result = await getHelpChatResponseFlow(messages);
+    const result = await getHelpChatResponseFlow(input);
     return result;
 }
 
 const getHelpChatResponseFlow = ai.defineFlow(
   {
     name: 'getHelpChatResponseFlow',
-    inputSchema: z.array(z.object({
-        role: z.enum(['user', 'model']),
-        content: z.string(),
-    })),
+    inputSchema: HelpChatInputSchema,
     outputSchema: z.string(),
   },
-  async (messages) => {
+  async ({ history, query }) => {
 
     const llmResponse = await ai.generate({
-        prompt: messages,
+        prompt: query,
+        history: history,
         model: 'googleai/gemini-2.5-flash-lite',
         system: `You are the TripMind Support Bot, a friendly and helpful AI assistant for a travel planning app. Your goal is to answer user questions about the app's features.
 
@@ -64,3 +57,5 @@ const getHelpChatResponseFlow = ai.defineFlow(
     return llmResponse.text || "I'm sorry, I had trouble generating a response. Please try again.";
   }
 );
+
+    
