@@ -569,7 +569,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
-      {isMounted && !isHelpChatOpen && (
+       {isMounted && (
         <Button
           onClick={() => setIsHelpChatOpen(true)}
           className="fixed bottom-4 right-4 z-40 h-14 w-14 rounded-full shadow-lg"
@@ -578,7 +578,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         >
           <HelpCircle className="h-6 w-6" />
         </Button>
-      )}
+       )}
       <HelpChatbox isOpen={isHelpChatOpen} onOpenChange={setIsHelpChatOpen} />
     </div>
   )

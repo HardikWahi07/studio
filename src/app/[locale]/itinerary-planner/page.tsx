@@ -11,10 +11,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Wand2, Map, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { TripItinerary } from "@/components/trip-itinerary";
 import { useOnVisible } from "@/hooks/use-on-visible";
 import { cn } from "@/lib/utils";
-import type { PlanTripOutput } from "@/ai/flows/plan-trip.types";
 import { useTranslations } from "@/hooks/use-translations";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
@@ -36,7 +34,7 @@ declare global {
 
 export default function ItineraryGeneratorPage() {
   const t = useTranslations();
-  const [itinerary, setItinerary] = useState<PlanTripOutput | null>(null);
+  const [itinerary, setItinerary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [aiAvailable, setAiAvailable] = useState<boolean>(true);
   const { toast } = useToast();
@@ -85,46 +83,11 @@ export default function ItineraryGeneratorPage() {
         1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
         2.  **Generate a Day-by-Day Itinerary:** Create a plan for a 3-day trip. For each day, create a detailed plan.
             - Each day needs a **title** and a brief **summary**.
-            - For each activity, provide:
-                - **Time:** A specific start time (e.g., "09:00 AM").
-                - **Description:** A clear description of the activity (e.g., "Guided tour of the Louvre Museum").
-                - **Location:** The address or name of the place.
-                - **Cost:** An estimated cost for the activity (e.g., "€25", "$50", "Free").
-                - **Details:** Practical tips, booking information, or why it's a great spot.
-            - **CRITICAL: For activities like "Lunch," "Dinner," or "Coffee," you MUST suggest a specific, real business.** Base your suggestion on the user's interests.
-            - **MANDATORY: Include Detailed Transportation:** Between each activity, you MUST add a 'transportToNext' segment with estimated travel times, mode of transport, and a route description.
+            - For each activity, provide a time, description, location, and any useful details.
+            - For meals, suggest specific, real restaurants based on the user's interests.
+            - Include simple transport advice between activities (e.g., "Take the metro - 15 mins").
         
-        **IMPORTANT**: Your entire response MUST be a single, valid JSON object that conforms to this structure:
-        {
-            "tripTitle": "string",
-            "itinerary": [
-                {
-                    "day": "number",
-                    "title": "string",
-                    "summary": "string",
-                    "activities": [
-                        {
-                            "time": "string",
-                            "description": "string",
-                            "location": "string",
-                            "details": "string",
-                            "cost": "string",
-                            "transportToNext": {
-                                "mode": "string",
-                                "duration": "string",
-                                "description": "string",
-                                "ecoFriendly": "boolean"
-                            } | null
-                        }
-                    ]
-                }
-            ],
-            "bookingOptions": [],
-            "hotelOptions": [],
-            "localTransportOptions": []
-        }
-        
-        Do not include any text, markdown, or formatting before or after the JSON object. The response must start with '{' and end with '}'.`;
+        **IMPORTANT**: Your entire response MUST be plain text, well-formatted with markdown for readability. Do NOT use JSON.`;
 
         const stream = session.promptStreaming(prompt);
         let fullResponse = "";
@@ -132,11 +95,7 @@ export default function ItineraryGeneratorPage() {
             fullResponse += chunk;
         }
 
-        // Clean and parse the response
-        const jsonString = fullResponse.trim().replace(/^```json|```$/g, '');
-        const result: PlanTripOutput = JSON.parse(jsonString);
-      
-        setItinerary(result);
+        setItinerary(fullResponse);
 
     } catch (error) {
       console.error("Failed to generate itinerary with on-device AI:", error);
@@ -245,7 +204,7 @@ export default function ItineraryGeneratorPage() {
         <div className="lg:col-span-2">
             <Card ref={resultsRef}>
               <CardHeader>
-                 <CardTitle>{itinerary ? itinerary.tripTitle : t('ItineraryPlannerPage.resultTitle')}</CardTitle>
+                 <CardTitle>{itinerary ? "Your Personalized Itinerary" : t('ItineraryPlannerPage.resultTitle')}</CardTitle>
                 <CardDescription>{t('ItineraryPlannerPage.resultDescription')}</CardDescription>
               </CardHeader>
               <CardContent className={cn("fade-in-up", { 'visible': resultsVisible })}>
@@ -262,7 +221,9 @@ export default function ItineraryGeneratorPage() {
                   </div>
                 )}
                 {itinerary && (
-                  <TripItinerary results={itinerary} />
+                  <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                    {itinerary}
+                  </div>
                 )}
               </CardContent>
             </Card>
