@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
@@ -129,6 +130,8 @@ export default function MyTripsPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {trips.map(trip => {
                     const primaryTransport = getPrimaryTransport(trip);
+                    // Safely create a Date object from the string
+                    const startDate = new Date(trip.startDate);
                     return (
                     <Card key={trip.id} className="flex flex-col h-full transition-shadow duration-300 hover:shadow-lg">
                         <div className="block group">
@@ -147,7 +150,8 @@ export default function MyTripsPage() {
                                     <div className="space-y-3 text-sm text-muted-foreground mt-4">
                                         <div className="flex items-center gap-2">
                                             <Calendar className="w-4 h-4" />
-                                            <span>{format(new Date(trip.startDate), 'PPP')}</span>
+                                            {/* Check if the date is valid before formatting */}
+                                            <span>{isValid(startDate) ? format(startDate, 'PPP') : 'Invalid Date'}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <Users className="w-4 h-4" />
@@ -183,4 +187,8 @@ export default function MyTripsPage() {
             </div>
         </main>
     );
+}
+
+function isValid(date: Date) {
+    return date instanceof Date && !isNaN(date.getTime());
 }
