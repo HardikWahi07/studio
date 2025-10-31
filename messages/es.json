@@ -27,7 +27,8 @@
     "termsOfService": "Términos de Servicio",
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
-    "contactUs": "Contáctanos"
+    "contactUs": "Contáctanos",
+    "safety": "Compañero de Seguridad"
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
@@ -238,7 +239,20 @@
   "SuggestBookingsPage": {
     "title": "Sugerir Reservas de Transporte",
     "description": "Encuentra la mejor manera de ir de A a B. Compara vuelos, trenes y autobuses para encontrar la opción más inteligente y ecológica para tu viaje.",
-    "findButton": "Encontrar Opciones"
+    "formTitle": "Describe Tu Viaje",
+    "formDescription": "Dinos de dónde a dónde viajas y encontraremos las mejores opciones para ti.",
+    "fromLabel": "Desde",
+    "fromPlaceholder": "Ingresa ciudad de origen...",
+    "toLabel": "A",
+    "toPlaceholder": "Ingresa ciudad de destino...",
+    "departureLabel": "Fecha",
+    "findButton": "Encontrar Opciones",
+    "searchingButton": "Buscando...",
+    "resultsTitle": "Opciones de Viaje Disponibles",
+    "noResults": "No se Encontraron Opciones. Intenta cambiar tus criterios de búsqueda.",
+    "loadingMessage": "Buscando las mejores opciones para ti...",
+    "toastErrorTitle": "Error",
+    "toastErrorDescription": "No se pudieron obtener sugerencias de reserva. Por favor, inténtalo de nuevo."
   },
   "TripPlannerPage": {
     "title": "Planificador de Viajes con IA",
@@ -289,5 +303,54 @@
     "selectPlaceholder": "Seleccionar ciudad...",
     "searchPlaceholder": "Buscar ciudad...",
     "noCityFound": "No se encontró la ciudad."
+  },
+  "CreateBlogPage": {
+    "title": "Crear una Nueva Publicación de Blog",
+    "description": "Comparte tu historia de viaje con la comunidad de TripMind.",
+    "titleLabel": "Título de la Publicación",
+    "titlePlaceholder": "ej., Mi Semana Inolvidable en Bali",
+    "contentLabel": "Tu Historia",
+    "imageHintLabel": "Pista para la Imagen de Portada",
+    "imageHintPlaceholder": "ej., 'Atardecer sobre arrozales'",
+    "publishButton": "Publicar Historia",
+    "publishingButton": "Publicando...",
+    "successTitle": "¡Publicación Exitosa!",
+    "successDescription": "Tu historia ahora está disponible para la comunidad.",
+    "errorTitle": "Error al Publicar",
+    "errorDescription": "No pudimos publicar tu historia. Por favor, inténtalo de nuevo."
+  },
+  "BlogPage": {
+    "title": "Historias de Viaje y Blog",
+    "description": "Inspírate con aventuras reales de la comunidad de TripMind.",
+    "searchPlaceholder": "Buscar historias o destinos...",
+    "createButton": "Escribir una Historia",
+    "noPosts": "No se encontraron publicaciones de blog. ¿Por qué no ser el primero en compartir una historia?"
+  },
+  "BookTripPage": {
+    "backToItinerary": "Volver al Itinerario",
+    "scheduleReminder": "Programar Recordatorio",
+    "tripIsBooked": "Este viaje está reservado",
+    "markAsBooked": "Marcar como Reservado",
+    "title": "Reservas Sugeridas para",
+    "description": "Aquí están las opciones sugeridas por la IA para tu viaje. Haz clic en 'Reservar' para visitar el sitio del proveedor.",
+    "transportTitle": "Transporte a",
+    "transportDescription": "Nuestra IA ha encontrado estas opciones para tu tramo principal de viaje.",
+    "hotelTitle": "Opciones de Hotel",
+    "hotelDescription": "Lugares recomendados para alojarse según tus preferencias.",
+    "tripNotFoundTitle": "Viaje no encontrado",
+    "tripNotFoundDescription": "No pudimos encontrar el viaje que estás buscando.",
+    "tripBookedTitle": "¡Viaje Reservado!",
+    "tripBookedDescription": "El estado de tu viaje ha sido actualizado.",
+    "updateFailedTitle": "Error al Actualizar",
+    "updateFailedDescription": "No se pudo actualizar el estado del viaje. Por favor, inténtalo de nuevo.",
+    "setReminderTitle": "Establecer un Recordatorio",
+    "setReminderDescription": "Establecer un recordatorio para tu viaje a {tripTitle}",
+    "pickDate": "Elige una fecha",
+    "setReminderButton": "Establecer Recordatorio",
+    "reminderErrorTitle": "No se ha seleccionado fecha",
+    "reminderErrorDescription": "Por favor, selecciona una fecha para el recordatorio.",
+    "reminderSuccessTitle": "¡Recordatorio Establecido!",
+    "reminderSuccessDescription": "Te recordaremos tu viaje a",
+    "on": "el"
   }
 }
