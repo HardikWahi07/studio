@@ -13,17 +13,19 @@ import {
   type PlanTripInput, 
   type PlanTripOutput 
 } from './plan-trip.types';
-import { add } from 'date-fns';
+import { add, format } from 'date-fns';
 import { z } from 'zod';
 
 // 🧠 Public function called by frontend
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
   const checkinDate = new Date(input.departureDate);
   const checkoutDate = add(checkinDate, { days: input.tripDuration });
+  const ixigoDate = format(checkinDate, 'ddMMyyyy');
 
-  const flowInput: PlanTripInput & { checkoutDate: string } = {
+  const flowInput = {
     ...input,
-    checkoutDate: checkoutDate.toISOString().split('T')[0]
+    checkoutDate: checkoutDate.toISOString().split('T')[0],
+    ixigoDate: ixigoDate
   };
   return planTripFlow(flowInput);
 }
@@ -31,14 +33,14 @@ export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
 // 🗣️ Define the prompt
 const prompt = ai.definePrompt({
   name: 'planTripPrompt',
-  input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })) },
+  input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string(), ixigoDate: z.string() })) },
   output: { schema: PlanTripOutputSchema },
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
   - **Origin:** {{{origin}}}
   - **Destination:** {{{destination}}}
-  - **Departure Date:** {{{departureDate}}}
+  - **Departure Date:** {{{departureDate}}} (Format: YYYY-MM-DD)
   - **Trip Duration:** {{{tripDuration}}} days
   - **Travelers:** {{{travelers}}}
   - **Travel Style:** {{{travelStyle}}}
@@ -49,7 +51,9 @@ const prompt = ai.definePrompt({
   - **Train Class Preference:** {{{trainClass}}}
   - **Interests & Food Preferences:** {{{interests}}}
   - **Desired Currency for Costs:** {{{currency}}}
-  - **Check-out Date for Hotels:** {{{checkoutDate}}}
+  - **Hotel Check-out Date:** {{{checkoutDate}}} (Format: YYYY-MM-DD)
+  - **Train Booking Date for Ixigo:** {{{ixigoDate}}} (Format: DDMMYYYY)
+
 
   **Your Task:**
 
@@ -58,10 +62,10 @@ const prompt = ai.definePrompt({
       - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example: Leg 1 flight to the nearest airport, Leg 2 ground transport.
 
   2.  **Generate Main Booking Options (CRITICAL URL FORMATTING):**
-      - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces. Replace spaces with a '+' plus sign.
-      - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN}+to+{DESTINATION}+on+{YYYY-MM-DD}\`.
-      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a Google search URL in the format: \`https://www.google.com/search?q=trains+from+{ORIGIN}+to+{DESTINATION}\`.
-      - **Train Availability:** For Indian trains, availability must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
+      - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters.
+      - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid, URL-encoded Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN_IATA}+to+{DESTINATION_IATA}+on+{YYYY-MM-DD}\`.
+      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL in the format: \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`.
+      - **Train Availability (India):** For Indian trains, availability must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
 
   3.  **Hotels:**
       - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` MUST be a valid, URL-encoded Booking.com search URL: \`https://www.booking.com/searchresults.html?ss={DESTINATION}&checkin={YYYY-MM-DD}&checkout={YYYY-MM-DD}\`.
@@ -84,7 +88,7 @@ const prompt = ai.definePrompt({
 const planTripFlow = ai.defineFlow(
   {
     name: 'planTripFlow',
-    inputSchema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })),
+    inputSchema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string(), ixigoDate: z.string() })),
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {

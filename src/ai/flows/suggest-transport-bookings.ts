@@ -13,6 +13,7 @@ import {
     type SuggestTransportBookingsInput,
     type SuggestTransportBookingsOutput
 } from './suggest-transport-bookings.types';
+import { format } from 'date-fns';
 
 
 /**
@@ -44,9 +45,9 @@ const prompt = ai.definePrompt({
       - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example: Leg 1 flight to the nearest airport, Leg 2 ground transport.
 
   2.  **Generate Mock Options with Smart Links (CRITICAL URL FORMATTING):**
-      - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces. Replace spaces with a '+' plus sign.
-      - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN}+to+{DESTINATION}+on+{YYYY-MM-DD}\`.
-      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a Google search URL in the format: \`https://www.google.com/search?q=trains+from+{ORIGIN}+to+{DESTINATION}\`.
+      - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters.
+      - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid, URL-encoded Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN_IATA}+to+{DESTINATION_IATA}+on+{YYYY-MM-DD}\`.
+      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL in the format: \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`.
       - **Train Availability (India):** For Indian trains, availability MUST be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
       
   3.  **Format Output:** Structure the results into journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs.
@@ -63,7 +64,11 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     outputSchema: SuggestTransportBookingsOutputSchema,
   },
   async (input) => {
-    const { output } = await prompt(input);
+    // Reformat date for Ixigo URL
+    const ixigoDate = format(new Date(input.departureDate), 'ddMMyyyy');
+    const flowInput = { ...input, ixigoDate };
+
+    const { output } = await prompt(flowInput);
 
     // Ensure the output is not null and conforms to the schema
     if (!output || !Array.isArray(output.journey)) {
