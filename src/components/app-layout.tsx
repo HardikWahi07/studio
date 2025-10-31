@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -420,7 +421,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
   const allNavItems = user ? [...loggedInNavItems, ...[
       { href: "/expenses", label: t('AppLayout.expenseSplitter') },
-      { href: "/local-supporters", label: t('AppLayout.localSupporters') },
       { href: "/safety", label: t('AppLayout.safety') },
       { key: 'help', onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
       { key: 'contact', href: 'mailto:support@tripmind.com', label: t('AppLayout.contactUs') },
@@ -449,6 +449,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   ];
 
   const logoColor = isHomePage && !isScrolled && isMounted && theme === 'dark' ? 'text-white' : 'text-primary';
+  const hamburgerClasses = cn(
+      "lg:hidden",
+      isMounted && isHomePage && !isScrolled 
+        ? (theme === 'dark' ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : 'border-gray-400 text-foreground hover:bg-accent hover:text-accent-foreground') 
+        : ''
+    );
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -482,7 +488,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
              )}
             <Sheet>
               <SheetTrigger asChild>
-                <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isMounted && isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
+                <Button id="hamburger" variant="outline" size="icon" className={hamburgerClasses}>
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">{t('AppLayout.toggleNavigation')}</span>
                 </Button>
@@ -583,3 +589,4 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
