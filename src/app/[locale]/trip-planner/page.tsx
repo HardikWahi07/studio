@@ -20,6 +20,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AuthDialog } from '@/components/auth-dialog';
 import { TripItinerary } from '@/components/trip-itinerary';
+import { useTranslations } from '@/hooks/use-translations';
 
 const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
@@ -37,6 +38,7 @@ const formSchema = z.object({
 });
 
 export default function TripPlannerPage() {
+    const t = useTranslations();
     const [isLoading, setIsLoading] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [results, setResults] = useState<PlanTripOutput | null>(null);
@@ -64,8 +66,8 @@ export default function TripPlannerPage() {
 
         if (!user && !isUserLoading) {
             toast({
-              title: 'Please log in',
-              description: 'You need to be logged in to plan a trip.',
+              title: t('TripPlannerPage.toastLoginTitle'),
+              description: t('TripPlannerPage.toastLoginDescription'),
             });
             setIsAuthDialogOpen(true);
             setIsLoading(false);
@@ -92,7 +94,7 @@ export default function TripPlannerPage() {
             setResults(response);
         } catch (error) {
             console.error('Failed to plan trip:', error);
-            toast({ title: 'Error', description: 'Failed to generate trip plan. Please try again.', variant: 'destructive', });
+            toast({ title: t('TripPlannerPage.toastErrorTitle'), description: t('TripPlannerPage.toastErrorDescription'), variant: 'destructive', });
         } finally {
             setIsLoading(false);
         }
@@ -147,95 +149,113 @@ export default function TripPlannerPage() {
             <AuthDialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen} />
 
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">AI Trip Planner</h1>
-                <p className="text-muted-foreground max-w-2xl">Tell us about your dream trip, and our AI will craft a detailed, day-by-day itinerary just for you.</p>
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('TripPlannerPage.title')}</h1>
+                <p className="text-muted-foreground max-w-2xl">{t('TripPlannerPage.description')}</p>
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Plan Your Next Adventure</CardTitle>
-                    <CardDescription>The more details you provide, the better your personalized plan will be.</CardDescription>
+                    <CardTitle>{t('TripPlannerPage.formTitle')}</CardTitle>
+                    <CardDescription>{t('TripPlannerPage.formDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSearch)} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                                 <FormField control={form.control} name="origin" render={({ field }) => (
-                                    <FormItem><FormLabel>From</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Enter your origin city..." /><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>{t('TripPlannerPage.fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('TripPlannerPage.fromPlaceholder')} /><FormMessage /></FormItem>
                                 )} />
                                 <FormField control={form.control} name="destination" render={({ field }) => (
-                                    <FormItem><FormLabel>To</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Enter your destination city..." /><FormMessage /></FormItem>
+                                    <FormItem><FormLabel>{t('TripPlannerPage.toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('TripPlannerPage.toPlaceholder')} /><FormMessage /></FormItem>
                                 )} />
                                 <div className="grid grid-cols-2 gap-4">
                                     <FormField control={form.control} name="departureDate" render={({ field }) => (
-                                        <FormItem><FormLabel>Departure Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>{t('TripPlannerPage.departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                     <FormField control={form.control} name="tripDuration" render={({ field }) => (
-                                        <FormItem><FormLabel>Trip Duration (days)</FormLabel><FormControl><Input type="number" min="1" max="365" {...field} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>{t('TripPlannerPage.durationLabel')}</FormLabel><FormControl><Input type="number" min="1" max="365" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
                                 <FormField control={form.control} name="tripPace" render={({ field }) => (
-                                    <FormItem><FormLabel>Trip Pace</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select a pace..." /></SelectTrigger></FormControl>
-                                        <SelectContent><SelectItem value="relaxed">Relaxed</SelectItem><SelectItem value="moderate">Moderate</SelectItem><SelectItem value="fast-paced">Fast-paced</SelectItem></SelectContent>
+                                    <FormItem><FormLabel>{t('TripPlannerPage.paceLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('TripPlannerPage.pacePlaceholder')} /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="relaxed">{t('TripPlannerPage.paceRelaxed')}</SelectItem>
+                                            <SelectItem value="moderate">{t('TripPlannerPage.paceModerate')}</SelectItem>
+                                            <SelectItem value="fast-paced">{t('TripPlannerPage.paceFast')}</SelectItem>
+                                        </SelectContent>
                                     </Select><FormMessage /></FormItem>
                                 )}/>
                                 <div className="grid grid-cols-2 gap-4">
                                     <FormField control={form.control} name="travelStyle" render={({ field }) => (
-                                        <FormItem><FormLabel>Travel Style</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Select a style..." /></SelectTrigger></FormControl>
-                                            <SelectContent><SelectItem value="solo">Solo</SelectItem><SelectItem value="couple">Couple</SelectItem><SelectItem value="family">Family</SelectItem><SelectItem value="group">Group</SelectItem></SelectContent>
+                                        <FormItem><FormLabel>{t('TripPlannerPage.styleLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder={t('TripPlannerPage.stylePlaceholder')} /></SelectTrigger></FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="solo">{t('TripPlannerPage.styleSolo')}</SelectItem>
+                                                <SelectItem value="couple">{t('TripPlannerPage.styleCouple')}</SelectItem>
+                                                <SelectItem value="family">{t('TripPlannerPage.styleFamily')}</SelectItem>
+                                                <SelectItem value="group">{t('TripPlannerPage.styleGroup')}</SelectItem>
+                                            </SelectContent>
                                         </Select><FormMessage /></FormItem>
                                     )}/>
                                     <FormField control={form.control} name="travelers" render={({ field }) => (
-                                        <FormItem><FormLabel>Travelers</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl><FormMessage /></FormItem>
+                                        <FormItem><FormLabel>{t('TripPlannerPage.travelersLabel')}</FormLabel><FormControl><Input type="number" min="1" {...field} /></FormControl><FormMessage /></FormItem>
                                     )} />
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <FormField control={form.control} name="accommodationType" render={({ field }) => (
-                                        <FormItem><FormLabel>Accommodation</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                            <FormControl><SelectTrigger><SelectValue placeholder="Select a type..." /></SelectTrigger></FormControl>
+                                        <FormItem><FormLabel>{t('TripPlannerPage.accommodationLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <FormControl><SelectTrigger><SelectValue placeholder={t('TripPlannerPage.accommodationPlaceholder')} /></SelectTrigger></FormControl>
                                             <SelectContent>
-                                                <SelectItem value="hotel">Hotel</SelectItem>
-                                                <SelectItem value="hostel">Hostel</SelectItem>
-                                                <SelectItem value="vacation-rental">Vacation Rental</SelectItem>
-                                                <SelectItem value="none">No Accommodation</SelectItem>
+                                                <SelectItem value="hotel">{t('TripPlannerPage.accommodationHotel')}</SelectItem>
+                                                <SelectItem value="hostel">{t('TripPlannerPage.accommodationHostel')}</SelectItem>
+                                                <SelectItem value="vacation-rental">{t('TripPlannerPage.accommodationRental')}</SelectItem>
+                                                <SelectItem value="none">{t('TripPlannerPage.accommodationNone')}</SelectItem>
                                             </SelectContent>
                                         </Select><FormMessage /></FormItem>
                                     )}/>
                                     {accommodationType !== 'none' && (
                                       <FormField control={form.control} name="accommodationBudget" render={({ field }) => (
-                                          <FormItem><FormLabel>Stay Budget</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                              <FormControl><SelectTrigger><SelectValue placeholder="Select budget..." /></SelectTrigger></FormControl>
-                                              <SelectContent><SelectItem value="budget">Budget</SelectItem><SelectItem value="moderate">Moderate</SelectItem><SelectItem value="luxury">Luxury</SelectItem></SelectContent>
+                                          <FormItem><FormLabel>{t('TripPlannerPage.accommodationBudgetLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                              <FormControl><SelectTrigger><SelectValue placeholder={t('TripPlannerPage.accommodationBudgetPlaceholder')} /></SelectTrigger></FormControl>
+                                              <SelectContent>
+                                                  <SelectItem value="budget">{t('TripPlannerPage.accommodationBudgetBudget')}</SelectItem>
+                                                  <SelectItem value="moderate">{t('TripPlannerPage.accommodationBudgetModerate')}</SelectItem>
+                                                  <SelectItem value="luxury">{t('TripPlannerPage.accommodationBudgetLuxury')}</SelectItem>
+                                              </SelectContent>
                                           </Select><FormMessage /></FormItem>
                                       )}/>
                                     )}
                                 </div>
                                  <FormField control={form.control} name="planeClass" render={({ field }) => (
-                                    <FormItem><FormLabel>Plane Class</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select plane class..." /></SelectTrigger></FormControl>
-                                        <SelectContent><SelectItem value="economy">Economy</SelectItem><SelectItem value="premium-economy">Premium Economy</SelectItem><SelectItem value="business">Business</SelectItem><SelectItem value="first">First</SelectItem></SelectContent>
+                                    <FormItem><FormLabel>{t('TripPlannerPage.planeClassLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('TripPlannerPage.planeClassPlaceholder')} /></SelectTrigger></FormControl>
+                                        <SelectContent>
+                                            <SelectItem value="economy">{t('TripPlannerPage.planeClassEconomy')}</SelectItem>
+                                            <SelectItem value="premium-economy">{t('TripPlannerPage.planeClassPremiumEconomy')}</SelectItem>
+                                            <SelectItem value="business">{t('TripPlannerPage.planeClassBusiness')}</SelectItem>
+                                            <SelectItem value="first">{t('TripPlannerPage.planeClassFirst')}</SelectItem>
+                                        </SelectContent>
                                     </Select><FormMessage /></FormItem>
                                 )}/>
                                 <FormField control={form.control} name="trainClass" render={({ field }) => (
-                                    <FormItem><FormLabel>Train Class</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <FormControl><SelectTrigger><SelectValue placeholder="Select train class..." /></SelectTrigger></FormControl>
+                                    <FormItem><FormLabel>{t('TripPlannerPage.trainClassLabel')}</FormLabel><Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <FormControl><SelectTrigger><SelectValue placeholder={t('TripPlannerPage.trainClassPlaceholder')} /></SelectTrigger></FormControl>
                                         <SelectContent>
-                                            <SelectItem value="sleeper">Sleeper</SelectItem>
-                                            <SelectItem value="ac-3-tier">AC 3-Tier</SelectItem>
-                                            <SelectItem value="ac-2-tier">AC 2-Tier</SelectItem>
-                                            <SelectItem value="ac-first-class">AC First Class</SelectItem>
-                                            <SelectItem value="chair-car">AC Chair Car</SelectItem>
+                                            <SelectItem value="sleeper">{t('TripPlannerPage.trainClassSleeper')}</SelectItem>
+                                            <SelectItem value="ac-3-tier">{t('TripPlannerPage.trainClassAC3')}</SelectItem>
+                                            <SelectItem value="ac-2-tier">{t('TripPlannerPage.trainClassAC2')}</SelectItem>
+                                            <SelectItem value="ac-first-class">{t('TripPlannerPage.trainClassACFirst')}</SelectItem>
+                                            <SelectItem value="chair-car">{t('TripPlannerPage.trainClassChairCar')}</SelectItem>
                                         </SelectContent>
                                     </Select><FormMessage /></FormItem>
                                 )}/>
                             </div>
                             <FormField control={form.control} name="interests" render={({ field }) => (
-                                <FormItem><FormLabel>Your Interests</FormLabel><FormControl><Textarea placeholder="e.g., Art museums, street food, hiking, local markets..." rows={3} {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('TripPlannerPage.interestsLabel')}</FormLabel><FormControl><Textarea placeholder={t('TripPlannerPage.interestsPlaceholder')} rows={3} {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
                             <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                                {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">Generating...</span></> : <><Search /> <span className="ml-2">Generate My Trip</span></>}
+                                {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('TripPlannerPage.searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('TripPlannerPage.searchButton')}</span></>}
                             </Button>
                         </form>
                     </Form>
@@ -245,7 +265,7 @@ export default function TripPlannerPage() {
             {isLoading && (
                 <div className="flex flex-col items-center justify-center pt-10 text-center">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                    <p className="mt-4 text-lg font-semibold text-muted-foreground">Finding the best options for you...</p>
+                    <p className="mt-4 text-lg font-semibold text-muted-foreground">{t('TripPlannerPage.loadingMessage')}</p>
                     <p className="text-sm text-muted-foreground">Crafting your perfect journey to {form.getValues('destination')}...</p>
                 </div>
             )}

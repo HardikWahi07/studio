@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A tool for fetching real-time hotel data from Booking.com.
@@ -72,7 +71,6 @@ export const searchRealtimeHotels = ai.defineTool(
             locale: 'en-gb',
             page_number: '0',
             include_adjacency: 'true',
-            children_number: '0',
         });
         
         // Map budget to star rating

@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent for planning a detailed, multi-day trip itinerary.
@@ -162,7 +161,7 @@ const planTripFlow = ai.defineFlow(
                 description: "Evening walk around the local area.",
                 location: "City Center",
                 details: "Enjoy street food or coffee nearby.",
-                cost: "Approx. $10",
+                cost: `Approx. 10 ${input.currency}`,
                 transportToNext: {
                   mode: "Walk",
                   duration: "15 minutes",
@@ -180,14 +179,14 @@ const planTripFlow = ai.defineFlow(
             type: "metro",
             provider: "City Metro",
             details: "Fastest way around the city.",
-            averageCost: "$2 per ride",
+            averageCost: `2 ${input.currency} per ride`,
             tip: "Buy a daily metro card for unlimited rides."
           },
           {
             type: "rideshare",
             provider: "Uber / Ola",
             details: "Available 24/7.",
-            averageCost: "$10-15 per ride",
+            averageCost: `10-15 ${input.currency} per ride`,
             tip: "Use off-peak hours for cheaper fares."
           }
         ]

@@ -79,6 +79,16 @@ export const searchRealtimeTrains = ai.defineTool(
             console.log(`[searchRealtimeTrains Tool] No trains found for ${originStationCode} to ${destinationStationCode}.`);
             return [];
         }
+        
+        const priceResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v1/checkPrice?trainNo=${data.data[0].train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&date=${formattedDate}&classType=${apiTravelClass}`, {
+            headers: {
+                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+                'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
+            }
+        });
+        const priceData = await priceResponse.json();
+        const price = priceData?.data?.total_fare ? `${input.currency} ${priceData.data.total_fare}` : `${input.currency} 1,200`;
+
 
         return data.data.slice(0, 3).map((train: any) => {
             return {
@@ -86,7 +96,7 @@ export const searchRealtimeTrains = ai.defineTool(
                 provider: "Indian Railways",
                 details: `Train ${train.train_number} - ${train.train_name}`,
                 duration: train.duration,
-                price: `${input.currency} 1,200`, // API does not provide price, using a placeholder
+                price: price, // API does not provide price, using a placeholder
                 bookingLink: 'https://www.irctc.co.in/',
                 ecoFriendly: true,
                 availability: 'Available' // API does not provide availability, assuming 'Available'
