@@ -66,8 +66,9 @@ const prompt = ai.definePrompt({
         - **FORMAT:** \`https://www.google.com/travel/flights?q=flights%20from%20{ORIGIN_IATA}%20to%20{DESTINATION_IATA}%20on%20{YYYY-MM-DD}\`
         - **EXAMPLE:** For a flight from Mumbai (BOM) to Delhi (DEL) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=flights%20from%20BOM%20to%20DEL%20on%202025-12-20\`
 
-      - **TRAINS:** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL using the specific path format.
-        - **DATE CONVERSION:** The departure date {{{departureDate}}} (YYYY-MM-DD) MUST be converted to DDMMYYYY format for the URL.
+      - **TRAINS (MANDATORY):** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL using the specific path format.
+        - **STEP 1: DATE CONVERSION:** The departure date {{{departureDate}}} (YYYY-MM-DD) MUST be converted to DDMMYYYY format for the URL.
+        - **STEP 2: CONSTRUCT URL:** Use the station codes and the converted date.
         - **FORMAT:** \`https://www.ixigo.com/search/result/train/{ORIGIN_STATION_CODE}/{DESTINATION_STATION_CODE}/{DDMMYYYY}//1/0/0/0/ALL\` (Assuming 1 adult, 0 children, 0 seniors).
         - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 2025-12-20 (20122025), the URL is: \`https://www.ixigo.com/search/result/train/VAPI/PUNE/20122025//1/0/0/0/ALL\`
         - Provide mock availability data ('Available', 'Waitlist', 'Sold Out').
