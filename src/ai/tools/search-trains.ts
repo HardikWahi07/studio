@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview A tool for fetching real-time train data from an external API.
@@ -59,12 +58,12 @@ export const searchRealtimeTrains = ai.defineTool(
         }
         
         const apiTravelClass = input.travelClass ? classMap[input.travelClass] || 'SL' : 'SL';
-        const formattedDate = format(new Date(input.date), 'yyyyMMdd');
+        const formattedDate = format(new Date(input.date), 'yyyy-MM-dd');
 
-        const response = await fetch(`https://india-train-by-train-api.p.rapidapi.com/trainsFromTo?from=${originStationCode}&to=${destinationStationCode}&date=${formattedDate}`, {
+        const response = await fetch(`https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDate}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'india-train-by-train-api.p.rapidapi.com'
+                'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
             }
         });
 
@@ -76,38 +75,23 @@ export const searchRealtimeTrains = ai.defineTool(
         
         const data = await response.json();
         
-        if (!data || !data.train) {
+        if (!data || !data.data || data.data.length === 0) {
             console.log(`[searchRealtimeTrains Tool] No trains found for ${originStationCode} to ${destinationStationCode}.`);
             return [];
         }
 
-        const trains = data.train.slice(0, 3).map((train: any) => {
-            const classInfo = train.classes.find((c: any) => c.class === apiTravelClass);
-            
-            let availability = 'N/A';
-            if (classInfo) {
-                if (classInfo.available === 'Y') {
-                    availability = 'Available';
-                } else if (classInfo.available === 'N') {
-                    availability = 'Sold Out';
-                } else if (classInfo.available.startsWith('W')) { // Waitlist
-                    availability = 'Waitlist';
-                }
-            }
-
+        return data.data.slice(0, 3).map((train: any) => {
             return {
                 type: 'train' as const,
-                provider: "IRCTC",
-                details: `Train ${train.train_num} - ${train.train_name}`,
+                provider: "Indian Railways",
+                details: `Train ${train.train_number} - ${train.train_name}`,
                 duration: train.duration,
-                price: classInfo?.fare ? `${input.currency} ${classInfo.fare}` : 'N/A',
+                price: `${input.currency} 1,200`, // API does not provide price, using a placeholder
                 bookingLink: 'https://www.irctc.co.in/',
                 ecoFriendly: true,
-                availability: availability
+                availability: 'Available' // API does not provide availability, assuming 'Available'
             };
         });
-
-        return trains;
 
     } catch (error) {
         console.error("[searchRealtimeTrains Tool] Failed to fetch trains:", error);

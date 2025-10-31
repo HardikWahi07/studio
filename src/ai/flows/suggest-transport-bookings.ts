@@ -1,7 +1,6 @@
-
 'use server';
 /**
- * @fileOverview An AI agent for suggesting transport bookings (flights and trains).
+ * @fileOverview An AI agent for suggesting transport bookings, capable of multi-leg journeys.
  *
  * - suggestTransportBookings - A function that returns a list of booking options.
  * - SuggestTransportBookingsInput - The input type for the function.
@@ -12,6 +11,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { searchRealtimeFlights } from '../tools/search-flights';
 import { searchRealtimeTrains } from '../tools/search-trains';
+import { getJourneyToHub } from '../tools/get-journey-to-hub';
 
 // Define Zod schemas for input and output
 const SuggestTransportBookingsInputSchema = z.object({
@@ -26,18 +26,24 @@ export type SuggestTransportBookingsInput = z.infer<typeof SuggestTransportBooki
 
 
 const BookingOptionSchema = z.object({
-    type: z.enum(['flight', 'train', 'bus', 'driving']).describe('Type of transport.'),
-    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive", "IRCTC"'),
-    details: z.string().describe('e.g., "Dep: 08:30, Arr: 11:00, Flight IB388" or "Dep: 14:00, Arr: 18:30, AC First Class"'),
+    type: z.enum(['flight', 'train', 'bus', 'driving', 'rickshaw', 'taxi', 'walk']).describe('Type of transport.'),
+    provider: z.string().describe('e.g., "Iberia", "Renfe", "Alsa", "Self-drive", "IRCTC", "Local Rickshaw"'),
+    details: z.string().describe('e.g., "Dep: 08:30, Arr: 11:00, Flight IB388" or "CSMT to Bandra Terminus"'),
     duration: z.string().describe('e.g., "2h 30m"'),
     price: z.string().describe('e.g., "€120"'),
-    ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
     bookingLink: z.string().url().describe('A mock URL to a booking page.'),
+    ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
     availability: z.enum(['Available', 'Waitlist', 'Sold Out', 'N/A']).optional().describe('The real-time availability status for this option.'),
 });
 
+const JourneyLegSchema = z.object({
+  leg: z.number().describe("The sequence number of this leg in the journey."),
+  description: z.string().describe("A human-readable description of this leg of the journey, e.g., 'Train from Pune to Mumbai' or 'Taxi across Mumbai'"),
+  options: z.array(BookingOptionSchema).describe("A list of transport options for this leg."),
+});
+
 const SuggestTransportBookingsOutputSchema = z.object({
-  bookingOptions: z.array(BookingOptionSchema).describe("A list of booking options for the journey from origin to destination."),
+  journey: z.array(JourneyLegSchema).describe("An array of journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs."),
 });
 export type SuggestTransportBookingsOutput = z.infer<typeof SuggestTransportBookingsOutputSchema>;
 
@@ -56,8 +62,8 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  tools: [searchRealtimeFlights, searchRealtimeTrains],
-  prompt: `You are an intelligent travel booking assistant. Your task is to find the best flight and train options for a user's journey.
+  tools: [searchRealtimeFlights, searchRealtimeTrains, getJourneyToHub],
+  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey.
 
   **User's Request:**
   - **From:** {{{origin}}}
@@ -68,11 +74,16 @@ const prompt = ai.definePrompt({
   - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
-  1.  **Prioritize Trains for Indian Travel:** If the origin or destination seems to be in India (e.g., "Mumbai", "Vapi", "Delhi"), you MUST use the \`searchRealtimeTrains\` tool first.
-  2.  **Use Flights for Other Routes:** For all non-Indian routes, use the \`searchRealtimeFlights\` tool. You may also search for trains if the route is within Europe.
-  3.  **Combine and Return Results:** Consolidate the findings from all tool calls into a single list of booking options.
-
-  Return the results in the specified JSON format.
+  1.  **Direct Route First:** First, try to find direct transport options (flights or trains) between the origin and destination using the appropriate tools ('searchRealtimeTrains' for Indian travel, 'searchRealtimeFlights' for others).
+  2.  **If Direct Route Exists:** If you find direct options, return them as a single journey leg.
+  3.  **If No Direct Route:** If no direct options are found, you must attempt to find a multi-leg journey. To do this:
+      a.  Identify a major transport hub city between the origin and destination (e.g., for "Lohegaon to Vapi", the hub is "Mumbai").
+      b.  Search for the first leg of the journey (e.g., "Lohegaon to Mumbai").
+      c.  Use the 'getJourneyToHub' tool to find options for traveling *within* the hub city (e.g., from the arrival station to the departure station for the next leg).
+      d.  Search for the second leg of the journey (e.g., "Mumbai to Vapi").
+      e.  Combine these steps into a multi-leg journey array. Each leg must have a description and a list of options.
+  
+  **IMPORTANT:** For the final output, structure it as a 'journey' array, where each element is a 'leg' of the trip. A direct trip will have one leg. A complex trip will have multiple legs. Be very precise with the output schema.
   `,
 });
 
@@ -87,6 +98,7 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     // Call the LLM with the defined prompt and tools
     let llmResponse;
     try {
+        console.log("[suggestTransportBookingsFlow] Calling prompt with input:", input);
         llmResponse = await prompt(input);
     } catch (err) {
         console.error("❌ LLM prompt failed in suggestTransportBookingsFlow:", err);
@@ -96,9 +108,9 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     const output = llmResponse?.output;
 
     // Ensure the output is not null and conforms to the schema
-    if (!output || !Array.isArray(output.bookingOptions)) {
-      console.warn("AI returned null or invalid output for transport bookings. Returning empty array.");
-      return { bookingOptions: [] };
+    if (!output || !Array.isArray(output.journey)) {
+      console.warn("AI returned null or invalid output for transport bookings. Returning empty journey.");
+      return { journey: [] };
     }
     
     return output;

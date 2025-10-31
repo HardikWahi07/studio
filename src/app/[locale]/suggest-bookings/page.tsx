@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -8,17 +7,18 @@ import { z } from 'zod';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon } from 'lucide-react';
-import type { BookingOption } from '@/ai/flows/plan-trip.types';
+import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon, ChevronsRight, Milestone } from 'lucide-react';
+import type { BookingOption, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
+import { suggestTransportBookings } from '@/ai/flows/suggest-transport-bookings';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from '@/hooks/use-translations';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useSettings } from '@/context/settings-context';
 
 
 const formSchema = z.object({
@@ -26,7 +26,7 @@ const formSchema = z.object({
     destination: z.string().min(1, 'Destination is required.'),
     departureDate: z.date({
         required_error: "A departure date is required.",
-      }),
+    }),
 });
 
 const transportIcons: { [key: string]: React.ReactNode } = {
@@ -34,40 +34,11 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     train: <Train className="h-6 w-6 text-purple-500" />,
     bus: <Bus className="h-6 w-6 text-orange-500" />,
     driving: <CarFront className="h-6 w-6 text-gray-500" />,
+    rickshaw: <CarFront className="h-6 w-6 text-yellow-500" />,
+    taxi: <CarFront className="h-6 w-6 text-red-500" />,
+    walk: <Milestone className="h-6 w-6 text-green-500" />,
 };
 
-const mockBookingOptions: BookingOption[] = [
-    {
-        type: 'flight',
-        provider: 'IndiGo',
-        details: 'Flight 6E 237, Airbus A320',
-        duration: '2h 15m',
-        price: '₹ 4,500',
-        bookingLink: '#',
-        ecoFriendly: false,
-        availability: 'Available'
-    },
-    {
-        type: 'train',
-        provider: 'Indian Railways',
-        details: 'Train 12951, TEJAS EXPRESS',
-        duration: '6h 30m',
-        price: '₹ 1,800',
-        bookingLink: '#',
-        ecoFriendly: true,
-        availability: 'Available'
-    },
-    {
-        type: 'bus',
-        provider: 'RedBus',
-        details: 'Volvo A/C Sleeper (2+1)',
-        duration: '8h 00m',
-        price: '₹ 950',
-        bookingLink: '#',
-        ecoFriendly: false,
-        availability: 'Available'
-    }
-];
 
 function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recommendation?: 'Best' | 'Cheapest' | 'Eco-Friendly' }) {
     const { toast } = useToast();
@@ -77,6 +48,7 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
             title: "Demo: Opening Booking Site",
             description: `In a real app, you would be redirected to ${opt.provider} to complete your booking.`,
         });
+        window.open(opt.bookingLink, '_blank');
     }
 
     const recommendationBadges = {
@@ -116,8 +88,9 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
 export default function SuggestBookingsPage() {
     const t = useTranslations();
     const [isLoading, setIsLoading] = useState(false);
-    const [results, setResults] = useState<{bookingOptions: BookingOption[]} | null>(null);
-
+    const [results, setResults] = useState<SuggestTransportBookingsOutput | null>(null);
+    const { currency } = useSettings();
+    const { toast } = useToast();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -131,11 +104,23 @@ export default function SuggestBookingsPage() {
         setIsLoading(true);
         setResults(null);
         
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        setResults({ bookingOptions: mockBookingOptions });
-
-        setIsLoading(false);
+        try {
+            const response = await suggestTransportBookings({
+                ...values,
+                departureDate: format(values.departureDate, 'yyyy-MM-dd'),
+                currency: currency,
+            });
+            setResults(response);
+        } catch(e) {
+            console.error("Failed to suggest transport bookings", e);
+            toast({
+                variant: 'destructive',
+                title: t('SuggestBookingsPage.toastErrorTitle'),
+                description: t('SuggestBookingsPage.toastErrorDescription'),
+            });
+        } finally {
+            setIsLoading(false);
+        }
     }
 
   return (
@@ -170,7 +155,7 @@ export default function SuggestBookingsPage() {
                                 control={form.control}
                                 name="departureDate"
                                 render={({ field }) => (
-                                    <FormItem className="flex flex-col">
+                                    <FormItem className="flex flex-col pt-2">
                                     <FormLabel>{t('SuggestBookingsPage.departureLabel')}</FormLabel>
                                     <Popover>
                                         <PopoverTrigger asChild>
@@ -227,8 +212,29 @@ export default function SuggestBookingsPage() {
             <div className="pt-6 space-y-6">
                  <h2 className="font-headline text-2xl font-bold">{t('SuggestBookingsPage.resultsTitle')}</h2>
                  <div className="space-y-4">
-                    {results.bookingOptions.length > 0 ? (
-                        results.bookingOptions.map((opt, index) => <BookingOptionCard key={index} opt={opt} />)
+                    {results.journey.length > 0 ? (
+                       results.journey.map((leg, legIndex) => (
+                           <React.Fragment key={leg.leg}>
+                             <Card className="bg-secondary p-4">
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm font-sans">{leg.leg}</span>
+                                    {leg.description}
+                                </CardTitle>
+                                <CardContent className="pt-4 space-y-4">
+                                    {leg.options.length > 0 ? (
+                                        leg.options.map((opt, optIndex) => <BookingOptionCard key={optIndex} opt={opt} />)
+                                    ) : (
+                                        <p className="text-muted-foreground text-center">No options found for this leg.</p>
+                                    )}
+                                </CardContent>
+                             </Card>
+                              {legIndex < results.journey.length - 1 && (
+                                <div className="flex justify-center">
+                                    <ChevronsRight className="w-8 h-8 text-muted-foreground/50" />
+                                </div>
+                            )}
+                           </React.Fragment>
+                       ))
                     ) : (
                         <p className="text-muted-foreground text-center py-8">{t('SuggestBookingsPage.noResults')}</p>
                     )}
