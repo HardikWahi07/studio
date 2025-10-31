@@ -3,19 +3,20 @@
 
 import { useState, useMemo } from "react";
 import { useUser, useFirestore, useDoc, useCollection, useMemoFirebase } from '@/firebase';
-import { doc, collection, query, updateDoc, arrayUnion, arrayRemove, addDoc, deleteDoc } from 'firebase/firestore';
+import { doc, collection, query, updateDoc, arrayUnion, arrayRemove, addDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Trash2, Users, ArrowLeft } from "lucide-react";
+import { PlusCircle, Trash2, Users, ArrowLeft, HandCoins } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 
 type Trip = {
     id: string;
@@ -28,12 +29,91 @@ type Expense = {
   description: string;
   amount: number;
   paidBy: string;
+  isSettlement?: boolean;
+  paidTo?: string;
+  createdAt: any;
 };
 
 type Balance = {
   name: string;
   amount: number;
 };
+
+function SettleDebtDialog({ participants, tripDocRef }: { participants: string[], tripDocRef: any }) {
+    const [from, setFrom] = useState('');
+    const [to, setTo] = useState('');
+    const [amount, setAmount] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const { user } = useUser();
+
+    const handleSettle = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!from || !to || !amount || !tripDocRef || !user) {
+            alert("Please fill out all settlement fields.");
+            return;
+        }
+
+        const settlementData = {
+            description: `${from} paid ${to}`,
+            amount: parseFloat(amount),
+            paidBy: from,
+            paidTo: to,
+            isSettlement: true,
+            createdAt: serverTimestamp(),
+            userId: user.uid,
+            tripId: tripDocRef.id
+        };
+        
+        await addDoc(collection(tripDocRef, 'expenses'), settlementData);
+        
+        // Reset and close
+        setFrom('');
+        setTo('');
+        setAmount('');
+        setIsOpen(false);
+    }
+    
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button variant="outline" size="sm" disabled={participants.length < 2}><HandCoins className="mr-2 h-4 w-4"/> Settle Debt</Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Settle a Debt</DialogTitle>
+                    <DialogDescription>Record a payment made between two participants.</DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSettle} className="space-y-4 py-4">
+                     <div>
+                        <Label>From (Who Paid)</Label>
+                        <Select onValueChange={setFrom} value={from}>
+                            <SelectTrigger><SelectValue placeholder="Select who paid" /></SelectTrigger>
+                            <SelectContent>
+                                {participants.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div>
+                        <Label>To (Who Received)</Label>
+                        <Select onValueChange={setTo} value={to}>
+                            <SelectTrigger><SelectValue placeholder="Select who received the money" /></SelectTrigger>
+                            <SelectContent>
+                                {participants.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div>
+                        <Label>Amount</Label>
+                        <Input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="e.g., 50.00" />
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Record Settlement</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
+}
 
 export default function ExpenseWorkspacePage() {
   const { user } = useUser();
@@ -115,6 +195,8 @@ export default function ExpenseWorkspacePage() {
       paidBy,
       tripId,
       userId: user.uid,
+      createdAt: serverTimestamp(),
+      isSettlement: false,
     };
 
     addDoc(collection(tripDocRef, 'expenses'), expenseData)
@@ -146,7 +228,7 @@ export default function ExpenseWorkspacePage() {
   };
 
   const totalSpent = useMemo(() => {
-    return expenses?.reduce((acc, expense) => acc + expense.amount, 0) || 0;
+    return expenses?.filter(e => !e.isSettlement).reduce((acc, expense) => acc + expense.amount, 0) || 0;
   }, [expenses]);
   
   const balances = useMemo<Balance[]>(() => {
@@ -154,9 +236,17 @@ export default function ExpenseWorkspacePage() {
   
     const totalContributions: { [key: string]: number } = {};
     participants.forEach(p => totalContributions[p] = 0);
+    
     expenses.forEach(e => {
-        if(e.paidBy in totalContributions) {
-            totalContributions[e.paidBy] += e.amount;
+        if(e.isSettlement) {
+            // Money moves from 'paidBy' to 'paidTo'
+            if(e.paidBy in totalContributions) totalContributions[e.paidBy] -= e.amount;
+            if(e.paidTo && e.paidTo in totalContributions) totalContributions[e.paidTo] += e.amount;
+        } else {
+            // This is a normal expense
+            if(e.paidBy in totalContributions) {
+                totalContributions[e.paidBy] += e.amount;
+            }
         }
     });
 
@@ -274,7 +364,7 @@ export default function ExpenseWorkspacePage() {
                 </TableHeader>
                 <TableBody>
                   {expenses && expenses.length > 0 ? expenses.map(expense => (
-                    <TableRow key={expense.id}>
+                    <TableRow key={expense.id} className={expense.isSettlement ? "bg-green-50 dark:bg-green-900/20" : ""}>
                       <TableCell className="font-medium">{expense.description}</TableCell>
                       <TableCell>{expense.paidBy}</TableCell>
                       <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
@@ -293,15 +383,20 @@ export default function ExpenseWorkspacePage() {
               </Table>
             </CardContent>
             <CardFooter className="justify-end font-bold text-lg">
-                Total Spent: ${totalSpent.toFixed(2)}
+                Total Shared Cost: ${totalSpent.toFixed(2)}
             </CardFooter>
           </Card>
 
           {balances.length > 0 && (
             <Card>
                 <CardHeader>
-                <CardTitle>Balance Summary</CardTitle>
-                <CardDescription>Calculations based on an equal split. Positive means they are owed money, negative means they owe money.</CardDescription>
+                    <div className="flex justify-between items-center">
+                        <div>
+                            <CardTitle>Balance Summary</CardTitle>
+                            <CardDescription>Calculations based on an equal split. Positive means they are owed money, negative means they owe money.</CardDescription>
+                        </div>
+                        <SettleDebtDialog participants={participants} tripDocRef={tripDocRef} />
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -323,4 +418,3 @@ export default function ExpenseWorkspacePage() {
   );
 }
 
-    
