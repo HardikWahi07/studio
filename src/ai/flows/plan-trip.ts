@@ -88,12 +88,13 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
-  2. **Generate Main Booking Options:**
-     - **CRITICAL:** If the origin or destination city name seems to be in India (e.g., contains "India", or is a known Indian city like "Mumbai", "Delhi", "Vapi", "Lucknow"), you MUST prioritize using the 'searchRealtimeTrains' tool with the user's specified 'trainClass'.
-     - **FALLBACK LOGIC:** If the train search returns no trains, or if all returned trains have an 'availability' status that is NOT 'Available', you MUST then also use the 'searchRealtimeFlights' tool with the user's specified 'planeClass' to provide flight options as a backup.
-     - For all other non-Indian destinations, use 'searchRealtimeFlights' with the user's 'planeClass' to find global flights.
-     - You can also use the train search tool for European routes if it seems appropriate.
-     - Combine results from all tool calls into a single bookingOptions array.
+  2. **Generate Main Booking Options (CRITICAL LOGIC):**
+     - **Primary Search:** First, try to find transport from the user's exact 'origin' to 'destination'.
+       - If the destination is in India, prioritize using the 'searchRealtimeTrains' tool.
+       - For all other destinations, or if trains are not suitable, prioritize 'searchRealtimeFlights'.
+     - **Fallback 1 (Train to Flight):** If the primary search was for trains and it returned no results OR all results were unavailable, you MUST then perform a secondary search using 'searchRealtimeFlights' for the same route to provide a backup option.
+     - **Fallback 2 (Nearby Hubs):** If BOTH primary and secondary searches from the exact origin/destination fail to find any available options, you must then identify the nearest major transport hub (e.g., a large international airport or central train station) for BOTH the origin and destination. For example, if the origin is 'Vapi, India', a major hub would be 'Mumbai, India'. Then, perform the search again between these major hubs.
+     - **Final Output:** Combine all valid, available results from your successful tool calls into a single 'bookingOptions' array.
   3. **Hotels:**
      - Use 'searchRealtimeHotels' unless 'accommodationType' is 'none'. The checkout date is provided.
      - Always return valid URLs with no spaces.
