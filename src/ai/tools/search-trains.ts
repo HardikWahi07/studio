@@ -58,8 +58,7 @@ export const searchRealtimeTrains = ai.defineTool(
         console.error(`[searchRealtimeTrains] Station code missing for ${input.origin} or ${input.destination}`);
         return [];
       }
-
-      const apiTravelClass = input.travelClass ? classMap[input.travelClass] || 'SL' : 'SL';
+      
       const formattedDate = format(new Date(input.date), 'yyyy-MM-dd');
 
       // 🔹 Step 1: Fetch trains between stations
@@ -85,6 +84,8 @@ export const searchRealtimeTrains = ai.defineTool(
       }
 
       let trains = data.data;
+
+      // Filter by duration if requested
       if (input.fastest_train_duration_hours) {
         trains = trains.filter((train: any) => {
             if (!train.duration) return false;
@@ -92,72 +93,26 @@ export const searchRealtimeTrains = ai.defineTool(
             return !isNaN(hours) && hours < input.fastest_train_duration_hours!;
         });
       }
+      
+      // Map the results to our desired format
+      const results = trains.slice(0, 4).map((train: any) => {
+        // The API returns a complex structure, so we safely access the data.
+        const price = train.fare ?? 'N/A';
+        const availability = train.current_status ?? 'Unknown';
 
-      // 🔹 Step 2: For each train, check seat availability & price
-      const results = await Promise.all(
-        trains.slice(0, 4).map(async (train: any) => {
-          try {
-            const [availabilityRes, priceRes] = await Promise.all([
-              fetch(
-                `https://irctc1.p.rapidapi.com/api/v1/checkSeatAvailability?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&classType=${apiTravelClass}&quota=GN&date=${formattedDate}`,
-                {
-                  headers: {
-                    'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
-                    'X-RapidAPI-Host': 'irctc1.p.rapidapi.com',
-                  },
-                }
-              ),
-              fetch(
-                `https://irctc1.p.rapidapi.com/api/v1/checkPrice?trainNo=${train.train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&date=${formattedDate}&classType=${apiTravelClass}`,
-                {
-                  headers: {
-                    'X-RapidAPI-Key': process.env.RAPIDAPI_KEY!,
-                    'X-RapidAPI-Host': 'irctc1.p.rapidapi.com',
-                  },
-                }
-              ),
-            ]);
+        return {
+          type: 'train' as const,
+          provider: 'Indian Railways',
+          details: `Train ${train.train_number} - ${train.train_name}`,
+          duration: train.duration || 'N/A',
+          price: price !== 'N/A' ? `${input.currency} ${price}` : `Price not available`,
+          bookingLink: 'https://www.irctc.co.in/',
+          ecoFriendly: true,
+          availability: availability,
+        };
+      });
 
-            let availability = 'Unknown';
-            if (availabilityRes.ok) {
-                const availabilityData = await availabilityRes.json();
-                availability =
-                availabilityData?.data?.[0]?.current_status ||
-                availabilityData?.data?.current_status ||
-                'Unknown';
-            } else {
-                console.warn(`[searchRealtimeTrains] Availability check failed for train ${train.train_number}: ${availabilityRes.statusText}`);
-            }
-
-            let price = `${input.currency} 1200`; // Default price
-            if (priceRes.ok) {
-                const priceData = await priceRes.json();
-                 price = priceData?.data?.total_fare
-                ? `${input.currency} ${priceData.data.total_fare}`
-                : `${input.currency} 1200`; // Use default if fare is missing
-            } else {
-                 console.warn(`[searchRealtimeTrains] Price check failed for train ${train.train_number}: ${priceRes.statusText}`);
-            }
-
-            return {
-              type: 'train' as const,
-              provider: 'Indian Railways',
-              details: `Train ${train.train_number} - ${train.train_name}`,
-              duration: train.duration,
-              price,
-              bookingLink: 'https://www.irctc.co.in/',
-              ecoFriendly: true,
-              availability,
-            };
-          } catch (innerErr) {
-            console.error(`[searchRealtimeTrains] Failed to process train ${train.train_number}:`, innerErr);
-            return null; // Return null if processing for a single train fails
-          }
-        })
-      );
-
-      // Filter out null responses from failed individual train lookups
-      return results.filter((r): r is NonNullable<typeof r> => r !== null);
+      return results;
 
     } catch (err) {
       console.error('[searchRealtimeTrains] A fatal error occurred:', err);
