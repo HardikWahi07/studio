@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
   - **Destination:** {{{destination}}}
   - **Departure Date:** {{{departureDate}}} (Format: YYYY-MM-DD)
   - **Trip Duration:** {{{tripDuration}}} days
-  - **Travelers:** {{{travelers}}}
+  - **Travelers:** {{{travelers}}} adults
   - **Travel Style:** {{{travelStyle}}}
   - **Trip Pace:** {{{tripPace}}}
   - **Accommodation Preference:** {{{accommodationType}}}
@@ -58,7 +58,7 @@ const prompt = ai.definePrompt({
 
   1.  **ANALYZE THE ROUTE (CRITICAL LOGIC):**
       - **Nearest Hubs:** First, determine the nearest major airport (IATA code) and railway station (station code) for both the origin and destination.
-      - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example: Leg 1 flight to the nearest airport, Leg 2 ground transport. For a "Vapi to Lohegaon" query, the AI must generate the train route from Vapi (VAPI) to Pune (PUNE).
+      - **Multi-leg Journeys:** If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For a query like "Vapi to Lohegaon", the AI must recognize Lohegaon is in Pune and generate the train route from Vapi (VAPI) to Pune (PUNE).
 
   2.  **GENERATE BOOKING OPTIONS WITH SMART LINKS:**
 
@@ -66,13 +66,14 @@ const prompt = ai.definePrompt({
         - **FORMAT:** \`https://www.google.com/travel/flights?q=flights%20from%20{ORIGIN_IATA}%20to%20{DESTINATION_IATA}%20on%20{YYYY-MM-DD}\`
         - **EXAMPLE:** For a flight from Mumbai (BOM) to Delhi (DEL) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=flights%20from%20BOM%20to%20DEL%20on%202025-12-20\`
 
-      - **TRAINS:** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL using query parameters.
-        - **FORMAT:** \`https://www.ixigo.com/search?from={ORIGIN_STATION_CODE}&to={DESTINATION_STATION_CODE}&date={YYYY-MM-DD}&service=trains\`
-        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 2025-12-20, the URL is: \`https://www.ixigo.com/search?from=VAPI&to=PUNE&date=2025-12-20&service=trains\`
+      - **TRAINS:** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL using the specific path format.
+        - **DATE CONVERSION:** The departure date {{{departureDate}}} (YYYY-MM-DD) MUST be converted to DDMMYYYY format for the URL.
+        - **FORMAT:** \`https://www.ixigo.com/search/result/train/{ORIGIN_STATION_CODE}/{DESTINATION_STATION_CODE}/{DDMMYYYY}//1/0/0/0/ALL\` (Assuming 1 adult, 0 children, 0 seniors).
+        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 2025-12-20 (20122025), the URL is: \`https://www.ixigo.com/search/result/train/VAPI/PUNE/20122025//1/0/0/0/ALL\`
         - Provide mock availability data ('Available', 'Waitlist', 'Sold Out').
 
       - **HOTELS:** The \`bookingLink\` MUST be a valid, URL-encoded Booking.com search URL.
-        - **FORMAT:** \`https://www.booking.com/searchresults.html?ss={DESTINATION}&checkin={YYYY-MM-DD}&checkout={YYYY-MM-DD}\`
+        - **FORMAT:** \`https://www.booking.com/searchresults.html?ss={DESTINATION}&checkin={YYYY-MM-DD_start}&checkout={YYYY-MM-DD_end}\`
         - **EXAMPLE:** For a hotel in Paris from 2025-12-20 to 2025-12-25, the URL is: \`https://www.booking.com/searchresults.html?ss=Paris&checkin=2025-12-20&checkout=2025-12-25\`
         - The destination 'ss' parameter must be URL-encoded (e.g., 'New York' becomes 'New%20York').
 
