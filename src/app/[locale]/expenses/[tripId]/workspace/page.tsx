@@ -239,9 +239,10 @@ export default function ExpenseWorkspacePage() {
     
     expenses.forEach(e => {
         if(e.isSettlement) {
-            // Money moves from 'paidBy' to 'paidTo'
-            if(e.paidBy in totalContributions) totalContributions[e.paidBy] -= e.amount;
-            if(e.paidTo && e.paidTo in totalContributions) totalContributions[e.paidTo] += e.amount;
+            // Money moves from 'paidBy' (payer) to 'paidTo' (receiver)
+            // Payer's contribution increases, receiver's decreases
+            if(e.paidBy in totalContributions) totalContributions[e.paidBy] += e.amount;
+            if(e.paidTo && e.paidTo in totalContributions) totalContributions[e.paidTo] -= e.amount;
         } else {
             // This is a normal expense
             if(e.paidBy in totalContributions) {
@@ -417,4 +418,3 @@ export default function ExpenseWorkspacePage() {
     </main>
   );
 }
-
