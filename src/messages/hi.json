@@ -110,6 +110,9 @@
       "searchPlaceholder": "शहर खोजें...",
       "noCityFound": "कोई शहर नहीं मिला।"
     },
+    "DestinationPage": {
+      "reviews": "समीक्षाएं"
+    },
     "ExpensesPage": {
       "title": "समूह व्यय विभाजक",
       "description": "यात्रा के बाद कौन किसको कितना देना है, यह गणना करने का एक सरल तरीका।",
