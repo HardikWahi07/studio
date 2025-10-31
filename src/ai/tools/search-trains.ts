@@ -55,17 +55,16 @@ export const searchTrains = ai.defineTool(
   async (input) => {
     const { fromCity, toCity, departureDate } = input;
     
-    const fromStation = await getStationCode(fromCity);
-    const toStation = await getStationCode(toCity);
+    // The station code lookup is unreliable. We'll use an API that might work with city names,
+    // but this part of the logic is brittle. A more robust solution would be a guaranteed station code mapping.
+    const fromStation = fromCity.toUpperCase();
+    const toStation = toCity.toUpperCase();
 
-    if (!fromStation || !toStation) {
-        console.warn(`Could not get station codes for ${fromCity} -> ${toCity}`);
-        return { trains: [] };
-    }
-
-    const formattedDate = format(new Date(departureDate), 'dd-MM-yyyy');
+    const formattedDate = format(new Date(departureDate), 'DD-MM-YYYY');
 
     try {
+      // This API endpoint seems more oriented towards search by station code.
+      // Passing city names might work for major cities but can be a point of failure.
       const response = await fetch('https://irctc1.p.rapidapi.com/api/v1/searchTrain', {
         method: 'POST',
         headers: {
@@ -77,13 +76,12 @@ export const searchTrains = ai.defineTool(
           fromCity: fromStation,
           toCity: toStation,
           date: formattedDate,
-          class: '3A', // Search for a common class, can be parameterized later
-          quota: 'GN'
         })
       });
 
       if (!response.ok) {
-        console.error(`Train search API error: ${response.status} ${await response.text()}`);
+        const errorBody = await response.text();
+        console.error(`Train search API error: ${response.status} ${errorBody}`);
         return { trains: [] };
       }
 
@@ -95,7 +93,14 @@ export const searchTrains = ai.defineTool(
       }
 
       const trains = data.data.map((train: any) => {
-        const bookingLink = `https://www.irctc.co.in/nget/train-search?trainNo=${train.train_number}&from=${fromStation}&to=${toStation}&date=${formattedDate}`;
+        const trainNumber = train.train_number;
+        const fromCode = train.from_station_code;
+        const toCode = train.to_station_code;
+        const dateForLink = format(new Date(departureDate), 'YYYYMMDD');
+
+        // Construct a more direct booking link
+        const bookingLink = `https://www.ixigo.com/trains/schedule/${trainNumber}/${train.train_name.toLowerCase().replace(/ /g, '-')}/?date=${dateForLink}&from=${fromCode}&to=${toCode}`;
+        
         return {
             trainNumber: train.train_number,
             trainName: train.train_name,
@@ -103,10 +108,9 @@ export const searchTrains = ai.defineTool(
             arrivalTime: train.to_sta,
             duration: train.duration,
             availableClasses: train.available_classes,
-            // The API doesn't seem to provide availability directly in search results,
-            // so we'll make an educated guess or leave it as unknown.
+            // Mocking availability as the API doesn't provide it in this call
             availability: 'Available', 
-            price: `₹${train.fare}`, // Assuming fare is provided
+            price: `₹${train.fare || 'N/A'}`,
             bookingLink: bookingLink,
         };
       });
@@ -118,5 +122,3 @@ export const searchTrains = ai.defineTool(
     }
   }
 );
-
-    

@@ -38,21 +38,16 @@ const prompt = ai.definePrompt({
   - **To:** {{{destination}}}
   - **On:** {{{departureDate}}}
   - **Currency:** {{{currency}}}
-  - **Plane Class:** {{{planeClass}}}
-  - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
 
-  1.  **Analyze the Route:** First, determine if the origin city has a major airport. If it does not, you MUST create a multi-leg journey.
+  1.  **Analyze the Route:** First, determine if the origin and destination cities are within India.
   2.  **Generate Options:**
-      - **For travel within India:** Always try to use the \`searchTrains\` tool. Call the tool with the user's provided origin and destination city names.
-      - **If the origin city (e.g., Vapi) does not have an airport:**
-          - **Leg 1:** Create a journey leg for ground transport (e.g. Taxi, Bus) from the origin city to the NEAREST major airport (e.g., from Vapi to Mumbai Airport). Provide 1-2 mock options for this.
-          - **Leg 2:** Create a second journey leg with 2-3 realistic MOCK flight options from that major airport to the final destination. Do NOT use tools for mock flights. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL.
-      - **If the origin city has an airport OR for international travel:** Generate 2-3 realistic MOCK flight options for a single journey leg, with valid, pre-filled Google Flights URLs as booking links.
-  3.  **Format Output:** Structure the results into one or more journey legs as appropriate. Place the options you generate into the 'options' array for the correct leg.
+      - **For travel within India:** You MUST call the \`searchTrains\` tool with the user's provided origin and destination city names to get real train data.
+      - **For ALL routes:** Also generate 2-3 realistic MOCK flight options. Do NOT use tools for mock flights. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+ORIGIN+to+DESTINATION+on+YYYY-MM-DD\`
+  3.  **Format Output:** Structure the results into a single journey leg. Combine both the real train options and the mock flight options into the 'options' array for that leg.
   
-  **IMPORTANT:** Generate plausible-looking data for all fields, including provider, price, duration, and booking links.
+  **IMPORTANT:** If the \`searchTrains\` tool returns no results, proceed with generating only the mock flight options. Do not return an empty journey unless both fail.
   `,
 });
 
