@@ -576,7 +576,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       {isMounted && !isHelpChatOpen && (
         <Button
           onClick={() => setIsHelpChatOpen(true)}
-          className="fixed bottom-4 left-4 z-40 h-14 w-14 rounded-full shadow-lg"
+          className="fixed bottom-4 right-4 z-40 h-14 w-14 rounded-full shadow-lg"
           size="icon"
           aria-label="Open help chat"
         >
