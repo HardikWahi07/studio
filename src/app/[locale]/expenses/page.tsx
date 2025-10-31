@@ -1,248 +1,221 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowRight, ArrowLeft, Users, FileDigit, Landmark, VenetianMask } from 'lucide-react';
-import { AnimatePresence, motion } from "framer-motion";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useTranslations } from "@/hooks/use-translations";
+import { PlusCircle, Trash2, Users } from "lucide-react";
 
-type Participant = {
+type Expense = {
   id: number;
-  name: string;
-  contribution: number;
+  description: string;
+  amount: number;
+  paidBy: string;
 };
 
-type Transaction = {
-  from: string;
-  to: string;
+type Balance = {
+  name: string;
   amount: number;
 };
 
 export default function ExpensesPage() {
-  const t = useTranslations();
-  const [step, setStep] = useState(1);
-  const [numPeople, setNumPeople] = useState(2);
-  const [participants, setParticipants] = useState<Participant[]>([]);
-  const [totalCost, setTotalCost] = useState(0);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const t = useTranslations("ExpensesPage");
 
-  const handleSetupSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const initialParticipants = Array.from({ length: numPeople }, (_, i) => ({
-      id: i,
-      name: `Person ${i + 1}`,
-      contribution: 0,
-    }));
-    setParticipants(initialParticipants);
-    setStep(2);
-  };
+  // State Management
+  const [participants, setParticipants] = useState<string[]>(["Aritra", "Hardik"]);
+  const [newParticipant, setNewParticipant] = useState("");
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [description, setDescription] = useState("");
+  const [amount, setAmount] = useState<string>("");
+  const [paidBy, setPaidBy] = useState<string>("");
 
-  const handleParticipantNameChange = (id: number, name: string) => {
-    setParticipants(participants.map(p => p.id === id ? { ...p, name } : p));
+  const handleAddParticipant = () => {
+    if (newParticipant && !participants.includes(newParticipant)) {
+      setParticipants([...participants, newParticipant]);
+      setNewParticipant("");
+    }
   };
   
-  const handleParticipantContributionChange = (id: number, contribution: string) => {
-      const value = parseFloat(contribution);
-      setParticipants(
-          participants.map(p => p.id === id ? { ...p, contribution: isNaN(value) ? 0 : value } : p)
-      );
-  };
+  const handleRemoveParticipant = (name: string) => {
+    setParticipants(participants.filter(p => p !== name));
+    // Also remove expenses paid by the removed participant
+    setExpenses(expenses.filter(e => e.paidBy !== name));
+  }
 
-  const calculateExpenses = () => {
-    const totalContributions = participants.reduce((acc, p) => acc + p.contribution, 0);
-
-    if (Math.abs(totalCost - totalContributions) > 0.01) {
-      alert(t('ExpensesPage.alertCostMismatch'));
+  const handleAddExpense = (e: React.FormEvent) => {
+    e.preventDefault();
+    const numAmount = parseFloat(amount);
+    if (!description || !numAmount || !paidBy) {
+      alert("Please fill out all expense fields.");
       return;
     }
 
-    const sharePerPerson = totalCost / participants.length;
+    const newExpense: Expense = {
+      id: Date.now(),
+      description,
+      amount: numAmount,
+      paidBy,
+    };
+    setExpenses([...expenses, newExpense]);
 
-    const balances = participants.map(p => ({
-      name: p.name,
-      balance: p.contribution - sharePerPerson,
+    // Reset form
+    setDescription("");
+    setAmount("");
+    setPaidBy("");
+  };
+
+  const totalSpent = useMemo(() => {
+    return expenses.reduce((acc, expense) => acc + expense.amount, 0);
+  }, [expenses]);
+  
+  const balances = useMemo<Balance[]>(() => {
+    if (participants.length === 0 || expenses.length === 0) return [];
+  
+    const totalContributions: { [key: string]: number } = {};
+    participants.forEach(p => totalContributions[p] = 0);
+    expenses.forEach(e => {
+        totalContributions[e.paidBy] = (totalContributions[e.paidBy] || 0) + e.amount;
+    });
+
+    const sharePerPerson = totalSpent / participants.length;
+
+    return participants.map(p => ({
+        name: p,
+        amount: totalContributions[p] - sharePerPerson
     }));
 
-    const debtors = balances.filter(p => p.balance < 0).map(p => ({...p})).sort((a, b) => a.balance - b.balance);
-    const creditors = balances.filter(p => p.balance > 0).map(p => ({...p})).sort((a, b) => b.balance - a.balance);
-
-    const newTransactions: Transaction[] = [];
-
-    let i = 0;
-    let j = 0;
-
-    while (i < debtors.length && j < creditors.length) {
-      const debtor = debtors[i];
-      const creditor = creditors[j];
-      const amountToTransfer = Math.min(Math.abs(debtor.balance), creditor.balance);
-
-      if (amountToTransfer > 0.01) {
-        newTransactions.push({
-            from: debtor.name,
-            to: creditor.name,
-            amount: amountToTransfer,
-        });
-      }
-
-      debtor.balance += amountToTransfer;
-      creditor.balance -= amountToTransfer;
-
-      if (Math.abs(debtor.balance) < 0.01) i++;
-      if (Math.abs(creditor.balance) < 0.01) j++;
-    }
-    
-    setTransactions(newTransactions);
-    setStep(3);
-  };
-  
-  const cardVariants = {
-      hidden: { opacity: 0, x: 50 },
-      visible: { opacity: 1, x: 0 },
-      exit: { opacity: 0, x: -50 }
-  };
+  }, [expenses, participants, totalSpent]);
 
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('ExpensesPage.title')}</h1>
-        <p className="text-muted-foreground max-w-2xl">{t('ExpensesPage.description')}</p>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('title')}</h1>
+        <p className="text-muted-foreground max-w-2xl">{t('description')}</p>
       </div>
+      
+      <Card>
+          <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Users/> Participants</CardTitle>
+              <CardDescription>Add or remove people sharing the expenses for this trip.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                  {participants.map(p => (
+                      <div key={p} className="flex items-center gap-2 bg-secondary p-2 rounded-md">
+                          <span>{p}</span>
+                          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveParticipant(p)}>
+                              <Trash2 className="h-4 w-4 text-destructive"/>
+                          </Button>
+                      </div>
+                  ))}
+              </div>
+              <div className="flex gap-2">
+                  <Input 
+                      value={newParticipant}
+                      onChange={(e) => setNewParticipant(e.target.value)}
+                      placeholder="Add new participant..."
+                  />
+                  <Button onClick={handleAddParticipant}>Add</Button>
+              </div>
+          </CardContent>
+      </Card>
 
-       <div className="relative overflow-hidden">
-            <AnimatePresence mode="wait">
-                {step === 1 && (
-                     <motion.div key="step1" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Users /> {t('ExpensesPage.step1Title')}</CardTitle>
-                                <CardDescription>{t('ExpensesPage.step1Description')}</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <form onSubmit={handleSetupSubmit} className="space-y-4">
-                                    <div className="space-y-2">
-                                    <Label htmlFor="numPeople">{t('ExpensesPage.numPeopleLabel')}</Label>
-                                    <Input
-                                        id="numPeople"
-                                        type="number"
-                                        value={numPeople}
-                                        onChange={e => setNumPeople(Math.max(2, parseInt(e.target.value) || 2))}
-                                        min="2"
-                                    />
-                                    </div>
-                                    <Button type="submit" className="w-full">
-                                    {t('ExpensesPage.nextButton')} <ArrowRight className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </form>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-                )}
-                
-                {step === 2 && (
-                    <motion.div key="step2" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
-                        <Card>
-                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><FileDigit /> {t('ExpensesPage.step2Title')}</CardTitle>
-                                <CardDescription>{t('ExpensesPage.step2Description')}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-2">
-                                    <Label htmlFor="totalCost">{t('ExpensesPage.totalCostLabel')}</Label>
-                                    <Input
-                                        id="totalCost"
-                                        type="number"
-                                        placeholder="0.00"
-                                        onChange={e => setTotalCost(parseFloat(e.target.value) || 0)}
-                                    />
-                                </div>
-                                <div className="space-y-4">
-                                    <h4 className="font-semibold">{t('ExpensesPage.contributionsTitle')}</h4>
-                                    <div className="space-y-4">
-                                        {participants.map(p => (
-                                            <div key={p.id} className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end p-4 border rounded-lg">
-                                                <div className="space-y-2">
-                                                    <Label htmlFor={`p-name-${p.id}`}>{t('ExpensesPage.participantNameLabel', {number: p.id + 1})}</Label>
-                                                    <Input
-                                                        id={`p-name-${p.id}`}
-                                                        value={p.name}
-                                                        onChange={e => handleParticipantNameChange(p.id, e.target.value)}
-                                                    />
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <Label htmlFor={`p-contrib-${p.id}`}>{t('ExpensesPage.contributionLabel')}</Label>
-                                                    <Input
-                                                        id={`p-contrib-${p.id}`}
-                                                        type="number"
-                                                        placeholder="0.00"
-                                                        onChange={e => handleParticipantContributionChange(p.id, e.target.value)}
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </CardContent>
-                            <CardFooter className="flex justify-between">
-                                <Button variant="outline" onClick={() => setStep(1)}>
-                                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('ExpensesPage.backButton')}
-                                </Button>
-                                <Button onClick={calculateExpenses}>
-                                    {t('ExpensesPage.calculateButton')} <ArrowRight className="ml-2 h-4 w-4" />
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </motion.div>
-                )}
 
-                {step === 3 && (
-                    <motion.div key="step3" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Landmark /> {t('ExpensesPage.step3Title')}</CardTitle>
-                                <CardDescription>{t('ExpensesPage.step3Description')}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {transactions.length > 0 ? (
-                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                        {transactions.map((t, i) => (
-                                            <Card key={i} className="p-4 bg-secondary">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex flex-col items-center text-center">
-                                                        <VenetianMask className="w-8 h-8 mb-1" />
-                                                        <span className="font-bold">{t.from}</span>
-                                                        <span className="text-xs text-muted-foreground">{t('ExpensesPage.owes')}</span>
-                                                    </div>
-                                                    <div className="flex flex-col items-center">
-                                                        <ArrowRight className="w-8 h-8 text-primary" />
-                                                        <span className="font-bold text-primary">${t.amount.toFixed(2)}</span>
-                                                    </div>
-                                                    <div className="flex flex-col items-center text-center">
-                                                        <Landmark className="w-8 h-8 mb-1" />
-                                                        <span className="font-bold">{t.to}</span>
-                                                        <span className="text-xs text-muted-foreground">{t('ExpensesPage.is_owed')}</span>
-                                                    </div>
-                                                </div>
-                                            </Card>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-center text-muted-foreground">{t('ExpensesPage.allSettled')}</p>
-                                )}
-                            </CardContent>
-                             <CardFooter>
-                                <Button variant="outline" onClick={() => { setStep(1); setTransactions([]); }}>
-                                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('ExpensesPage.startOverButton')}
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('addExpenseTitle')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleAddExpense} className="space-y-4">
+                <div>
+                  <Label htmlFor="description">{t('descriptionLabel')}</Label>
+                  <Input id="description" value={description} onChange={e => setDescription(e.target.value)} placeholder={t('descriptionPlaceholder')} />
+                </div>
+                <div>
+                  <Label htmlFor="amount">{t('amountLabel')}</Label>
+                  <Input id="amount" type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder={t('amountPlaceholder')} />
+                </div>
+                <div>
+                  <Label htmlFor="paidBy">{t('paidByLabel')}</Label>
+                  <Select onValueChange={setPaidBy} value={paidBy}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t('paidByPlaceholder')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {participants.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button type="submit" className="w-full">
+                  <PlusCircle className="mr-2" /> {t('addExpenseButton')}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
+
+        <div className="lg:col-span-2 space-y-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('expenseLogTitle')}</CardTitle>
+              <CardDescription>{t('expenseLogDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('tableHeaderDescription')}</TableHead>
+                    <TableHead>{t('tableHeaderPaidBy')}</TableHead>
+                    <TableHead className="text-right">{t('tableHeaderAmount')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {expenses.length > 0 ? expenses.map(expense => (
+                    <TableRow key={expense.id}>
+                      <TableCell className="font-medium">{expense.description}</TableCell>
+                      <TableCell>{expense.paidBy}</TableCell>
+                      <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
+                    </TableRow>
+                  )) : (
+                    <TableRow>
+                      <TableCell colSpan={3} className="text-center text-muted-foreground">{t('noExpenses')}</TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+            <CardFooter className="justify-end font-bold text-lg">
+                {t('totalSpent')} ${totalSpent.toFixed(2)}
+            </CardFooter>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{t('balanceSummaryTitle')}</CardTitle>
+              <CardDescription>{t('balanceSummaryDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {balances.map(b => (
+                        <div key={b.name} className={`p-4 rounded-lg text-center ${b.amount >= 0 ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
+                            <p className="font-bold">{b.name}</p>
+                            <p className={`text-2xl font-bold ${b.amount >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
+                                {b.amount >= 0 ? `+` : ``}${b.amount.toFixed(2)}
+                            </p>
+                        </div>
+                    ))}
+                </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </main>
   );
 }
