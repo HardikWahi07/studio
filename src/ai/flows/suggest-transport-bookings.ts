@@ -50,9 +50,9 @@ const prompt = ai.definePrompt({
         - **FORMAT:** \`https://www.google.com/travel/flights?q=flights%20from%20{ORIGIN_IATA}%20to%20{DESTINATION_IATA}%20on%20{YYYY-MM-DD}\`
         - **EXAMPLE:** For a flight from Mumbai (BOM) to Delhi (DEL) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=flights%20from%20BOM%20to%20DEL%20on%202025-12-20\`
 
-      - **TRAINS:** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL.
-        - **FORMAT:** \`https://www.ixigo.com/trains/search/{ORIGIN_STATION_CODE}/{DESTINATION_STATION_CODE}/{DDMMYYYY}\`
-        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 20-12-2025, the URL is: \`https://www.ixigo.com/trains/search/VAPI/PUNE/20122025\`
+      - **TRAINS:** The \`bookingLink\` MUST be a valid, URL-encoded Ixigo search URL using query parameters.
+        - **FORMAT:** \`https://www.ixigo.com/search?from={ORIGIN_STATION_CODE}&to={DESTINATION_STATION_CODE}&date={YYYY-MM-DD}&service=trains\`
+        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 2025-12-20, the URL is: \`https://www.ixigo.com/search?from=VAPI&to=PUNE&date=2025-12-20&service=trains\`
         - Provide mock availability data ('Available', 'Waitlist', 'Sold Out').
       
       - **OTHER TRANSPORT (Bus, Taxi, etc.):** For other transport types where a direct booking link is not feasible, generate a reliable Google Search link that will help the user find booking options.
