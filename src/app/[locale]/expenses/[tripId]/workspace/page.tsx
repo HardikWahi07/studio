@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { PlusCircle, Trash2, Users, ArrowLeft } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 
 type Expense = {
   id: number;
@@ -26,10 +27,11 @@ type Balance = {
   amount: number;
 };
 
-export default function ExpenseWorkspacePage({ params }: { params: { tripId: string } }) {
+export default function ExpenseWorkspacePage() {
   const { user } = useUser();
   const firestore = useFirestore();
-  const tripId = params.tripId;
+  const params = useParams();
+  const tripId = params.tripId as string;
 
   // Fetch trip details to display trip title
   const tripDocRef = useMemoFirebase(() => {
