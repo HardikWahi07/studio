@@ -4,7 +4,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import type { PlanTripOutput } from '@/ai/flows/plan-trip.types';
-import { Plane, Train, Bus, Hotel, Car, Walk, Bike, TramFront, Mountain, Utensils, Landmark, ShoppingBag, Leaf, BadgeEuro, Sparkles, Building2, Ticket } from 'lucide-react';
+import { Plane, Train, Bus, Hotel, Car, PersonStanding, Bike, TramFront, Mountain, Utensils, Landmark, ShoppingBag, Leaf, BadgeEuro, Sparkles, Building2, Ticket } from 'lucide-react';
 import { Badge } from './ui/badge';
 import Link from 'next/link';
 import { Button } from './ui/button';
@@ -19,7 +19,7 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     bus: <Bus className="h-5 w-5 text-orange-500" />,
     driving: <Car className="h-5 w-5 text-gray-500" />,
     metro: <TramFront className="h-5 w-5" />,
-    walk: <Walk className="h-5 w-5" />,
+    walk: <PersonStanding className="h-5 w-5" />,
     bike: <Bike className="h-5 w-5" />,
 };
 
