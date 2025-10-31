@@ -10,7 +10,7 @@ import { z } from 'genkit';
 // In-memory cache for IATA codes to avoid repeated API calls for the same city.
 const iataCache = new Map<string, string>();
 
-async function getIataCode(cityName: string): Promise<string> {
+async function getIataCode(cityName: string): Promise<string | null> {
     const query = cityName.split(',')[0].trim().toLowerCase();
     if (iataCache.has(query)) {
         console.log(`[getIataCode] Cache hit for ${query}: ${iataCache.get(query)}`);
@@ -19,11 +19,10 @@ async function getIataCode(cityName: string): Promise<string> {
 
     if (!process.env.RAPIDAPI_KEY) {
         console.warn("[searchRealtimeFlights Tool] RAPIDAPI_KEY is not set. Skipping IATA code lookup.");
-        return query; // Fallback to city name/code
+        return null;
     }
     try {
         console.log(`[getIataCode] Cache miss for ${query}. Fetching from booking-com15 API...`);
-        // Using the new booking-com15 API to find location IDs
         const response = await fetch(`https://booking-com15.p.rapidapi.com/api/v1/flights/searchDestination?query=${encodeURIComponent(query)}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
@@ -32,12 +31,12 @@ async function getIataCode(cityName: string): Promise<string> {
         });
         if (!response.ok) {
             console.error(`[getIataCode] API error fetching IATA code for ${query}: ${response.statusText}`);
-            return query;
+            return null;
         }
         const data = await response.json();
-        // The new API returns an object with a 'data' array.
+        
         if (data.data && data.data.length > 0 && data.data[0].id) {
-             const iata = data.data[0].id.replace('.AIRPORT', ''); // The ID is what we need, e.g. "BOM.AIRPORT"
+             const iata = data.data[0].id.replace('.AIRPORT', '');
             console.log(`[getIataCode] Found IATA code for ${query}: ${iata}`);
             iataCache.set(query, iata);
             return iata;
@@ -45,8 +44,9 @@ async function getIataCode(cityName: string): Promise<string> {
     } catch (error) {
         console.error(`[getIataCode] Failed to get IATA code for ${query}:`, error);
     }
-    console.warn(`[getIataCode] No IATA code found for ${query}. Falling back to query string.`);
-    return query; // Fallback to the original query if no code is found
+    
+    console.warn(`[getIataCode] No IATA code found for ${query}.`);
+    return null;
 }
 
 
@@ -84,6 +84,12 @@ export const searchRealtimeFlights = ai.defineTool(
         const originIata = await getIataCode(input.origin);
         const destinationIata = await getIataCode(input.destination);
 
+        // If either IATA code is not found, we cannot perform a flight search.
+        if (!originIata || !destinationIata) {
+            console.warn(`[searchRealtimeFlights Tool] Could not find IATA code for origin ('${input.origin}') or destination ('${input.destination}'). Aborting search.`);
+            return [];
+        }
+
         const travelClass = (input.travelClass || 'economy').toUpperCase();
 
         const response = await fetch(`https://booking-com15.p.rapidapi.com/api/v1/flights/searchFlights?fromId=${originIata}.AIRPORT&toId=${destinationIata}.AIRPORT&departDate=${input.date}&adults=1&cabinClass=${travelClass}&currency_code=${input.currency}`, {
@@ -106,7 +112,6 @@ export const searchRealtimeFlights = ai.defineTool(
              return [];
         }
         
-        // The API response structure is different. We need to adapt.
         const flights = data.data.flights.slice(0, 3).map((flight: any) => {
             const leg = flight.legs[0];
             const price = flight.price.formatted;
@@ -116,8 +121,8 @@ export const searchRealtimeFlights = ai.defineTool(
                 details: `Flight ${leg.carriers.marketing[0].name} ${leg.flightNumber}`,
                 duration: leg.duration,
                 price: price,
-                bookingLink: 'https://www.booking.com/flights', // The API doesn't provide a direct link
-                ecoFriendly: false, // Flight data API doesn't provide this
+                bookingLink: 'https://www.booking.com/flights',
+                ecoFriendly: false,
                 availability: 'Available'
             };
         });
