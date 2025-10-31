@@ -19,7 +19,6 @@ import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AuthDialog } from '@/components/auth-dialog';
-import { TripItinerary } from '@/components/trip-itinerary';
 import { useTranslations } from '@/hooks/use-translations';
 
 const formSchema = z.object({
@@ -287,7 +286,7 @@ export default function TripPlannerPage() {
                             </div>
                         )}
                     </div>
-                   <TripItinerary results={results} />
+                   
                 </div>
             )}
         </main>
