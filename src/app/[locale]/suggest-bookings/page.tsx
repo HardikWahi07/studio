@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles } from 'lucide-react';
 import type { BookingOption } from '@/ai/flows/plan-trip.types';
 import { Badge } from '@/components/ui/badge';
+import { useTranslations } from '@/hooks/use-translations';
 
 const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
@@ -27,7 +29,6 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     driving: <CarFront className="h-6 w-6 text-gray-500" />,
 };
 
-// Mock data as a quick fix for the hackathon demo
 const mockBookingOptions: BookingOption[] = [
     {
         type: 'flight',
@@ -106,6 +107,7 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
 
 
 export default function SuggestBookingsPage() {
+    const t = useTranslations();
     const [isLoading, setIsLoading] = useState(false);
     const [results, setResults] = useState<{bookingOptions: BookingOption[]} | null>(null);
 
@@ -123,10 +125,8 @@ export default function SuggestBookingsPage() {
         setIsLoading(true);
         setResults(null);
         
-        // Simulate a network delay for a more realistic demo
         await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Use mock data instead of calling the AI flow
         setResults({ bookingOptions: mockBookingOptions });
 
         setIsLoading(false);
@@ -135,19 +135,19 @@ export default function SuggestBookingsPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Suggest Transport Bookings</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('SuggestBookingsPage.title')}</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, most eco-friendly option for your trip.
+          {t('SuggestBookingsPage.description')}
         </p>
       </div>
 
         <Card>
             <CardHeader>
                 <CardTitle>
-                    Describe Your Journey
+                    {t('SuggestBookingsPage.formTitle')}
                 </CardTitle>
                  <CardDescription>
-                    Tell us where you're going and we'll find the best options for you.
+                    {t('SuggestBookingsPage.formDescription')}
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -155,17 +155,17 @@ export default function SuggestBookingsPage() {
                     <form onSubmit={form.handleSubmit(handleSearch)} className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                              <FormField control={form.control} name="origin" render={({ field }) => (
-                                <FormItem><FormLabel>From</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Enter origin city..." /><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('SuggestBookingsPage.fromLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('SuggestBookingsPage.fromPlaceholder')} /><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="destination" render={({ field }) => (
-                                <FormItem><FormLabel>To</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder="Enter destination city..." /><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('SuggestBookingsPage.toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('SuggestBookingsPage.toPlaceholder')} /><FormMessage /></FormItem>
                             )} />
                             <FormField control={form.control} name="departureDate" render={({ field }) => (
-                                <FormItem><FormLabel>Date</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormItem><FormLabel>{t('SuggestBookingsPage.departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                             )} />
                         </div>
                         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                            {isLoading ? <><Loader2 className="animate-spin mr-2" /> Searching...</> : <><Search className="mr-2" /> Find Options</>}
+                            {isLoading ? <><Loader2 className="animate-spin mr-2" /> {t('SuggestBookingsPage.searchingButton')}</> : <><Search className="mr-2" /> {t('SuggestBookingsPage.findButton')}</>}
                         </Button>
                     </form>
                 </Form>
@@ -175,18 +175,18 @@ export default function SuggestBookingsPage() {
         {isLoading && (
             <div className="flex flex-col items-center justify-center pt-10 text-center">
                 <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                <p className="mt-4 text-lg font-semibold text-muted-foreground">Finding the best options for you...</p>
+                <p className="mt-4 text-lg font-semibold text-muted-foreground">{t('SuggestBookingsPage.loadingMessage')}</p>
             </div>
         )}
 
         {results && (
             <div className="pt-6 space-y-6">
-                 <h2 className="font-headline text-2xl font-bold">Available Journey Options</h2>
+                 <h2 className="font-headline text-2xl font-bold">{t('SuggestBookingsPage.resultsTitle')}</h2>
                  <div className="space-y-4">
                     {results.bookingOptions.length > 0 ? (
                         results.bookingOptions.map((opt, index) => <BookingOptionCard key={index} opt={opt} />)
                     ) : (
-                        <p className="text-muted-foreground text-center py-8">No Options Found. Try changing your search criteria.</p>
+                        <p className="text-muted-foreground text-center py-8">{t('SuggestBookingsPage.noResults')}</p>
                     )}
                  </div>
             </div>

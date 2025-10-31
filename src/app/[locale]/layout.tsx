@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import '../globals.css';
 import { AppLayout } from '@/components/app-layout';
@@ -5,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { FirebaseClientProvider } from '@/firebase';
 import { SettingsProvider } from '@/context/settings-context';
 import { ThemeProvider } from '@/components/theme-provider';
+import { I18nProvider } from '@/context/i18n-provider';
  
 export const metadata: Metadata = {
   title: 'TripMind',
@@ -35,9 +37,11 @@ export default function RootLayout({
           >
             <SettingsProvider>
               <FirebaseClientProvider>
-                <AppLayout>
-                  {children}
-                </AppLayout>
+                <I18nProvider locale={locale}>
+                  <AppLayout>
+                    {children}
+                  </AppLayout>
+                </I18nProvider>
               </FirebaseClientProvider>
             </SettingsProvider>
           </ThemeProvider>

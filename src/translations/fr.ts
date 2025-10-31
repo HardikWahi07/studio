@@ -1,0 +1,55 @@
+
+export const fr = {
+    AppLayout: {
+      home: "Accueil",
+      myTrips: "Mes Voyages",
+      about: "À propos",
+      aiTripPlanner: "Planificateur de voyage IA",
+      booking: "Mes réservations",
+      suggestBookings: "Suggérer des réservations",
+      localConnect: "Connexion locale",
+      hiddenGems: "Joyaux cachés",
+      travelTools: "Outils de voyage",
+      expenseSplitter: "Diviseur de dépenses",
+      localSupporters: "Supporters locaux",
+      smartTransport: "Transport intelligent",
+      aiItineraryGenerator: "Générateur d'itinéraire IA",
+      safety: "Compagnon de sécurité",
+      toggleNavigation: "Basculer le menu de navigation",
+      footerDescription: "La façon la plus intelligente et la plus simple d'explorer le monde. Votre planificateur de voyage alimenté par l'IA pour devenir un voyageur conscient.",
+      quickLinks: "Liens rapides",
+      planTrip: "Planifier un voyage",
+      company: "Entreprise",
+      aboutUs: "À propos de nous",
+      blog: "Blog",
+      workWithUs: "Travailler avec nous",
+      support: "Support",
+      faq: "FAQ",
+      termsOfService: "Conditions d'utilisation",
+      copyright: "© 2024 TripMind. Tous droits réservés. Planifiez intelligemment. Voyagez vert.",
+      helpCenter: "Centre d'aide",
+      contactUs: "Contactez-nous"
+    },
+    CreateBlogPage: {
+        title: "Créer un nouvel article de blog",
+        description: "Partagez votre récit de voyage avec la communauté TripMind.",
+        titleLabel: "Titre de l'article",
+        titlePlaceholder: "Ex: Ma semaine inoubliable à Bali",
+        contentLabel: "Votre histoire",
+        imageHintLabel: "Indice pour l'image de couverture",
+        imageHintPlaceholder: "Ex: 'Coucher de soleil sur les rizières'",
+        publishButton: "Publier l'histoire",
+        publishingButton: "Publication...",
+        successTitle: "Article publié !",
+        successDescription: "Votre histoire est maintenant visible par la communauté.",
+        errorTitle: "Échec de la publication",
+        errorDescription: "Nous n'avons pas pu publier votre article. Veuillez réessayer."
+    },
+    BlogPage: {
+        title: "Récits de voyage & Blog",
+        description: "Laissez-vous inspirer par de vraies aventures de la communauté TripMind.",
+        searchPlaceholder: "Rechercher des histoires ou des destinations...",
+        createButton: "Écrire une histoire",
+        noPosts: "Aucun article de blog trouvé. Pourquoi ne pas être le premier à partager une histoire ?"
+    }
+};

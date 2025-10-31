@@ -1,7 +1,14 @@
+
 import { NextRequest, NextResponse } from 'next/server';
  
-const locales = ['en', 'es', 'fr', 'de', 'hi'];
+const locales = ['en', 'es', 'fr', 'de', 'hi', 'ur'];
 const defaultLocale = 'en';
+
+function getLocale(request: NextRequest): string {
+  // You can implement more sophisticated locale detection here,
+  // e.g., from headers, cookies, etc.
+  return defaultLocale;
+}
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -13,18 +20,15 @@ export function middleware(request: NextRequest) {
   if (pathnameHasLocale) return;
 
   // Redirect if there is no locale
-  const locale = defaultLocale;
+  const locale = getLocale(request);
   request.nextUrl.pathname = `/${locale}${pathname}`;
-  // e.g. incoming request is /products
-  // The new URL is now /en/products
+  
   return NextResponse.redirect(request.nextUrl);
 }
  
 export const config = {
   matcher: [
-    // Skip all internal paths (_next)
-    '/((?!_next|api|favicon.ico).*)',
-    // Optional: only run on root (/) URL
-    // '/'
+    // Skip all internal paths (_next) and static assets
+    '/((?!api|_next/static|_next/image|assets|favicon.ico|sw.js).*)',
   ],
 };

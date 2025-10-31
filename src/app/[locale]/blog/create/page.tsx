@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useForm } from 'react-hook-form';
@@ -14,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { collection, doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { Loader2, PenSquare } from 'lucide-react';
 import { useState } from 'react';
+import { useTranslations } from '@/hooks/use-translations';
 
 const blogSchema = z.object({
     title: z.string().min(5, "Title must be at least 5 characters."),
@@ -22,6 +24,7 @@ const blogSchema = z.object({
 });
 
 export default function CreateBlogPage() {
+    const t = useTranslations();
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
     const router = useRouter();
@@ -53,8 +56,8 @@ export default function CreateBlogPage() {
             });
 
             toast({
-                title: "Post Published!",
-                description: "Your story is now live for the community to see.",
+                title: t('CreateBlogPage.successTitle'),
+                description: t('CreateBlogPage.successDescription'),
             });
 
             router.push(`/blog/${newDocRef.id}`);
@@ -62,8 +65,8 @@ export default function CreateBlogPage() {
         } catch (error) {
             console.error("Blog post creation failed:", error);
             toast({
-                title: "Publishing Failed",
-                description: "We couldn't publish your post. Please try again.",
+                title: t('CreateBlogPage.errorTitle'),
+                description: t('CreateBlogPage.errorDescription'),
                 variant: 'destructive'
             });
             setIsSubmitting(false);
@@ -92,8 +95,8 @@ export default function CreateBlogPage() {
         <main className="flex-1 p-4 md:p-8">
             <Card className="max-w-4xl mx-auto">
                 <CardHeader>
-                    <CardTitle className="font-headline text-3xl">Create a New Blog Post</CardTitle>
-                    <CardDescription>Share your travel story with the TripMind community.</CardDescription>
+                    <CardTitle className="font-headline text-3xl">{t('CreateBlogPage.title')}</CardTitle>
+                    <CardDescription>{t('CreateBlogPage.description')}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Form {...form}>
@@ -103,9 +106,9 @@ export default function CreateBlogPage() {
                                 name="title"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Post Title</FormLabel>
+                                        <FormLabel>{t('CreateBlogPage.titleLabel')}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. My Unforgettable Week in Bali" {...field} />
+                                            <Input placeholder={t('CreateBlogPage.titlePlaceholder')} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -116,7 +119,7 @@ export default function CreateBlogPage() {
                                 name="content"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Your Story</FormLabel>
+                                        <FormLabel>{t('CreateBlogPage.contentLabel')}</FormLabel>
                                         <FormControl>
                                             <Textarea rows={10} placeholder="Share your adventure..." {...field} />
                                         </FormControl>
@@ -129,9 +132,9 @@ export default function CreateBlogPage() {
                                 name="imageHint"
                                 render={({ field }) => (
                                     <FormItem>
-                                        <FormLabel>Cover Image Hint</FormLabel>
+                                        <FormLabel>{t('CreateBlogPage.imageHintLabel')}</FormLabel>
                                         <FormControl>
-                                            <Input placeholder="e.g. 'Sunset over rice paddies'" {...field} />
+                                            <Input placeholder={t('CreateBlogPage.imageHintPlaceholder')} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -141,12 +144,12 @@ export default function CreateBlogPage() {
                                 {isSubmitting ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Publishing...
+                                        {t('CreateBlogPage.publishingButton')}
                                     </>
                                 ) : (
                                     <>
                                         <PenSquare className="mr-2 h-4 w-4" />
-                                        Publish Story
+                                        {t('CreateBlogPage.publishButton')}
                                     </>
                                 )}
                             </Button>

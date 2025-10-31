@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -20,6 +21,7 @@ import {
 } from "@/components/ui/popover"
 import { findCities } from "@/ai/flows/find-cities"
 import { useDebounce } from "@/hooks/use-debounce"
+import { useTranslations } from "@/hooks/use-translations"
 
 interface CityComboboxProps {
   value: string;
@@ -28,6 +30,7 @@ interface CityComboboxProps {
 }
 
 export function CityCombobox({ value, onValueChange, placeholder }: CityComboboxProps) {
+  const t = useTranslations();
   const [open, setOpen] = React.useState(false)
   const [searchTerm, setSearchTerm] = React.useState("")
   const [suggestions, setSuggestions] = React.useState<string[]>([])
@@ -61,8 +64,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
     setOpen(false)
   }
 
-  // Display the full value if it exists, otherwise the placeholder.
-  const displayValue = value || (placeholder || "Select city...");
+  const displayValue = value || (placeholder || t('CityCombobox.selectPlaceholder'));
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -80,7 +82,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
       <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
         <Command>
           <CommandInput
-            placeholder="Search city..."
+            placeholder={t('CityCombobox.searchPlaceholder')}
             value={searchTerm}
             onValueChange={setSearchTerm}
           />
@@ -91,7 +93,7 @@ export function CityCombobox({ value, onValueChange, placeholder }: CityCombobox
               </div>
             )}
             {!isLoading && debouncedSearchTerm.length > 1 && suggestions.length === 0 && (
-              <CommandEmpty>No city found.</CommandEmpty>
+              <CommandEmpty>{t('CityCombobox.noCityFound')}</CommandEmpty>
             )}
             <CommandGroup>
               {suggestions.map((city, index) => (

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -7,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowRight, ArrowLeft, Users, FileDigit, Landmark, VenetianMask } from 'lucide-react';
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "@/hooks/use-translations";
 
 type Participant = {
   id: number;
@@ -21,6 +23,7 @@ type Transaction = {
 };
 
 export default function ExpensesPage() {
+  const t = useTranslations();
   const [step, setStep] = useState(1);
   const [numPeople, setNumPeople] = useState(2);
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -53,7 +56,7 @@ export default function ExpensesPage() {
     const totalContributions = participants.reduce((acc, p) => acc + p.contribution, 0);
 
     if (Math.abs(totalCost - totalContributions) > 0.01) {
-      alert("The sum of contributions does not match the total cost. Please check the numbers.");
+      alert(t('ExpensesPage.alertCostMismatch'));
       return;
     }
 
@@ -105,8 +108,8 @@ export default function ExpensesPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Group Expense Splitter</h1>
-        <p className="text-muted-foreground max-w-2xl">A simple way to calculate who owes who after a trip.</p>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('ExpensesPage.title')}</h1>
+        <p className="text-muted-foreground max-w-2xl">{t('ExpensesPage.description')}</p>
       </div>
 
        <div className="relative overflow-hidden">
@@ -115,13 +118,13 @@ export default function ExpensesPage() {
                      <motion.div key="step1" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Users /> Step 1: Setup</CardTitle>
-                                <CardDescription>How many people are splitting the expenses?</CardDescription>
+                                <CardTitle className="flex items-center gap-2"><Users /> {t('ExpensesPage.step1Title')}</CardTitle>
+                                <CardDescription>{t('ExpensesPage.step1Description')}</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <form onSubmit={handleSetupSubmit} className="space-y-4">
                                     <div className="space-y-2">
-                                    <Label htmlFor="numPeople">Number of People</Label>
+                                    <Label htmlFor="numPeople">{t('ExpensesPage.numPeopleLabel')}</Label>
                                     <Input
                                         id="numPeople"
                                         type="number"
@@ -131,7 +134,7 @@ export default function ExpensesPage() {
                                     />
                                     </div>
                                     <Button type="submit" className="w-full">
-                                    Next <ArrowRight className="ml-2 h-4 w-4" />
+                                    {t('ExpensesPage.nextButton')} <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </form>
                             </CardContent>
@@ -143,12 +146,12 @@ export default function ExpensesPage() {
                     <motion.div key="step2" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
                         <Card>
                              <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><FileDigit /> Step 2: Costs & Contributions</CardTitle>
-                                <CardDescription>Enter the total cost and what each person paid.</CardDescription>
+                                <CardTitle className="flex items-center gap-2"><FileDigit /> {t('ExpensesPage.step2Title')}</CardTitle>
+                                <CardDescription>{t('ExpensesPage.step2Description')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 <div className="space-y-2">
-                                    <Label htmlFor="totalCost">Total Trip Cost</Label>
+                                    <Label htmlFor="totalCost">{t('ExpensesPage.totalCostLabel')}</Label>
                                     <Input
                                         id="totalCost"
                                         type="number"
@@ -157,12 +160,12 @@ export default function ExpensesPage() {
                                     />
                                 </div>
                                 <div className="space-y-4">
-                                    <h4 className="font-semibold">Individual Contributions</h4>
+                                    <h4 className="font-semibold">{t('ExpensesPage.contributionsTitle')}</h4>
                                     <div className="space-y-4">
                                         {participants.map(p => (
                                             <div key={p.id} className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end p-4 border rounded-lg">
                                                 <div className="space-y-2">
-                                                    <Label htmlFor={`p-name-${p.id}`}>{`Participant #${p.id + 1} Name`}</Label>
+                                                    <Label htmlFor={`p-name-${p.id}`}>{t('ExpensesPage.participantNameLabel', {number: p.id + 1})}</Label>
                                                     <Input
                                                         id={`p-name-${p.id}`}
                                                         value={p.name}
@@ -170,7 +173,7 @@ export default function ExpensesPage() {
                                                     />
                                                 </div>
                                                 <div className="space-y-2">
-                                                    <Label htmlFor={`p-contrib-${p.id}`}>Amount Contributed</Label>
+                                                    <Label htmlFor={`p-contrib-${p.id}`}>{t('ExpensesPage.contributionLabel')}</Label>
                                                     <Input
                                                         id={`p-contrib-${p.id}`}
                                                         type="number"
@@ -185,10 +188,10 @@ export default function ExpensesPage() {
                             </CardContent>
                             <CardFooter className="flex justify-between">
                                 <Button variant="outline" onClick={() => setStep(1)}>
-                                    <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('ExpensesPage.backButton')}
                                 </Button>
                                 <Button onClick={calculateExpenses}>
-                                    Calculate <ArrowRight className="ml-2 h-4 w-4" />
+                                    {t('ExpensesPage.calculateButton')} <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                             </CardFooter>
                         </Card>
@@ -199,8 +202,8 @@ export default function ExpensesPage() {
                     <motion.div key="step3" variants={cardVariants} initial="hidden" animate="visible" exit="exit" transition={{ duration: 0.3 }}>
                         <Card>
                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Landmark /> Step 3: Settlement</CardTitle>
-                                <CardDescription>Here's how to settle up. Each card represents one payment.</CardDescription>
+                                <CardTitle className="flex items-center gap-2"><Landmark /> {t('ExpensesPage.step3Title')}</CardTitle>
+                                <CardDescription>{t('ExpensesPage.step3Description')}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 {transactions.length > 0 ? (
@@ -211,7 +214,7 @@ export default function ExpensesPage() {
                                                     <div className="flex flex-col items-center text-center">
                                                         <VenetianMask className="w-8 h-8 mb-1" />
                                                         <span className="font-bold">{t.from}</span>
-                                                        <span className="text-xs text-muted-foreground">Owes</span>
+                                                        <span className="text-xs text-muted-foreground">{t('ExpensesPage.owes')}</span>
                                                     </div>
                                                     <div className="flex flex-col items-center">
                                                         <ArrowRight className="w-8 h-8 text-primary" />
@@ -220,19 +223,19 @@ export default function ExpensesPage() {
                                                     <div className="flex flex-col items-center text-center">
                                                         <Landmark className="w-8 h-8 mb-1" />
                                                         <span className="font-bold">{t.to}</span>
-                                                        <span className="text-xs text-muted-foreground">Is Owed</span>
+                                                        <span className="text-xs text-muted-foreground">{t('ExpensesPage.is_owed')}</span>
                                                     </div>
                                                 </div>
                                             </Card>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-center text-muted-foreground">Everyone is settled up. No payments needed.</p>
+                                    <p className="text-center text-muted-foreground">{t('ExpensesPage.allSettled')}</p>
                                 )}
                             </CardContent>
                              <CardFooter>
                                 <Button variant="outline" onClick={() => { setStep(1); setTransactions([]); }}>
-                                    <ArrowLeft className="mr-2 h-4 w-4" /> Start a New Calculation
+                                    <ArrowLeft className="mr-2 h-4 w-4" /> {t('ExpensesPage.startOverButton')}
                                 </Button>
                             </CardFooter>
                         </Card>

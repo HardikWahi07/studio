@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useState, useRef } from 'react';
@@ -16,8 +17,10 @@ import type { Blog } from '@/lib/types';
 import { useDebounce } from '@/hooks/use-debounce';
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function BlogPage() {
+    const t = useTranslations();
     const { user } = useUser();
     const firestore = useFirestore();
 
@@ -51,15 +54,15 @@ export default function BlogPage() {
     return (
         <main className="flex-1 p-4 md:p-8 space-y-8 bg-background">
             <div className="space-y-2">
-                <h1 className="font-headline text-3xl md:text-4xl font-bold">Travel Stories & Blog</h1>
-                <p className="text-muted-foreground max-w-2xl">Get inspired by real adventures from the TripMind community.</p>
+                <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('BlogPage.title')}</h1>
+                <p className="text-muted-foreground max-w-2xl">{t('BlogPage.description')}</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
                 <div className="relative w-full md:max-w-sm">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                     <Input 
-                        placeholder="Search for stories or destinations..." 
+                        placeholder={t('BlogPage.searchPlaceholder')}
                         className="pl-10"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
@@ -69,7 +72,7 @@ export default function BlogPage() {
                     <Button asChild>
                         <Link href="/blog/create">
                             <PenSquare className="mr-2 h-4 w-4" />
-                            Write a Story
+                            {t('BlogPage.createButton')}
                         </Link>
                     </Button>
                 )}
@@ -126,7 +129,7 @@ export default function BlogPage() {
             
             {!isLoading && (!filteredBlogs || filteredBlogs.length === 0) && (
                 <div className="text-center py-16">
-                    <p className="text-muted-foreground">No blog posts found. Why not be the first to share a story?</p>
+                    <p className="text-muted-foreground">{t('BlogPage.noPosts')}</p>
                 </div>
             )}
         </main>

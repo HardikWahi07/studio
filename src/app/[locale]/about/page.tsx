@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRef } from 'react';
@@ -9,26 +10,10 @@ import { doc } from 'firebase/firestore';
 import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-
-const values = [
-  {
-    icon: <Cpu className="h-10 w-10 text-primary" />,
-    title: 'AI Engine',
-    description: 'Smart Planning',
-  },
-  {
-    icon: <Leaf className="h-10 w-10 text-primary" />,
-    title: 'Eco Focus',
-    description: 'Sustainability',
-  },
-  {
-    icon: <Heart className="h-10 w-10 text-primary" />,
-    title: 'User First',
-    description: 'Experience',
-  },
-];
+import { useTranslations } from '@/hooks/use-translations';
 
 export default function AboutPage() {
+  const t = useTranslations();
   const statsRef = useRef<HTMLDivElement>(null);
   const visionRef = useRef<HTMLDivElement>(null);
   const valuesRef = useRef<HTMLDivElement>(null);
@@ -41,10 +26,28 @@ export default function AboutPage() {
   
   const firestore = useFirestore();
 
+  const values = [
+    {
+      icon: <Cpu className="h-10 w-10 text-primary" />,
+      title: t('AboutPage.value1Title'),
+      description: t('AboutPage.value1Description'),
+    },
+    {
+      icon: <Leaf className="h-10 w-10 text-primary" />,
+      title: t('AboutPage.value2Title'),
+      description: t('AboutPage.value2Description'),
+    },
+    {
+      icon: <Heart className="h-10 w-10 text-primary" />,
+      title: t('AboutPage.value3Title'),
+      description: t('AboutPage.value3Description'),
+    },
+  ];
+
   const statLabels: { [key: string]: { label: string, format: (val: number) => string } } = {
-    routesPlanned: { label: 'Routes Planned', format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
-    happyTravelers: { label: 'Happy Travelers', format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
-    destinations: { label: 'Destinations', format: (val) => `${val}+` },
+    routesPlanned: { label: t('AboutPage.routesPlanned'), format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
+    happyTravelers: { label: t('AboutPage.happyTravelers'), format: (val) => val > 1000 ? `${(val/1000).toFixed(1)}K+` : `${val}+` },
+    destinations: { label: t('AboutPage.destinations'), format: (val) => `${val}+` },
   };
 
   const statsDocRef = useMemoFirebase(() => {
@@ -59,10 +62,10 @@ export default function AboutPage() {
       <section className="py-16 md:py-24">
         <div className="container mx-auto px-4 text-center">
           <h1 className="font-headline text-4xl md:text-6xl font-bold">
-            About TripMind
+            {t('AboutPage.title')}
           </h1>
           <p className="mt-4 text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
-            The smarter, greener, easier way to explore
+            {t('AboutPage.subtitle')}
           </p>
         </div>
       </section>
@@ -72,12 +75,12 @@ export default function AboutPage() {
           <Card className={cn("max-w-4xl mx-auto p-6 md:p-10 shadow-lg border-gray-200/80 fade-in-up", { 'visible': isVisionVisible })}>
             <CardContent className="p-0">
               <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">
-                Our Vision
+                {t('AboutPage.visionTitle')}
               </h2>
               <div className="space-y-4 text-muted-foreground text-base md:text-lg">
-                <p>TripMind was born from a simple idea: travel should be both exciting and responsible. We believe that technology can help us explore the world while protecting it for future generations.</p>
-                <p>Our AI-powered platform makes it easy to plan trips that are not only memorable but also sustainable. From finding hidden gems to calculating carbon footprints, we put the power of smart travel in your hands.</p>
-                <p>Built for Hackathon 2025, TripMind represents our commitment to innovation, sustainability, and creating meaningful travel experiences that connect people with places and cultures.</p>
+                <p>{t('AboutPage.visionP1')}</p>
+                <p>{t('AboutPage.visionP2')}</p>
+                <p>{t('AboutPage.visionP3')}</p>
               </div>
             </CardContent>
           </Card>
@@ -111,10 +114,10 @@ export default function AboutPage() {
           <Card className={cn("max-w-4xl mx-auto bg-gray-900 text-white text-center p-8 md:p-12 shadow-lg fade-in-up", { 'visible': isMissionVisible })}>
             <CardContent className="p-0">
               <h2 className="text-2xl md:text-3xl font-bold font-headline mb-4">
-                Our Mission
+                {t('AboutPage.missionTitle')}
               </h2>
               <p className="text-lg md:text-2xl max-w-3xl mx-auto italic text-gray-300">
-                "To empower travelers with AI-driven insights that make every journey smarter, greener, and more enriching—while supporting local communities and protecting our planet."
+                {t('AboutPage.missionStatement')}
               </p>
               <div
                 ref={statsRef}

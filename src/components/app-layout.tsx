@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -6,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation"
 import { useSettings } from "@/context/settings-context"
 import { useUser } from "@/firebase"
 import { useTheme } from "next-themes";
+import { useTranslations } from "@/hooks/use-translations"
 
 import {
   Menu,
@@ -226,6 +228,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
 }
 
 function TravelToolsDropdown() {
+  const t = useTranslations();
   const pathname = usePathname();
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
@@ -233,15 +236,15 @@ function TravelToolsDropdown() {
   const linkColorClass = isHomePage && !isScrolled && theme === 'dark' ? "text-white" : "text-foreground";
 
   const travelTools = [
-    { href: "/expenses", icon: Users, label: 'Expense Splitter' },
-    { href: "/local-supporters", icon: Users, label: 'Local Supporters' },
-    { href: "/suggest-bookings", icon: Briefcase, label: 'Smart Transport' },
-    { href: "/itinerary-planner", icon: Wand2, label: 'AI Itinerary Generator' },
-    { href: "/safety", icon: LifeBuoy, label: 'Safety Companion' },
+    { href: "/expenses", icon: Users, label: t('AppLayout.expenseSplitter') },
+    { href: "/local-supporters", icon: Users, label: t('AppLayout.localSupporters') },
+    { href: "/suggest-bookings", icon: Briefcase, label: t('AppLayout.smartTransport') },
+    { href: "/itinerary-planner", icon: Wand2, label: t('AppLayout.aiItineraryGenerator') },
+    { href: "/safety", icon: LifeBuoy, label: t('AppLayout.safety') },
   ];
   const supportLinks = [
-      { href: "#", icon: HelpCircle, label: 'Help Center' },
-      { href: "#", icon: Mail, label: 'Contact Us' },
+      { href: "#", icon: HelpCircle, label: t('AppLayout.helpCenter') },
+      { href: "#", icon: Mail, label: t('AppLayout.contactUs') },
   ]
   const isActive = travelTools.some(tool => pathname.endsWith(tool.href));
   
@@ -249,7 +252,7 @@ function TravelToolsDropdown() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className={cn("text-sm font-medium hover:text-primary focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : linkColorClass)}>
-          Travel Tools
+          {t('AppLayout.travelTools')}
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
       </DropdownMenuTrigger>
@@ -280,7 +283,8 @@ function useScrollState() {
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = React.useState(false);
 
-  const isHomePage = pathname === `/` || pathname === '/en';
+  const locale = pathname.split('/')[1] || 'en';
+  const isHomePage = pathname === `/${locale}`;
 
   React.useEffect(() => {
     if (!isHomePage) {
@@ -309,8 +313,9 @@ function LanguageSelector() {
     const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
     
     const handleLanguageChange = (langCode: string) => {
-      // This is a simplified approach. In a real app, you might need to handle more complex path replacements.
-      const newPath = pathname.replace(/^\/(en|es|fr|de|hi)/, `/${langCode}`);
+      const pathSegments = pathname.split('/');
+      pathSegments[1] = langCode;
+      const newPath = pathSegments.join('/');
       router.push(newPath);
     }
 
@@ -357,6 +362,7 @@ function CurrencySelector() {
 }
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
+  const t = useTranslations();
   const { user, isUserLoading } = useUser();
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
@@ -368,55 +374,55 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   const loggedInNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/my-trips", label: "My Trips" },
-    { href: "/trip-planner", label: "AI Trip Planner" },
-    { href: "/suggest-bookings", label: "Suggest Bookings" },
-    { href: "/booking", label: "My Bookings" },
-    { href: "/blog", label: "Blog" },
-    { href: "/about", label: "About" },
-    { href: "/local-artisans", label: "Local Connect" },
-    { href: "/hidden-gems", label: "Hidden Gems" },
+    { href: "/", label: t('AppLayout.home') },
+    { href: "/my-trips", label: t('AppLayout.myTrips') },
+    { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
+    { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
+    { href: "/booking", label: t('AppLayout.booking') },
+    { href: "/blog", label: t('AppLayout.blog') },
+    { href: "/about", label: t('AppLayout.about') },
+    { href: "/local-artisans", label: t('AppLayout.localConnect') },
+    { href: "/hidden-gems", label: t('AppLayout.hiddenGems') },
   ];
   
   const loggedOutNavItems = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About" },
-    { href: "/blog", label: "Blog" },
-    { href: "/trip-planner", label: "AI Trip Planner" },
-    { href: "/suggest-bookings", label: "Suggest Bookings" },
-    { href: "#", label: "Help Center" },
-    { href: "#", label: "Contact Us" },
+    { href: "/", label: t('AppLayout.home') },
+    { href: "/about", label: t('AppLayout.about') },
+    { href: "/blog", label: t('AppLayout.blog') },
+    { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
+    { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
+    { href: "#", label: t('AppLayout.helpCenter') },
+    { href: "#", label: t('AppLayout.contactUs') },
   ];
 
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
   const allNavItems = user ? [...loggedInNavItems, ...[
-      { href: "/expenses", label: "Expense Splitter" },
-      { href: "/local-supporters", label: "Local Supporters" },
-      { href: "/suggest-bookings", label: "Smart Transport" },
-      { href: "/itinerary-planner", label: "AI Itinerary Generator" },
-      { href: "/safety", label: "Safety Companion" },
-      { href: '#', label: "Help Center" },
-      { href: '#', label: "Contact Us" },
+      { href: "/expenses", label: t('AppLayout.expenseSplitter') },
+      { href: "/local-supporters", label: t('AppLayout.localSupporters') },
+      { href: "/suggest-bookings", label: t('AppLayout.smartTransport') },
+      { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
+      { href: "/safety", label: t('AppLayout.safety') },
+      { href: '#', label: t('AppLayout.helpCenter') },
+      { href: '#', label: t('AppLayout.contactUs') },
     ]] : loggedOutNavItems;
 
   const footerQuickLinks = [
-    { key: "plan", href: "/trip-planner", label: "Plan a Trip" },
-    { key: "connect", href: "/local-artisans", label: "Local Connect" },
-    { key: "gems", href: "/hidden-gems", label: "Hidden Gems" },
+    { key: "plan", href: "/trip-planner", label: t('AppLayout.planTrip') },
+    { key: "connect", href: "/local-artisans", label: t('AppLayout.localConnect') },
+    { key: "gems", href: "/hidden-gems", label: t('AppLayout.hiddenGems') },
   ];
 
   const footerCompanyLinks = [
-    { key: "about", href: "/about", label: "About Us" },
-    { key: "blog", href: "/blog", label: "Blog" },
-    { key: "work", href: "#", label: "Work with Us" },
+    { key: "about", href: "/about", label: t('AppLayout.aboutUs') },
+    { key: "blog", href: "/blog", label: t('AppLayout.blog') },
+    { key: "work", href: "#", label: t('AppLayout.workWithUs') },
   ];
 
   const footerSupportLinks = [
-    { key: "help", href: "#", label: "Help Center" },
-    { key: "faq", href: "#", label: "FAQ" },
-    { key: "contact", href: "#", label: "Contact Us" },
-    { key: "tos", href: "#", label: "Terms of Service" },
+    { key: "help", href: "#", label: t('AppLayout.helpCenter') },
+    { key: "faq", href: "#", label: t('AppLayout.faq') },
+    { key: "contact", href: "#", label: t('AppLayout.contactUs') },
+    { key: "tos", href: "#", label: t('AppLayout.termsOfService') },
   ];
 
   const logoColor = isHomePage && !isScrolled && theme === 'dark' ? 'text-white' : 'text-primary';
@@ -461,7 +467,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <SheetTrigger asChild>
                 <Button id="hamburger" variant="outline" size="icon" className={cn("lg:hidden", isMounted && isHomePage && !isScrolled ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : '')}>
                   <Menu className="h-5 w-5" />
-                  <span className="sr-only">Toggle navigation menu</span>
+                  <span className="sr-only">{t('AppLayout.toggleNavigation')}</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
@@ -482,7 +488,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       ) : (
                         <Button onClick={() => setIsAuthDialogOpen(true)} className="flex items-center gap-4 justify-start" variant="outline">
                            <LogIn />
-                           Login
+                           {t('AuthButton.login')}
                         </Button>
                       )}
                       <DropdownMenuSeparator />
@@ -510,11 +516,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="md:col-span-2 lg:col-span-1">
               <Logo className="text-white" />
               <p className="text-sm text-gray-400 mt-4">
-                The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.
+                {t('AppLayout.footerDescription')}
               </p>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Quick Links</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('AppLayout.quickLinks')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerQuickLinks.map(link => (
                     <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
@@ -522,7 +528,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Company</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('AppLayout.company')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerCompanyLinks.map(link => (
                     <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
@@ -530,7 +536,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </ul>
             </div>
             <div>
-              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">Support</h4>
+              <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('AppLayout.support')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerSupportLinks.map(link => (
                     <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
@@ -539,7 +545,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           <div className="mt-10 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
-            © 2024 TripMind. All rights reserved. Plan Smart. Travel Green.
+            {t('AppLayout.copyright')}
           </div>
         </div>
       </footer>
