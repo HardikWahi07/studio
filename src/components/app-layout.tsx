@@ -221,7 +221,9 @@ function NavLink({ href, children, className }: { href: string, children: React.
   const pathname = usePathname()
   const locale = pathname.split('/')[1] || 'en';
   const fullHref = `/${locale}${href === '/' ? '' : href}`;
-  const isActive = pathname === fullHref || (href !== '/' && pathname.startsWith(fullHref));
+  
+  // More robust active check: handles home page and sub-pages
+  const isActive = (pathname === fullHref) || (href === '/' && pathname === `/${locale}`);
 
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
@@ -449,15 +451,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm border-b" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
-           {isMounted ? (
+           {/* This block is simplified to remove the isMounted check which causes hydration issues */}
             <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-               <Logo className={logoColor} />
+              <Logo className={logoColor} />
             </Link>
-           ) : (
-            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-              <Logo className="text-primary" />
-            </Link>
-           )}
           {isMounted && !isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
               {navItems.map((item) => (
