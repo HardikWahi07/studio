@@ -1,4 +1,3 @@
-
 "use client"
 
 import * as React from "react"
@@ -248,7 +247,7 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   
-  const linkColorClass = (isHomePage && !isScrolled && theme === 'dark') ? "text-white hover:bg-white/10 hover:text-white" : "text-foreground hover:bg-accent hover:text-accent-foreground";
+  const linkColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:bg-white/10 hover:text-white' : 'text-foreground hover:bg-accent hover:text-accent-foreground';
 
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('AppLayout.expenseSplitter') },
@@ -263,7 +262,7 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : '', linkColorClass,  isHomePage && !isScrolled && theme === 'dark' ? 'hover:bg-white/10' : '')}>
+        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : '', linkColorClass, isHomePage && !isScrolled && theme === 'dark' ? 'hover:bg-white/10' : '')}>
           {t('AppLayout.travelTools')}
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
@@ -400,6 +399,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/", label: t('AppLayout.home') },
     { href: "/my-trips", label: t('AppLayout.myTrips') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
+    { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
     { href: "/booking", label: t('AppLayout.booking') },
     { href: "/blog", label: t('AppLayout.blog') },
@@ -413,6 +413,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/about", label: t('AppLayout.about') },
     { href: "/blog", label: t('AppLayout.blog') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
+    { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
   ];
 
@@ -582,5 +583,3 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
-    
