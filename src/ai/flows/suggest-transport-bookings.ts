@@ -46,8 +46,8 @@ const prompt = ai.definePrompt({
   2.  **Generate Mock Options with Smart Links (CRITICAL URL FORMATTING):**
       - **URL ENCODING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces. Replace spaces with a '+' plus sign.
       - **FLIGHTS:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid Google Flights search URL in the format: \`https://www.google.com/travel/flights?q=flights+from+{ORIGIN}+to+{DESTINATION}+on+{YYYY-MM-DD}\`.
-      - **TRAINS (India):** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST link to the main IRCTC search page: \`https://www.irctc.co.in/nget/train-search\`. The UI will guide the user from there. 'availability' must be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
-      - **TRAINS (Other):** Use a Google search URL: \`https://www.google.com/search?q=trains+from+{ORIGIN}+to+{DESTINATION}\`.
+      - **TRAINS:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST be a Google search URL in the format: \`https://www.google.com/search?q=trains+from+{ORIGIN}+to+{DESTINATION}\`.
+      - **Train Availability (India):** For Indian trains, availability MUST be realistic: 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
       
   3.  **Format Output:** Structure the results into journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs.
   
