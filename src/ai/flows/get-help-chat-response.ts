@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview An AI agent for the help center chatbox.
@@ -19,14 +18,30 @@ const HelpChatInputSchema = z.object({
 export type HelpChatInput = z.infer<typeof HelpChatInputSchema>;
 
 export async function getHelpChatResponse(input: HelpChatInput): Promise<string> {
-    const result = await getHelpChatResponseFlow(input);
+    // Combine history and the new query into a single messages array for the flow
+    const messages = [
+        ...input.history,
+        { role: 'user' as const, content: input.query }
+    ];
+    const result = await getHelpChatResponseFlow(messages);
     return result;
 }
 
-const prompt = ai.definePrompt({
-  name: 'getHelpChatResponsePrompt',
-  input: {schema: HelpChatInputSchema},
-  prompt: `You are the TripMind Support Bot, a friendly and helpful AI assistant for a travel planning app. Your goal is to answer user questions about the app's features.
+const getHelpChatResponseFlow = ai.defineFlow(
+  {
+    name: 'getHelpChatResponseFlow',
+    inputSchema: z.array(z.object({
+        role: z.enum(['user', 'model']),
+        content: z.string(),
+    })),
+    outputSchema: z.string(),
+  },
+  async (messages) => {
+
+    const llmResponse = await ai.generate({
+        prompt: messages,
+        model: 'googleai/gemini-2.5-flash-lite',
+        system: `You are the TripMind Support Bot, a friendly and helpful AI assistant for a travel planning app. Your goal is to answer user questions about the app's features.
 
   **App Features:**
   - **AI Trip Planner:** Users can generate detailed, multi-day itineraries by providing destination, duration, interests, etc.
@@ -41,29 +56,11 @@ const prompt = ai.definePrompt({
   **Your Task:**
   - Answer the user's question based on the features above.
   - Be concise, friendly, and clear.
-  - Use the conversation history to understand the context.
+  - Use the conversation history provided in the prompt to understand the context.
   - If you don't know the answer, say "I'm not sure about that, but you can contact our human support team at support@tripmind.com."
-
-  **Conversation History:**
-  {{#each history}}
-  - **{{role}}**: {{content}}
-  {{/each}}
-
-  **User's New Question:**
-  {{{query}}}
   `,
-});
+    });
 
-const getHelpChatResponseFlow = ai.defineFlow(
-  {
-    name: 'getHelpChatResponseFlow',
-    inputSchema: HelpChatInputSchema,
-    outputSchema: z.string(),
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output || "I'm sorry, I had trouble generating a response. Please try again.";
+    return llmResponse.text || "I'm sorry, I had trouble generating a response. Please try again.";
   }
 );
-
-    
