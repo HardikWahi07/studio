@@ -28,11 +28,7 @@
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
     "contactUs": "Contáctanos",
-    "safety": "Compañero de Seguridad",
-    "dataSources": "Fuentes de Datos",
-    "dataSourcesP1": "Para proporcionar una experiencia rica e interactiva sin requerir que los usuarios se registren para obtener múltiples claves de API, TripMind utiliza una combinación de datos simulados y enlaces profundos inteligentes a sitios de reserva reales.",
-    "dataSourcesP2": "Las opciones de trenes, vuelos y hoteles son generadas por nuestra IA para ser realistas. Cuando haces clic en 'Reservar', se te lleva a una página de búsqueda pre-llenada en un sitio de confianza como Google Flights, IRCTC o Booking.com, donde puedes ver los precios en tiempo real y finalizar tu reserva.",
-    "dataSourcesP3": "Este enfoque 'Gratis para Siempre' nos permite ofrecer una potente herramienta de planificación de viajes que es gratuita e inmediatamente útil."
+    "safety": "Compañero de Seguridad"
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
