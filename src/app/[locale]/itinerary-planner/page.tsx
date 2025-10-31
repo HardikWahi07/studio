@@ -57,12 +57,9 @@ export default function ItineraryGeneratorPage() {
     setItinerary(null);
 
     try {
-      if (typeof window.ai === 'undefined' || typeof window.ai.canCreateTextSession === 'undefined') {
-        throw new Error("On-device AI not supported by this browser.");
-      }
-
-      const canCreate = await window.ai.canCreateTextSession();
-      if (canCreate === 'no') {
+      const canCreate = await window.ai?.canCreateTextSession();
+      
+      if (canCreate === 'no' || canCreate === undefined) {
           throw new Error("On-device AI not supported by this browser.");
       }
 
@@ -224,5 +221,4 @@ export default function ItineraryGeneratorPage() {
       </div>
     </main>
   );
-
-    
+}
