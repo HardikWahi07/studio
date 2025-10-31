@@ -74,17 +74,25 @@ const prompt = ai.definePrompt({
   - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
-  1.  **Direct Route First:** First, try to find direct transport options. Prioritize 'searchRealtimeTrains' for Indian travel, and 'searchRealtimeFlights' for all other destinations.
-  
-  2.  **Fallback to Nearby Hubs (Crucial):** If the direct search (both train and flight) returns NO results, you MUST identify the nearest major airport or train station hub for BOTH the origin and destination. For example, for a journey from "Vapi, India" to "Pune, India", you should recognize that Vapi doesn't have an airport and identify "Mumbai, India" or "Surat, India" as the nearest major airport hubs. Then, you MUST perform a new search using 'searchRealtimeFlights' between these identified hubs (e.g., Mumbai to Pune).
-  
-  3.  **Complex Multi-Leg Journeys:** If no direct options are found but a path through a hub is possible, construct a multi-leg journey.
-      a.  Search for the first leg of the journey (e.g., "Vapi to Mumbai"). You can use the 'searchRealtimeTrains' tool for this.
-      b.  If needed, use the 'getJourneyToHub' tool to find options for traveling *within* the hub city (e.g., from an arrival station to a departure station).
-      c.  Search for the second leg of the journey (e.g., "Mumbai to Pune").
-      d.  Combine these steps into a multi-leg journey array.
 
-  **IMPORTANT:** For the final output, structure it as a 'journey' array, where each element is a 'leg' of the trip. A direct trip will have one leg. A complex trip will have multiple legs. Be very precise with the output schema.
+  1.  **Direct Route First:** First, attempt to find direct transport options from the exact 'origin' to the exact 'destination'. 
+      - If the journey is within India, prioritize using the 'searchRealtimeTrains' tool.
+      - For all other destinations, prioritize using the 'searchRealtimeFlights' tool.
+
+  2.  **MANDATORY FALLBACK TO HUBS:** If the direct searches from step 1 (for both trains and flights) return NO available options or an empty array, YOU MUST proceed to this step. This is not optional.
+      a.  **Identify Hubs:** Identify the nearest major transport hub (e.g., a large international airport or central train station) for BOTH the 'origin' and the 'destination'. For example, for a journey from "Vapi, India" to "Pune, India", you should recognize that Vapi doesn't have an airport and identify "Mumbai, India" or "Surat, India" as the nearest major airport hubs.
+      b.  **Construct Multi-Leg Journey:**
+          i.  **First Leg:** Find options for the journey from the original 'origin' to the origin hub. You can use 'searchRealtimeTrains' or 'getJourneyToHub' for this (e.g., Vapi to Mumbai). This will be Leg 1.
+          ii. **Main Leg:** Find flight or train options from the origin hub to the destination hub (e.g., Mumbai to Pune). This will be Leg 2.
+          iii. **Final Leg (if needed):** Find options from the destination hub to the original 'destination'. This will be Leg 3.
+      c.  **Combine Results:** Structure the final output as a 'journey' array containing multiple 'leg' objects.
+
+  3.  **Output Structure:**
+      - The final output MUST be a 'journey' array.
+      - A direct trip will have one leg. A trip requiring travel via a hub will have multiple legs.
+      - Each leg must have a description (e.g., "Train from Vapi to Mumbai") and a list of booking options.
+
+  **IMPORTANT:** Do not give up if a direct search fails. The multi-leg hub search is a required fallback step.
   `,
 });
 
