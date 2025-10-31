@@ -193,5 +193,29 @@
       "trainClassAC2": "एसी 2-टियर",
       "trainClassACFirst": "एसी फर्स्ट क्लास",
       "trainClassChairCar": "एसी चेयर कार"
+    },
+    "CreateBlogPage": {
+      "title": "एक नया ब्लॉग पोस्ट बनाएं",
+      "description": "ट्रिपमाइंड समुदाय के साथ अपनी यात्रा की कहानी साझा करें।",
+      "titleLabel": "पोस्ट का शीर्षक",
+      "titlePlaceholder": "जैसे, बाली में मेरा अविस्मरणीय सप्ताह",
+      "contentLabel": "आपकी कहानी",
+      "imageHintLabel": "कवर छवि के लिए संकेत",
+      "imageHintPlaceholder": "जैसे, 'चावल के खेतों पर सूर्यास्त'",
+      "publishButton": "कहानी प्रकाशित करें",
+      "publishingButton": "प्रकाशित हो रहा है...",
+      "successTitle": "पोस्ट प्रकाशित!",
+      "successDescription": "आपकी कहानी अब समुदाय के देखने के लिए लाइव है।",
+      "errorTitle": "प्रकाशन विफल",
+      "errorDescription": "हम आपकी पोस्ट प्रकाशित नहीं कर सके। कृपया पुन: प्रयास करें।"
+    },
+    "BlogPage": {
+      "title": "यात्रा की कहानियाँ और ब्लॉग",
+      "description": "ट्रिपमाइंड समुदाय के वास्तविक कारनामों से प्रेरित हों।",
+      "searchPlaceholder": "कहानियों या गंतव्यों की खोज करें...",
+      "createButton": "एक कहानी लिखें",
+      "noPosts": "कोई ब्लॉग पोस्ट नहीं मिला। क्यों न आप पहली कहानी साझा करें?"
     }
 }
+
+    

@@ -223,5 +223,127 @@
     "selectPlaceholder": "Select city...",
     "searchPlaceholder": "Search city...",
     "noCityFound": "No city found."
+  },
+  "BookingPage": {
+    "title": "My Bookings",
+    "description": "Manage all your confirmed journeys and experiences with local supporters."
+  },
+  "DestinationPage": {
+    "reviews": "reviews",
+    "about": "About {destinationName}",
+    "photoGallery": "Photo Gallery",
+    "photoAlt": "Photo of {photoHint} {index}",
+    "planYourVisit": "Plan Your Visit",
+    "planDescription": "Ready to explore {destinationName}? Find the best transport options to make your trip happen.",
+    "bookYourTrip": "Book Your Trip"
+  },
+  "HiddenGemsPage": {
+    "title": "Hidden Gems Explorer",
+    "description": "Venture off the beaten path. Discover authentic local spots and experiences that guidebooks won't show you.",
+    "formTitle": "Find Your Next Adventure",
+    "formDescription": "Enter a destination and your interests to get started.",
+    "destinationLabel": "Destination",
+    "destinationPlaceholder": "e.g., Lisbon, Portugal",
+    "interestsLabel": "Interests",
+    "interestsPlaceholder": "e.g., Vintage shops, seafood, scenic viewpoints",
+    "findGemsButton": "Find Gems",
+    "searchingButton": "Searching...",
+    "spontaneityButton": "Spontaneity Button",
+    "toastErrorTitle": "Error",
+    "toastErrorDescription": "Failed to find gems. Please try again.",
+    "toastSpontaneityTitle": "Destination Needed",
+    "toastSpontaneityDescription": "Please enter a destination to be spontaneous!",
+    "discoveredGemsTitle": "Your Discovered Gems",
+    "whyAuthentic": "Why it's authentic:"
+  },
+  "ItineraryPlannerPage": {
+    "title": "AI Itinerary Generator",
+    "description": "Let our AI craft the perfect, personalized travel plan for you. Just enter your preferences below and watch the magic.",
+    "formTitle": "Your Trip Details",
+    "formDescription": "Fill out the form to get started.",
+    "destinationLabel": "Destination",
+    "destinationPlaceholder": "e.g., Kyoto, Japan",
+    "budgetLabel": "Budget",
+    "budgetPlaceholder": "e.g., Moderate",
+    "interestsLabel": "Interests & Preferences",
+    "interestsPlaceholder": "e.g., Interested in historic temples, local cuisine, nature walks, and minimal travel between locations.",
+    "generateButton": "Generate Itinerary",
+    "generatingButton": "Generating...",
+    "toastErrorTitle": "Error",
+    "toastErrorDescription": "Failed to generate itinerary. Please try again.",
+    "resultTitle": "Your Personalized Itinerary",
+    "resultDescription": "Your AI-generated trip plan will appear here.",
+    "waitingMessage": "Your itinerary is waiting to be created."
+  },
+  "LocalArtisansPage": {
+    "title": "Local Connect",
+    "description": "Support local communities by connecting with talented artisans and authentic experiences. Every interaction tells a story.",
+    "connectButton": "Connect"
+  },
+  "LocalSupportersPage": {
+    "title": "Local Supporters",
+    "description": "Connect with friendly locals who are happy to help. Get tips, ask questions, or just get a friendly suggestion when you're feeling lost.",
+    "findSupporterTitle": "Find a Supporter",
+    "findSupporterDescription": "Enter a city to find locals who can help. We'll try to autodetect your location.",
+    "searchPlaceholder": "e.g., Madrid, Spain",
+    "searchButton": "Search",
+    "locationErrorTitle": "Location Error",
+    "noSupportersTitle": "No Supporters Found in {city}",
+    "noSupportersDescription": "We're still building our network. Try searching for another city, or check back soon!",
+    "findSupportersPromptTitle": "Find Local Supporters",
+    "findSupportersPromptDescription": "Enter a location above to find local supporters in that area.",
+    "responds": "Responds:",
+    "messageButton": "Message"
+  },
+  "MyTripsPage": {
+    "title": "My Trips",
+    "description": "Here are all the amazing trips you've planned with TripMind.",
+    "noTripsTitle": "No Trips Planned Yet",
+    "noTripsDescription": "Use the AI Trip Planner to start your next adventure!",
+    "from": "From {origin}",
+    "travelers": "{count, plural, one {# traveler} other {# travelers}}"
+  },
+  "SafetyPage": {
+    "title": "Safety Companion",
+    "description": "Feeling lost or need help? Your AI safety companion, powered by local knowledge, is here to assist you in any situation.",
+    "formTitle": "Get Assistance",
+    "formDescription": "Describe your situation, and our AI will provide guidance.",
+    "locationLabel": "Your Location",
+    "locationPlaceholder": "e.g., Madrid, Spain",
+    "situationLabel": "What is the situation?",
+    "situationPlaceholder": "e.g., I'm lost near the train station",
+    "getHelpButton": "Get Help",
+    "gettingHelpButton": "Getting Help...",
+    "toastErrorTitle": "Error",
+    "toastErrorDescription": "Failed to get assistance. Please try again.",
+    "resultsTitle": "Your Safety Guide",
+    "alertsTitle": "Safety Alerts",
+    "guidanceTitle": "Your Local Supporter's Guidance",
+    "hospitalsTitle": "Nearby Hospitals",
+    "waitingMessage": "Your safety guide will appear here."
+  },
+  "CreateBlogPage": {
+    "title": "Create a New Blog Post",
+    "description": "Share your travel story with the TripMind community.",
+    "titleLabel": "Post Title",
+    "titlePlaceholder": "e.g., My Unforgettable Week in Bali",
+    "contentLabel": "Your Story",
+    "imageHintLabel": "Cover Image Hint",
+    "imageHintPlaceholder": "e.g., 'Sunset over rice paddies'",
+    "publishButton": "Publish Story",
+    "publishingButton": "Publishing...",
+    "successTitle": "Post Published!",
+    "successDescription": "Your story is now live for the community to see.",
+    "errorTitle": "Publishing Failed",
+    "errorDescription": "We couldn't publish your post. Please try again."
+  },
+  "BlogPage": {
+    "title": "Travel Stories & Blog",
+    "description": "Get inspired by real adventures from the TripMind community.",
+    "searchPlaceholder": "Search for stories or destinations...",
+    "createButton": "Write a Story",
+    "noPosts": "No blog posts found. Why not be the first to share a story?"
   }
 }
+
+    

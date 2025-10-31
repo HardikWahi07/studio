@@ -305,5 +305,29 @@
     "selectPlaceholder": "Seleccionar ciudad...",
     "searchPlaceholder": "Buscar ciudad...",
     "noCityFound": "No se encontró la ciudad."
+  },
+  "CreateBlogPage": {
+    "title": "Crear una Nueva Publicación de Blog",
+    "description": "Comparte tu historia de viaje con la comunidad de TripMind.",
+    "titleLabel": "Título de la Publicación",
+    "titlePlaceholder": "ej., Mi Semana Inolvidable en Bali",
+    "contentLabel": "Tu Historia",
+    "imageHintLabel": "Pista para la Imagen de Portada",
+    "imageHintPlaceholder": "ej., 'Atardecer sobre arrozales'",
+    "publishButton": "Publicar Historia",
+    "publishingButton": "Publicando...",
+    "successTitle": "¡Publicación Exitosa!",
+    "successDescription": "Tu historia ahora está disponible para la comunidad.",
+    "errorTitle": "Error al Publicar",
+    "errorDescription": "No pudimos publicar tu historia. Por favor, inténtalo de nuevo."
+  },
+  "BlogPage": {
+    "title": "Historias de Viaje y Blog",
+    "description": "Inspírate con aventuras reales de la comunidad de TripMind.",
+    "searchPlaceholder": "Buscar historias o destinos...",
+    "createButton": "Escribir una Historia",
+    "noPosts": "No se encontraron publicaciones de blog. ¿Por qué no ser el primero en compartir una historia?"
   }
 }
+
+    
