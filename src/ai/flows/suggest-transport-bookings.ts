@@ -9,7 +9,8 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
+import { searchRealtimeTrainsFree } from '../tools/search-trains-free';
 
 // Define Zod schemas for input and output
 const SuggestTransportBookingsInputSchema = z.object({
@@ -31,7 +32,7 @@ const BookingOptionSchema = z.object({
     price: z.string().describe('e.g., "€120"'),
     bookingLink: z.string().url().describe('A mock URL to a booking page.'),
     ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
-    availability: z.enum(['Available', 'Waitlist', 'Sold Out', 'N/A']).optional().describe('The real-time availability status for this option.'),
+    availability: z.enum(['Available', 'Waitlist', 'Sold Out', 'N/A', 'Unknown']).optional().describe('The real-time availability status for this option.'),
 });
 
 const JourneyLegSchema = z.object({
@@ -40,7 +41,7 @@ const JourneyLegSchema = z.object({
   options: z.array(BookingOptionSchema).describe("A list of transport options for this leg."),
 });
 
-const SuggestTransportBookingsOutputSchema = z.object({
+export const SuggestTransportBookingsOutputSchema = z.object({
   journey: z.array(JourneyLegSchema).describe("An array of journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs."),
 });
 export type SuggestTransportBookingsOutput = z.infer<typeof SuggestTransportBookingsOutputSchema>;
@@ -60,8 +61,8 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  tools: [],
-  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey. You do not have access to real-time data, so you must generate realistic mock options.
+  tools: [searchRealtimeTrainsFree],
+  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey.
 
   **User's Request:**
   - **From:** {{{origin}}}
@@ -73,10 +74,13 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
 
-  1.  **Generate Mock Options:** Create a list of 2-3 realistic mock transport options. This could include flights, trains, or a combination. For example, if the user is traveling from a small town to a large city, you might suggest a taxi to the nearest major airport, then a flight.
-  2.  **Format Output:** Structure the results as one or more journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs. Place the mock options you generate into the 'options' array for the appropriate leg.
+  1.  **Analyze the Route:** Determine if this is a domestic Indian journey or an international one.
+  2.  **Generate Options:**
+      - **For travel within India:** First, try to use the \`searchRealtimeTrainsFree\` tool. You MUST find the station codes for the origin and destination cities before calling the tool.
+      - **If no trains are found OR for international travel:** Generate 2-3 realistic MOCK flight options. Do NOT use any tools for this. Make them look plausible, with providers like 'IndiGo', 'Vistara', 'Air India' for domestic, and major international carriers for other routes.
+  3.  **Format Output:** Structure the results as one or more journey legs. A direct trip will have one leg. A multi-step trip (e.g., taxi to station, then train) will have multiple legs. Place the options you generate into the 'options' array for the appropriate leg.
   
-  **IMPORTANT:** Do not use any tools. Generate plausible-looking data for all fields, including provider, price, duration, and booking links (use example.com).
+  **IMPORTANT:** Generate plausible-looking data for all fields, including provider, price, duration, and booking links (use example.com or official carrier sites).
   `,
 });
 
@@ -95,7 +99,7 @@ const suggestTransportBookingsFlow = ai.defineFlow(
         llmResponse = await prompt(input);
     } catch (err) {
         console.error("❌ LLM prompt failed in suggestTransportBookingsFlow:", err);
-        llmResponse = { output: null }; 
+        llmResponse = { output: null, history: [] }; 
     }
     
     const output = llmResponse?.output;

@@ -13,13 +13,12 @@ import {
   type PlanTripInput, 
   type PlanTripOutput 
 } from './plan-trip.types';
-
+import { searchRealtimeTrainsFree } from '../tools/search-trains-free';
 import { add } from 'date-fns';
 import { z } from 'zod';
 
 // 🧠 Public function called by frontend
 export async function planTrip(input: PlanTripInput): Promise<PlanTripOutput> {
-  // Ensure checkoutDate is calculated for the hotel tool
   const checkinDate = new Date(input.departureDate);
   const checkoutDate = add(checkinDate, { days: input.tripDuration });
 
@@ -64,7 +63,7 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })) },
   output: { schema: PlanTripOutputSchema },
-  tools: [],
+  tools: [searchRealtimeTrainsFree],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -86,10 +85,11 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options (CRITICAL LOGIC):**
-     - Generate a few mock booking options for flights or trains. Do not use any tools.
-     - Combine all valid, available results into a single 'bookingOptions' array.
+      - **For travel within India:** Prioritize using the \`searchRealtimeTrainsFree\` tool. Get the station codes for origin and destination first, then call the tool.
+      - **For international travel OR if train search returns no results:** Generate 2-3 realistic MOCK flight options. Do NOT use any tools for this. Make them look plausible.
+      - **Combine all valid results** into a single 'bookingOptions' array.
   3. **Hotels:**
-     - Generate a few mock hotel options unless 'accommodationType' is 'none'.
+     - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. Do not use tools.
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
   5. **Day-by-Day Itinerary:**
      - Each day = title + summary.
@@ -125,7 +125,7 @@ const planTripFlow = ai.defineFlow(
     } catch (err) {
       console.error("❌ LLM prompt failed:", err);
       // Ensure we always have an llmResponse object to check
-      llmResponse = { output: null }; 
+      llmResponse = { output: null, history: [] }; 
     }
 
     let output = llmResponse?.output;
@@ -198,5 +198,3 @@ const planTripFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

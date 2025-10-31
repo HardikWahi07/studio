@@ -11,8 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon, ChevronsRight, Milestone, AlertTriangle } from 'lucide-react';
-import type { BookingOption, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
-import { suggestTransportBookings } from '@/ai/flows/suggest-transport-bookings';
+import type { BookingOption } from '@/ai/flows/plan-trip.types';
+import { suggestTransportBookings, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from '@/hooks/use-translations';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
