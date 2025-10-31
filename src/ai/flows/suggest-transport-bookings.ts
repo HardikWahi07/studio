@@ -39,15 +39,12 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
 
-  1.  **Analyze the Route:** First, determine if the route is domestic within India or international.
+  1.  **Analyze the Route:** First, determine if the route is domestic within India or international. Most importantly, check if a direct flight is plausible. For example, there are no direct commercial flights from Mumbai to Shimla.
   2.  **Generate Mock Options with Smart Links:**
-      - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The date format for ixigo is DD-MM-YYYY. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or even 'Sold Out'. This simulates real-world conditions and manages user expectations.
-      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+{{{origin}}}+to+{{{destination}}}+on+{{{departureDate}}}\`
-  3.  **Format Output:** Structure the results into a single journey leg. Combine both the mock train and flight options into the 'options' array for that leg. If the journey is not in India, only provide flight options.
-  
-  **IMPORTANT:** If the origin city does not have an airport (e.g., 'Vapi'), you must create a multi-leg journey.
-   - **Leg 1:** Ground transport (taxi, bus) from the origin to the nearest major airport.
-   - **Leg 2:** Flight options from that airport to the destination.
+      - **If a direct flight is not possible (e.g., Mumbai to Shimla):** You MUST create a multi-leg journey. Leg 1 should be a flight to the nearest major airport (e.g., Chandigarh - IXC), and Leg 2 should be ground transport (taxi, bus) to the final destination (Shimla).
+      - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The date format for ixigo is DD-MM-YYYY. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or even 'Sold Out'.
+      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL using the user's input: \`https://www.google.com/flights?q=flights+from+{{{origin}}}+to+{{{destination}}}+on+{{{departureDate}}}\`.
+  3.  **Format Output:** Structure the results into journey legs. If it's a direct trip, there will be one leg. If it's multi-step, there will be multiple legs.
   
   Return a valid JSON object that strictly follows the output schema.
   `,

@@ -52,19 +52,20 @@ const prompt = ai.definePrompt({
   - **Check-out Date for Hotels:** {{{checkoutDate}}}
 
   **Your Task:**
-  1. **Create a Trip Title:** A creative name for the trip.
-  2. **Generate Main Booking Options (CRITICAL LOGIC):**
-      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. Example format: \`https://www.ixigo.com/trains/mumbai-central-bct/to/new-delhi-ndls?date=25-12-2024\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'. This simulates real-world conditions.
-      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Example format: \`https://www.google.com/flights?q=flights+from+{{{origin}}}+to+{{{destination}}}+on+{{{departureDate}}}\`.
-  3. **Hotels:**
-     - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid, pre-filled Booking.com search URL. Example format: \`https://www.booking.com/searchresults.html?ss={{{destination}}}&checkin={{{departureDate}}}&checkout={{{checkoutDate}}}\`
-  4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
-  5. **Day-by-Day Itinerary:**
-     - Each day = title + summary.
-     - Activities must include time, location, description, cost, and transportToNext.
-     - Suggest real restaurants for meals based on interests.
-  6. **Travel Advisory:**
-     - If peak season or holiday (e.g., Diwali, Christmas), add contextual warnings.
+  1.  **Analyze the Route:** First, determine if the route is domestic within India or international. More importantly, check if a direct flight is plausible. For example, there are no direct commercial flights to Shimla; a user would need to fly to Chandigarh (IXC) and take a taxi.
+  2.  **Generate Main Booking Options (CRITICAL LOGIC):**
+      - **If a direct flight is not possible (e.g., Mumbai to Shimla):** You MUST create a multi-leg journey. Leg 1 should be a flight to the nearest major airport, and Leg 2 should be ground transport (taxi, bus) to the final destination.
+      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. Example format: \`https://www.ixigo.com/trains/mumbai-central-bct/to/new-delhi-ndls?date=25-12-2024\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
+      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL using the user's input: \`https://www.google.com/flights?q=flights+from+{{{origin}}}+to+{{{destination}}}+on+{{{departureDate}}}\`.
+  3.  **Hotels:**
+      - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid, pre-filled Booking.com search URL. Example format: \`https://www.booking.com/searchresults.html?ss={{{destination}}}&checkin={{{departureDate}}}&checkout={{{checkoutDate}}}\`
+  4.  **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
+  5.  **Day-by-Day Itinerary:**
+      - Each day = title + summary.
+      - Activities must include time, location, description, cost, and transportToNext.
+      - Suggest real restaurants for meals based on interests.
+  6.  **Travel Advisory:**
+      - If peak season or holiday (e.g., Diwali, Christmas), add contextual warnings.
 
   Output must strictly follow the JSON schema.
   `,
