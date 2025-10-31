@@ -50,9 +50,10 @@ const prompt = ai.definePrompt({
         - **FORMAT:** \`https://www.google.com/travel/flights?q=flights%20from%20{ORIGIN_IATA}%20to%20{DESTINATION_IATA}%20on%20{YYYY-MM-DD}\`
         - **EXAMPLE:** For a flight from Mumbai (BOM) to Delhi (DEL) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=flights%20from%20BOM%20to%20DEL%20on%202025-12-20\`
 
-      - **TRAINS (India):** The \`bookingLink\` MUST be a link to the official IRCTC search page. This page does not support query parameters.
-        - **FORMAT:** \`https://www.irctc.co.in/nget/train-search\`
-        - **IMPORTANT:** Provide realistic MOCK availability data ('Available', 'Waitlist', 'Sold Out'). The user will have to manually enter the details on the site.
+      - **TRAINS:** The \`bookingLink\` MUST also be a valid, URL-encoded Google Flights search URL, which can handle train searches.
+        - **FORMAT:** \`https://www.google.com/travel/flights?q=trains%20from%20{ORIGIN_STATION_CODE}%20to%20{DESTINATION_STATION_CODE}%20on%20{YYYY-MM-DD}\`
+        - **EXAMPLE:** For a train from Vapi (VAPI) to Pune (PUNE) on 2025-12-20, the URL is: \`https://www.google.com/travel/flights?q=trains%20from%20VAPI%20to%20PUNE%20on%202025-12-20\`
+        - Provide mock availability data ('Available', 'Waitlist', 'Sold Out').
       
       - **OTHER TRANSPORT (Bus, Taxi, etc.):** For other transport types where a direct booking link is not feasible, generate a reliable Google Search link that will help the user find booking options.
         - **FORMAT:** \`https://www.google.com/search?q={URL_ENCODED_QUERY}\`
