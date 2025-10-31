@@ -11,15 +11,22 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles } from 'lucide-react';
+import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon } from 'lucide-react';
 import type { BookingOption } from '@/ai/flows/plan-trip.types';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from '@/hooks/use-translations';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
+
 
 const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
     destination: z.string().min(1, 'Destination is required.'),
-    departureDate: z.string().min(1, 'Departure date is required.'),
+    departureDate: z.date({
+        required_error: "A departure date is required.",
+      }),
 });
 
 const transportIcons: { [key: string]: React.ReactNode } = {
@@ -117,7 +124,6 @@ export default function SuggestBookingsPage() {
         defaultValues: {
             origin: '',
             destination: '',
-            departureDate: '',
         },
     });
 
@@ -160,9 +166,47 @@ export default function SuggestBookingsPage() {
                             <FormField control={form.control} name="destination" render={({ field }) => (
                                 <FormItem><FormLabel>{t('SuggestBookingsPage.toLabel')}</FormLabel><CityCombobox value={field.value} onValueChange={field.onChange} placeholder={t('SuggestBookingsPage.toPlaceholder')} /><FormMessage /></FormItem>
                             )} />
-                            <FormField control={form.control} name="departureDate" render={({ field }) => (
-                                <FormItem><FormLabel>{t('SuggestBookingsPage.departureLabel')}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
-                            )} />
+                            <FormField
+                                control={form.control}
+                                name="departureDate"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col">
+                                    <FormLabel>{t('SuggestBookingsPage.departureLabel')}</FormLabel>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                        <FormControl>
+                                            <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full pl-3 text-left font-normal",
+                                                !field.value && "text-muted-foreground"
+                                            )}
+                                            >
+                                            {field.value ? (
+                                                format(field.value, "PPP")
+                                            ) : (
+                                                <span>Pick a date</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                            </Button>
+                                        </FormControl>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value}
+                                            onSelect={field.onChange}
+                                            disabled={(date) =>
+                                                date < new Date() || date < new Date("1900-01-01")
+                                            }
+                                            initialFocus
+                                        />
+                                        </PopoverContent>
+                                    </Popover>
+                                    <FormMessage />
+                                    </FormItem>
+                                )}
+                                />
                         </div>
                         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
                             {isLoading ? <><Loader2 className="animate-spin mr-2" /> {t('SuggestBookingsPage.searchingButton')}</> : <><Search className="mr-2" /> {t('SuggestBookingsPage.findButton')}</>}
