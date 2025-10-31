@@ -54,10 +54,10 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options (CRITICAL LOGIC):**
-      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. Example format: \`https://www.ixigo.com/trains/mumbai-central-bct/to/new-delhi-ndls?date=25-12-2024\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or even 'Sold Out'. This simulates real-world conditions.
-      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Example format: \`https://www.google.com/flights?q=flights+from+Mumbai+to+Delhi+on+2024-12-25\`
+      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. Example format: \`https://www.ixigo.com/trains/mumbai-central-bct/to/new-delhi-ndls?date=25-12-2024\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'. This simulates real-world conditions.
+      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Example format: \`https://www.google.com/flights?q=flights+from+{{{origin}}}+to+{{{destination}}}+on+{{{departureDate}}}\`.
   3. **Hotels:**
-     - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid, pre-filled Booking.com search URL. Example format: \`https://www.booking.com/searchresults.html?ss=New%20Delhi&checkin={{{departureDate}}}&checkout={{{checkoutDate}}}\`
+     - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid, pre-filled Booking.com search URL. Example format: \`https://www.booking.com/searchresults.html?ss={{{destination}}}&checkin={{{departureDate}}}&checkout={{{checkoutDate}}}\`
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
   5. **Day-by-Day Itinerary:**
      - Each day = title + summary.

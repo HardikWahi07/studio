@@ -42,7 +42,7 @@ const prompt = ai.definePrompt({
   1.  **Analyze the Route:** First, determine if the route is domestic within India or international.
   2.  **Generate Mock Options with Smart Links:**
       - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The date format for ixigo is DD-MM-YYYY. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or even 'Sold Out'. This simulates real-world conditions and manages user expectations.
-      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+ORIGIN+to+DESTINATION+on+YYYY-MM-DD\`
+      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+{{{origin}}}+to+{{{destination}}}+on+{{{departureDate}}}\`
   3.  **Format Output:** Structure the results into a single journey leg. Combine both the mock train and flight options into the 'options' array for that leg. If the journey is not in India, only provide flight options.
   
   **IMPORTANT:** If the origin city does not have an airport (e.g., 'Vapi'), you must create a multi-leg journey.
@@ -67,7 +67,7 @@ const suggestTransportBookingsFlow = ai.defineFlow(
         console.log("[suggestTransportBookingsFlow] Calling prompt with input:", input);
         llmResponse = await prompt(input);
     } catch (err) {
-        console.error("❌ LLM prompt failed in suggestTransportBookingsFlow:", err);
+        console.error("❌ LLM prompt in suggestTransportBookingsFlow failed:", err);
         llmResponse = { output: null, history: [] }; 
     }
     
