@@ -248,12 +248,11 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   
-  const linkColorClass = isHomePage && !isScrolled && theme === 'dark' ? "text-white" : "text-foreground";
+  const linkColorClass = (isHomePage && !isScrolled && theme === 'dark') ? "text-white hover:bg-white/10 hover:text-white" : "text-foreground hover:bg-accent hover:text-accent-foreground";
 
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('AppLayout.expenseSplitter') },
     { href: "/local-supporters", icon: Users, label: t('AppLayout.localSupporters') },
-    { href: "/suggest-bookings", icon: Briefcase, label: t('AppLayout.smartTransport') },
     { href: "/itinerary-planner", icon: Wand2, label: t('AppLayout.aiItineraryGenerator') },
     { href: "/safety", icon: LifeBuoy, label: t('AppLayout.safety') },
   ];
@@ -266,7 +265,7 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : linkColorClass, isHomePage && !isScrolled && theme==='dark' ? 'hover:bg-white/10 hover:text-white' : 'hover:bg-accent hover:text-accent-foreground')}>
+        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : '', linkColorClass)}>
           {t('AppLayout.travelTools')}
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
@@ -423,7 +422,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const allNavItems = user ? [...loggedInNavItems, ...[
       { href: "/expenses", label: t('AppLayout.expenseSplitter') },
       { href: "/local-supporters", label: t('AppLayout.localSupporters') },
-      { href: "/suggest-bookings", label: t('AppLayout.smartTransport') },
       { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
       { href: "/safety", label: t('AppLayout.safety') },
       { key: 'help', onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
