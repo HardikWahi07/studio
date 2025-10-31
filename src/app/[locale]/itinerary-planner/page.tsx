@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,23 +37,11 @@ export default function ItineraryGeneratorPage() {
   const t = useTranslations();
   const [itinerary, setItinerary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [aiAvailable, setAiAvailable] = useState<boolean>(true);
+  const [showAiError, setShowAiError] = useState<boolean>(false);
   const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
   const resultsVisible = useOnVisible(resultsRef);
-
-  useEffect(() => {
-    // Check for AI API availability on component mount
-    async function checkAiAvailability() {
-      if (window.ai && (await window.ai.canCreateTextSession()) !== 'no') {
-        setAiAvailable(true);
-      } else {
-        setAiAvailable(false);
-      }
-    }
-    checkAiAvailability();
-  }, []);
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -63,7 +52,11 @@ export default function ItineraryGeneratorPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!aiAvailable) {
+    setShowAiError(false); // Reset error state on new submission
+
+    // Just-in-time check for the AI API
+    if (typeof window.ai === 'undefined' || typeof window.ai.createTextSession === 'undefined') {
+        setShowAiError(true);
         toast({ title: "Built-in AI Not Available", description: "This feature requires a browser with built-in AI support, like the latest Chrome.", variant: "destructive" });
         return;
     }
@@ -72,8 +65,8 @@ export default function ItineraryGeneratorPage() {
     setItinerary(null);
     
     try {
-        const session = await window.ai!.createTextSession();
-        const prompt = `You are an expert travel assistant. Generate a personalized, day-by-day trip itinerary based on the following information.
+        const session = await window.ai.createTextSession();
+        const prompt = `You are an expert travel assistant. Generate a personalized, day-by-day trip itinerary based on the following information. Your response must be plain text, formatted with markdown for readability. Do NOT use JSON.
 
         - **Destination:** ${values.destination}
         - **Budget:** ${values.budget}
@@ -85,9 +78,7 @@ export default function ItineraryGeneratorPage() {
             - Each day needs a **title** and a brief **summary**.
             - For each activity, provide a time, description, location, and any useful details.
             - For meals, suggest specific, real restaurants based on the user's interests.
-            - Include simple transport advice between activities (e.g., "Take the metro - 15 mins").
-        
-        **IMPORTANT**: Your entire response MUST be plain text, well-formatted with markdown for readability. Do NOT use JSON.`;
+            - Include simple transport advice between activities (e.g., "Take the metro - 15 mins").`;
 
         const stream = session.promptStreaming(prompt);
         let fullResponse = "";
@@ -112,13 +103,13 @@ export default function ItineraryGeneratorPage() {
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8">
       <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('ItineraryPlannerPage.title')}</h1>
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('AppLayout.aiItineraryGenerator')}</h1>
         <p className="text-muted-foreground max-w-2xl">
           {t('ItineraryPlannerPage.description')}
         </p>
       </div>
       
-      {!aiAvailable && (
+      {showAiError && (
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>On-Device AI Not Supported</AlertTitle>
@@ -182,7 +173,7 @@ export default function ItineraryGeneratorPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full" disabled={isLoading || !aiAvailable}>
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
