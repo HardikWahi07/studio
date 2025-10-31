@@ -37,7 +37,7 @@ export default function ItineraryGeneratorPage() {
   const t = useTranslations();
   const [itinerary, setItinerary] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showAiError, setShowAiError] = useState<boolean>(false);
+  const [showAiError, setShowAiError] = useState(false);
   const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
   const resultsVisible = useOnVisible(resultsRef);
@@ -52,44 +52,46 @@ export default function ItineraryGeneratorPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setShowAiError(false); // Reset error state on new submission
-
-    // Just-in-time check for the AI API
-    if (typeof window.ai === 'undefined' || typeof window.ai.createTextSession === 'undefined') {
-        setShowAiError(true);
-        toast({ title: "Built-in AI Not Available", description: "This feature requires a browser with built-in AI support, like the latest Chrome.", variant: "destructive" });
-        return;
-    }
-      
+    setShowAiError(false);
     setIsLoading(true);
     setItinerary(null);
-    
+
     try {
-        const session = await window.ai.createTextSession();
-        const prompt = `You are an expert travel assistant. Generate a personalized, day-by-day trip itinerary based on the following information. Your response must be plain text, formatted with markdown for readability. Do NOT use JSON.
+      if (typeof window.ai === 'undefined' || typeof window.ai.canCreateTextSession === 'undefined') {
+        throw new Error("On-device AI not supported by this browser.");
+      }
 
-        - **Destination:** ${values.destination}
-        - **Budget:** ${values.budget}
-        - **Interests & Preferences:** ${values.interests}
+      const canCreate = await window.ai.canCreateTextSession();
+      if (canCreate === 'no') {
+          throw new Error("On-device AI not supported by this browser.");
+      }
 
-        Your Task:
-        1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
-        2.  **Generate a Day-by-Day Itinerary:** Create a plan for a 3-day trip. For each day, create a detailed plan.
-            - Each day needs a **title** and a brief **summary**.
-            - For each activity, provide a time, description, location, and any useful details.
-            - For meals, suggest specific, real restaurants based on the user's interests.
-            - Include simple transport advice between activities (e.g., "Take the metro - 15 mins").`;
+      const session = await window.ai.createTextSession();
+      const prompt = `You are an expert travel assistant. Generate a personalized, day-by-day trip itinerary based on the following information. Your response must be plain text, formatted with markdown for readability. Do NOT use JSON.
 
-        const stream = session.promptStreaming(prompt);
-        let fullResponse = "";
-        for await (const chunk of stream) {
-            fullResponse += chunk;
-        }
+      - **Destination:** ${values.destination}
+      - **Budget:** ${values.budget}
+      - **Interests & Preferences:** ${values.interests}
 
-        setItinerary(fullResponse);
+      Your Task:
+      1.  **Create a Trip Title:** Generate a creative and exciting title for the entire trip.
+      2.  **Generate a Day-by-Day Itinerary:** Create a plan for a 3-day trip. For each day, create a detailed plan.
+          - Each day needs a **title** and a brief **summary**.
+          - For each activity, provide a time, description, location, and any useful details.
+          - For meals, suggest specific, real restaurants based on the user's interests.
+          - Include simple transport advice between activities (e.g., "Take the metro - 15 mins").`;
+
+      const stream = session.promptStreaming(prompt);
+      let fullResponse = "";
+      for await (const chunk of stream) {
+          fullResponse += chunk;
+      }
+
+      setItinerary(fullResponse);
 
     } catch (error) {
       console.error("Failed to generate itinerary with on-device AI:", error);
+      setShowAiError(true);
       toast({
         title: t('ItineraryPlannerPage.toastErrorTitle'),
         description: t('ItineraryPlannerPage.toastErrorDescription'),
@@ -222,4 +224,5 @@ export default function ItineraryGeneratorPage() {
       </div>
     </main>
   );
-}
+
+    
