@@ -176,7 +176,7 @@ export default function HiddenGemsPage() {
         </div>
       )}
 
-      {!isLoading && gems && gems.length > 0 && (
+      {gems && gems.length > 0 && (
         <div ref={resultsRef} className="pt-8">
           <h2 className="font-headline text-2xl font-bold mb-6">{t('HiddenGemsPage.discoveredGemsTitle')}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
