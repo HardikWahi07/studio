@@ -19,7 +19,7 @@ export const BookingOptionSchema = z.object({
     details: z.string().describe('e.g., "Dep: 08:30, Arr: 11:00, Flight IB388" or "CSMT to Bandra Terminus"'),
     duration: z.string().describe('e.g., "2h 30m"'),
     price: z.string().describe('e.g., "€120"'),
-    bookingLink: z.string().url().describe('A mock URL to a booking page.'),
+    bookingLink: z.string().url().describe('A mock URL to a booking page. IMPORTANT: This must be a valid URL with properly encoded parameters (e.g., spaces should be replaced with %20).'),
     ecoFriendly: z.boolean().describe('Is this option eco-friendly?'),
     availability: z.enum(['Available', 'Waitlist', 'Sold Out', 'N/A', 'Unknown']).optional().describe('The real-time availability status for this option.'),
 });
