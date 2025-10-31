@@ -47,6 +47,16 @@ const languages = [
     { "code": "fr", "label": "Français" },
     { "code": "de", "label": "Deutsch" },
     { "code": "hi", "label": "हिन्दी" },
+    { "code": "ur", "label": "اردو" },
+    { "code": "ar", "label": "العربية" },
+    { "code": "bn", "label": "বাংলা" },
+    { "code": "pa", "label": "ਪੰਜਾਬੀ" },
+    { "code": "pt", "label": "Português" },
+    { "code": "ru", "label": "Русский" },
+    { "code": "zh", "label": "中文" },
+    { "code": "ta", "label": "தமிழ்" },
+    { "code": "te", "label": "తెలుగు" },
+    { "code": "mr", "label": "मराठी" }
 ];
 
 const currencies = [

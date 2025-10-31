@@ -7,8 +7,22 @@ import { hi } from '@/translations/hi';
 import { ur } from '@/translations/ur';
 import { de } from '@/translations/de';
 import { fr } from '@/translations/fr';
+import { ar } from '@/translations/ar';
+import { bn } from '@/translations/bn';
+import { pa } from '@/translations/pa';
+import { pt } from '@/translations/pt';
+import { ru } from '@/translations/ru';
+import { zh } from '@/translations/zh';
+import { ta } from '@/translations/ta';
+import { te } from '@/translations/te';
+import { mr } from '@/translations/mr';
 
-const dictionaries: any = { en, es, hi, ur, de, fr };
+
+const dictionaries: any = { 
+    en, es, hi, ur, de, fr,
+    ar, bn, pa, pt, ru, zh,
+    ta, te, mr
+};
 
 type Translator = (key: string, params?: { [key: string]: string | number }) => string;
 
