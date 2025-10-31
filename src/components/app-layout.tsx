@@ -25,7 +25,7 @@ import {
 } from "lucide-react"
 import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -452,7 +452,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const hamburgerClasses = cn(
       "lg:hidden",
       isMounted && isHomePage && !isScrolled 
-        ? (theme === 'dark' ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' : 'border-gray-400 text-foreground hover:bg-accent hover:text-accent-foreground') 
+        ? 'border-foreground/20 text-foreground hover:bg-accent hover:text-accent-foreground'
+        : '',
+      isMounted && isHomePage && !isScrolled && theme === 'dark' 
+        ? 'border-gray-400 text-white hover:bg-white/20 hover:text-white' 
         : ''
     );
 
@@ -494,9 +497,15 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
-                <ScrollArea className="flex-1">
+                <SheetHeader>
+                  <SheetTitle className="sr-only">{t('AppLayout.toggleNavigation')}</SheetTitle>
+                  <SheetDescription className="sr-only">
+                    A list of main navigation links for the application.
+                  </SheetDescription>
+                </SheetHeader>
+                <ScrollArea className="flex-1 -mx-6">
                   {isMounted && !isUserLoading && (
-                    <nav className="grid gap-6 text-lg font-medium mt-8 pr-6">
+                    <nav className="grid gap-6 text-lg font-medium mt-8 px-6">
                       {user ? (
                           <div className="flex items-center gap-4 px-2.5 text-muted-foreground">
                               <Avatar className="h-10 w-10">
@@ -589,4 +598,3 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
-
