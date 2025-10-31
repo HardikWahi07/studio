@@ -400,7 +400,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/", label: t('AppLayout.home') },
     { href: "/my-trips", label: t('AppLayout.myTrips') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
-    { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
     { href: "/booking", label: t('AppLayout.booking') },
     { href: "/blog", label: t('AppLayout.blog') },
@@ -414,7 +413,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/about", label: t('AppLayout.about') },
     { href: "/blog", label: t('AppLayout.blog') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
-    { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
   ];
 
@@ -497,11 +495,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="flex flex-col">
-                <SheetHeader>
-                  <SheetTitle className="sr-only">{t('AppLayout.toggleNavigation')}</SheetTitle>
-                  <SheetDescription className="sr-only">
-                    A list of main navigation links for the application.
-                  </SheetDescription>
+                 <SheetHeader>
+                    <SheetTitle className="sr-only">{t('AppLayout.toggleNavigation')}</SheetTitle>
+                    <SheetDescription className="sr-only">
+                        A list of main navigation links for the application.
+                    </SheetDescription>
                 </SheetHeader>
                 <ScrollArea className="flex-1 -mx-6">
                   {isMounted && !isUserLoading && (

@@ -25,8 +25,7 @@
     "termsOfService": "Terms of Service",
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
-    "contactUs": "Contact Us",
-    "aiItineraryGenerator": "Itinerary Generator"
+    "contactUs": "Contact Us"
   },
   "AuthButton": {
     "login": "Login",
@@ -241,25 +240,6 @@
     "toastSpontaneityDescription": "Please enter a destination to be spontaneous!",
     "discoveredGemsTitle": "Your Discovered Gems",
     "whyAuthentic": "Why it's authentic:"
-  },
-  "ItineraryPlannerPage": {
-    "title": "AI Itinerary Generator",
-    "description": "Let our AI craft the perfect, personalized travel plan for you. Just enter your preferences below and watch the magic.",
-    "formTitle": "Your Trip Details",
-    "formDescription": "Fill out the form to get started.",
-    "destinationLabel": "Destination",
-    "destinationPlaceholder": "e.g., Kyoto, Japan",
-    "budgetLabel": "Budget",
-    "budgetPlaceholder": "e.g., Moderate",
-    "interestsLabel": "Interests & Preferences",
-    "interestsPlaceholder": "e.g., Interested in historic temples, local cuisine, nature walks, and minimal travel between locations.",
-    "generateButton": "Generate Itinerary",
-    "generatingButton": "Generating...",
-    "toastErrorTitle": "Error",
-    "toastErrorDescription": "Failed to generate itinerary. Please try again.",
-    "resultTitle": "Your Personalized Itinerary",
-    "resultDescription": "Your AI-generated trip plan will appear here.",
-    "waitingMessage": "Your itinerary is waiting to be created."
   },
   "LocalArtisansPage": {
     "title": "Local Connect",

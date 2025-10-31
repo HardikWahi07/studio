@@ -25,8 +25,7 @@
       "copyright": "© 2024 ट्रिपमाइंड। सर्वाधिकार सुरक्षित। स्मार्ट यात्रा करें, हरित यात्रा करें।",
       "helpCenter": "सहायता केंद्र",
       "contactUs": "हमसे संपर्क करें",
-      "safety": "सुरक्षा साथी",
-      "aiItineraryGenerator": "एआई यात्रा जनरेटर"
+      "safety": "सुरक्षा साथी"
     },
     "AuthButton": {
       "login": "लॉग इन करें",
@@ -236,7 +235,7 @@
       "pickDate": "एक तारीख चुनें",
       "setReminderButton": "अनुस्मारक सेट करें",
       "reminderErrorTitle": "कोई तारीख नहीं चुनी गई",
-      "reminderErrorDescription": "कृपया अनुस्मारक کے लिए ایک तारीख चुनें।",
+      "reminderErrorDescription": "कृपया अनुस्मारक के लिए एक तारीख चुनें।",
       "reminderSuccessTitle": "अनुस्मारक सेट!",
       "reminderSuccessDescription": "हम आपको आपकी यात्रा के बारे में याद दिलाएंगे",
       "on": "को"

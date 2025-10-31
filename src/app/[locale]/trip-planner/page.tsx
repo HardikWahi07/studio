@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Loader2, Search, Save, CheckCircle } from "lucide-react";
+import { Loader2, Search, Save, CheckCircle, Wand2, Map } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { planTrip } from '@/ai/flows/plan-trip';
@@ -19,7 +19,11 @@ import { doc, setDoc, serverTimestamp, collection } from 'firebase/firestore';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AuthDialog } from '@/components/auth-dialog';
+import { TripItinerary } from '@/components/trip-itinerary';
 import { useTranslations } from '@/hooks/use-translations';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
+
 
 const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
@@ -48,6 +52,11 @@ export default function TripPlannerPage() {
     const firestore = useFirestore();
     const { toast } = useToast();
 
+    // State for on-device AI
+    const [simpleItinerary, setSimpleItinerary] = useState<string | null>(null);
+    const [isSimpleLoading, setIsSimpleLoading] = useState(false);
+    const [showAiError, setShowAiError] = useState(false);
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: { origin: '', destination: '', departureDate: '', tripDuration: 7, travelers: 1, tripPace: 'moderate', travelStyle: 'solo', accommodationType: 'hotel', accommodationBudget: 'moderate', interests: '' },
@@ -61,6 +70,7 @@ export default function TripPlannerPage() {
     async function handleSearch(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setResults(null);
+        setSimpleItinerary(null);
         setTripSaved(false);
 
         if (!user && !isUserLoading) {
@@ -99,6 +109,58 @@ export default function TripPlannerPage() {
         }
     };
     
+    async function handleGenerateShortItinerary() {
+        const values = form.getValues();
+        const { destination, tripDuration, interests } = values;
+
+        if (!destination || !tripDuration || !interests) {
+            toast({
+                title: "Missing Information",
+                description: "Please fill in Destination, Trip Duration, and Your Interests to generate a short itinerary.",
+                variant: 'destructive'
+            });
+            return;
+        }
+
+        setShowAiError(false);
+        setIsSimpleLoading(true);
+        setSimpleItinerary(null);
+        setResults(null);
+        setTripSaved(false);
+
+        try {
+             const canCreate = await window.ai?.canCreateTextSession();
+             if (canCreate !== 'readily') {
+                setShowAiError(true);
+                setIsSimpleLoading(false);
+                return;
+             }
+             const session = await window.ai.createTextSession();
+             const prompt = `You are an expert travel assistant. Generate a simple, day-by-day trip itinerary based on the following information. Your response must be plain text, formatted with markdown for readability. Do not suggest booking links or complex options.
+
+                - **Destination:** ${destination}
+                - **Duration:** ${tripDuration} days
+                - **Interests & Preferences:** ${interests}
+
+                Your Task:
+                1. Create a simple title for the trip.
+                2. For each day, provide 2-3 suggestions for activities or meals. Keep descriptions brief.`;
+
+            const stream = session.promptStreaming(prompt);
+            let fullResponse = "";
+            for await (const chunk of stream) {
+                fullResponse += chunk;
+                setSimpleItinerary(fullResponse);
+            }
+        } catch (error) {
+            console.error("Failed to generate short itinerary:", error);
+            setShowAiError(true);
+        } finally {
+            setIsSimpleLoading(false);
+        }
+    }
+
+
     async function handleSaveTrip() {
         if (!user) {
             setIsAuthDialogOpen(true);
@@ -151,6 +213,16 @@ export default function TripPlannerPage() {
                 <h1 className="font-headline text-3xl md:text-4xl font-bold">{t('TripPlannerPage.title')}</h1>
                 <p className="text-muted-foreground max-w-2xl">{t('TripPlannerPage.description')}</p>
             </div>
+            
+            {showAiError && (
+                <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>On-Device AI Not Supported</AlertTitle>
+                <AlertDescription>
+                    This browser does not support the built-in AI required for this feature. Please try again with a browser that supports the Prompt API, like the latest version of Google Chrome.
+                </AlertDescription>
+                </Alert>
+            )}
 
             <Card>
                 <CardHeader>
@@ -253,20 +325,37 @@ export default function TripPlannerPage() {
                             <FormField control={form.control} name="interests" render={({ field }) => (
                                 <FormItem><FormLabel>{t('TripPlannerPage.interestsLabel')}</FormLabel><FormControl><Textarea placeholder={t('TripPlannerPage.interestsPlaceholder')} rows={3} {...field} /></FormControl><FormMessage /></FormItem>
                             )}/>
-                            <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                                {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('TripPlannerPage.searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('TripPlannerPage.searchButton')}</span></>}
-                            </Button>
+                            <div className="flex flex-col sm:flex-row gap-2">
+                                <Button type="submit" disabled={isLoading || isSimpleLoading} className="w-full sm:w-auto">
+                                    {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('TripPlannerPage.searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('TripPlannerPage.searchButton')}</span></>}
+                                </Button>
+                                <Button type="button" onClick={handleGenerateShortItinerary} disabled={isLoading || isSimpleLoading} variant="outline" className="w-full sm:w-auto">
+                                    {isSimpleLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">Generating...</span></> : <><Wand2 /> <span className="ml-2">Generate Short Itinerary</span></>}
+                                </Button>
+                            </div>
                         </form>
                     </Form>
                 </CardContent>
             </Card>
 
-            {isLoading && (
+            {(isLoading || isSimpleLoading) && (
                 <div className="flex flex-col items-center justify-center pt-10 text-center">
                     <Loader2 className="w-12 h-12 animate-spin text-primary" />
-                    <p className="mt-4 text-lg font-semibold text-muted-foreground">{t('TripPlannerPage.loadingMessage')}</p>
+                    <p className="mt-4 text-lg font-semibold text-muted-foreground">{isLoading ? t('TripPlannerPage.loadingMessage') : 'Crafting your itinerary with on-device AI...'}</p>
                     <p className="text-sm text-muted-foreground">Crafting your perfect journey to {form.getValues('destination')}...</p>
                 </div>
+            )}
+            
+            {simpleItinerary && (
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Your Quick Itinerary</CardTitle>
+                        <CardDescription>A simple, on-device AI generated plan.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                        {simpleItinerary}
+                    </CardContent>
+                </Card>
             )}
 
             {results && !isLoading && (
@@ -286,7 +375,7 @@ export default function TripPlannerPage() {
                             </div>
                         )}
                     </div>
-                   
+                    <TripItinerary results={results} />
                 </div>
             )}
         </main>
