@@ -325,6 +325,7 @@ function LanguageSelector() {
     const pathname = usePathname();
     const router = useRouter();
     const buttonColorClass = isHomePage && !isScrolled && theme === 'dark' ? 'text-white hover:text-white hover:bg-white/10' : 'text-foreground';
+    const locales = languages.map(l => l.code);
     
     const handleLanguageChange = (langCode: string) => {
       const pathSegments = pathname.split('/');
