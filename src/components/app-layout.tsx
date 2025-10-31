@@ -219,7 +219,8 @@ const currencies = [
 
 function NavLink({ href, children, className }: { href: string, children: React.ReactNode, className?: string }) {
   const pathname = usePathname()
-  const fullHref = href;
+  const locale = pathname.split('/')[1] || 'en';
+  const fullHref = `/${locale}${href === '/' ? '' : href}`;
   const isActive = pathname === fullHref || (href !== '/' && pathname.startsWith(fullHref));
 
   const { isScrolled, isHomePage } = useScrollState();
@@ -240,6 +241,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
 function TravelToolsDropdown() {
   const t = useTranslations();
   const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'en';
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   
@@ -269,7 +271,7 @@ function TravelToolsDropdown() {
       <DropdownMenuContent>
         {travelTools.map(tool => (
           <DropdownMenuItem key={tool.label} asChild>
-            <Link href={tool.href} className="flex items-center gap-2">
+            <Link href={`/${locale}${tool.href}`} className="flex items-center gap-2">
               <tool.icon className="w-4 h-4"/>
               {tool.label}
             </Link>
@@ -294,7 +296,7 @@ function useScrollState() {
   const [isScrolled, setIsScrolled] = React.useState(false);
 
   const locale = pathname.split('/')[1] || 'en';
-  const isHomePage = pathname === `/${locale}`;
+  const isHomePage = pathname === `/${locale}` || pathname === '/';
 
   React.useEffect(() => {
     if (!isHomePage) {
@@ -324,8 +326,8 @@ function LanguageSelector() {
     
     const handleLanguageChange = (langCode: string) => {
       const pathSegments = pathname.split('/');
-      pathSegments[1] = langCode;
-      const newPath = pathSegments.join('/');
+      // Pathname might be /en/about or just /about, we want to replace the locale part
+      const newPath = pathSegments.length > 2 ? `/${langCode}/${pathSegments.slice(2).join('/')}` : `/${langCode}`;
       router.push(newPath);
     }
 
@@ -377,6 +379,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
+  const pathname = usePathname();
+  const locale = pathname.split('/')[1] || 'en';
 
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => {
@@ -446,11 +450,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
            {isMounted ? (
-            <Link href="/" className="mr-6 flex items-center gap-2">
+            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
                <Logo className={logoColor} />
             </Link>
            ) : (
-            <Link href="/" className="mr-6 flex items-center gap-2">
+            <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
               <Logo className="text-primary" />
             </Link>
            )}
@@ -505,7 +509,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                       {allNavItems.map((item) => (
                         <Link
                           key={item.label}
-                          href={item.href}
+                          href={item.href === '#' ? '#' : `/${locale}${item.href}`}
                           className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                         >
                           {item.label}
@@ -533,7 +537,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('AppLayout.quickLinks')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerQuickLinks.map(link => (
-                    <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={link.key}><Link href={`/${locale}${link.href}`} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>
@@ -541,7 +545,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('AppLayout.company')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerCompanyLinks.map(link => (
-                    <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={link.key}><Link href={link.href === '#' ? '#' : `/${locale}${link.href}`} className="hover:text-white transition-colors">{link.label}</Link></li>
                 ))}
               </ul>
             </div>

@@ -5,8 +5,29 @@ const locales = ['en', 'es', 'fr', 'de', 'hi', 'ur', 'ar', 'bn', 'pa', 'pt', 'ru
 const defaultLocale = 'en';
 
 function getLocale(request: NextRequest): string {
-  // You can implement more sophisticated locale detection here,
-  // e.g., from headers, cookies, etc.
+  // 1. Check for a locale in the cookie
+  const localeCookie = request.cookies.get('NEXT_LOCALE');
+  if (localeCookie && locales.includes(localeCookie.value)) {
+    return localeCookie.value;
+  }
+  
+  // 2. Check the Accept-Language header
+  const acceptLanguage = request.headers.get('accept-language');
+  if (acceptLanguage) {
+    const preferredLocales = acceptLanguage.split(',').map(l => l.split(';')[0].trim());
+    for (const locale of preferredLocales) {
+        if (locales.includes(locale)) {
+            return locale;
+        }
+        // Also check for language codes without region (e.g., 'es' from 'es-ES')
+        const langCode = locale.split('-')[0];
+        if (locales.includes(langCode)) {
+            return langCode;
+        }
+    }
+  }
+
+  // 3. Fallback to default
   return defaultLocale;
 }
 
