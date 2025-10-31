@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview A tool for fetching real-time train data from an external API.
@@ -26,6 +27,7 @@ export const searchRealtimeTrains = ai.defineTool(
       date: z.string().describe('The date of travel in YYYY-MM-DD format.'),
       travelClass: z.string().optional().describe('The class of travel (e.g., "ac-3-tier", "sleeper").'),
       currency: z.string().describe('The desired currency for the train fares (e.g., USD, EUR, INR).'),
+      fastest_train_duration_hours: z.number().optional().describe('An optional parameter to filter for fast trains. If provided, the tool will only return trains with a duration less than this value.'),
     }),
     outputSchema: z.array(z.object({
         type: z.literal('train'),
@@ -79,8 +81,24 @@ export const searchRealtimeTrains = ai.defineTool(
             console.log(`[searchRealtimeTrains Tool] No trains found for ${originStationCode} to ${destinationStationCode}.`);
             return [];
         }
+
+        let filteredTrains = data.data;
+
+        if (input.fastest_train_duration_hours) {
+            filteredTrains = data.data.filter((train: any) => {
+                const durationParts = train.duration.split(':');
+                const hours = parseInt(durationParts[0], 10);
+                if (isNaN(hours)) return false;
+                return hours < input.fastest_train_duration_hours!;
+            });
+        }
+
+        if (filteredTrains.length === 0) {
+            console.log(`[searchRealtimeTrains Tool] No trains found within the specified duration of ${input.fastest_train_duration_hours} hours.`);
+            return [];
+        }
         
-        const priceResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v1/checkPrice?trainNo=${data.data[0].train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&date=${formattedDate}&classType=${apiTravelClass}`, {
+        const priceResponse = await fetch(`https://irctc1.p.rapidapi.com/api/v1/checkPrice?trainNo=${filteredTrains[0].train_number}&fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&date=${formattedDate}&classType=${apiTravelClass}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
                 'X-RapidAPI-Host': 'irctc1.p.rapidapi.com'
@@ -90,7 +108,7 @@ export const searchRealtimeTrains = ai.defineTool(
         const price = priceData?.data?.total_fare ? `${input.currency} ${priceData.data.total_fare}` : `${input.currency} 1,200`;
 
 
-        return data.data.slice(0, 3).map((train: any) => {
+        return filteredTrains.slice(0, 3).map((train: any) => {
             return {
                 type: 'train' as const,
                 provider: "Indian Railways",

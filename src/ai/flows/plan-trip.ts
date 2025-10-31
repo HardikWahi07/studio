@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI agent for planning a detailed, multi-day trip itinerary.
@@ -88,11 +89,10 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options (CRITICAL LOGIC):**
-     - **Primary Search:** First, try to find transport from the user's exact 'origin' to 'destination'.
-       - If the destination is in India, prioritize using the 'searchRealtimeTrains' tool.
-       - For all other destinations, or if trains are not suitable, prioritize 'searchRealtimeFlights'.
-     - **Fallback 1 (Train to Flight):** If the primary search was for trains and it returned no results OR all results were unavailable, you MUST then perform a secondary search using 'searchRealtimeFlights' for the same route to provide a backup option.
-     - **Fallback 2 (Nearby Hubs):** If BOTH primary and secondary searches from the exact origin/destination fail to find any available options, you must then identify the nearest major transport hub (e.g., a large international airport or central train station) for BOTH the origin and destination. For example, if the origin is 'Vapi, India', a major hub would be 'Mumbai, India'. Then, perform the search again between these major hubs.
+     - **Primary Search (India):** If the destination is in India, first use 'searchRealtimeTrains' with a 'fastest_train_duration_hours' of 12. Prioritize this for reasonable distances.
+     - **Primary Search (International):** For all other destinations, or if trains are not suitable, prioritize 'searchRealtimeFlights'.
+     - **MANDATORY FALLBACK 1 (Train to Flight):** If the primary search was for trains and it returned no results OR the user is traveling a long distance within India, you MUST then perform a secondary search using 'searchRealtimeFlights' for the same route to provide a flight option.
+     - **MANDATORY FALLBACK 2 (Nearby Hubs):** If BOTH primary and secondary searches from the exact origin/destination fail to find any available options, you must then identify the nearest major transport hub (e.g., a large international airport or central train station) for BOTH the origin and destination. For example, if the origin is 'Vapi, India', a major hub would be 'Mumbai, India'. Then, perform the search again between these major hubs.
      - **Final Output:** Combine all valid, available results from your successful tool calls into a single 'bookingOptions' array.
   3. **Hotels:**
      - Use 'searchRealtimeHotels' unless 'accommodationType' is 'none'. The checkout date is provided.
