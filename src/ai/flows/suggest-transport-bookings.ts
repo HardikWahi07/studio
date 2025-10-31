@@ -13,7 +13,7 @@ import {
     type SuggestTransportBookingsInput,
     type SuggestTransportBookingsOutput
 } from './suggest-transport-bookings.types';
-import { searchRealtimeTrainsFree } from '../tools/search-trains-free';
+import { searchTrains } from '../tools/search-trains';
 
 
 /**
@@ -30,7 +30,7 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  tools: [searchRealtimeTrainsFree],
+  tools: [searchTrains],
   prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey.
 
   **User's Request:**
@@ -45,14 +45,14 @@ const prompt = ai.definePrompt({
 
   1.  **Analyze the Route:** First, determine if the origin city has a major airport. If it does not, you MUST create a multi-leg journey.
   2.  **Generate Options:**
-      - **For travel within India:** Always try to use the \`searchRealtimeTrainsFree\` tool. Call the tool with the user's provided origin and destination city names.
+      - **For travel within India:** Always try to use the \`searchTrains\` tool. Call the tool with the user's provided origin and destination city names.
       - **If the origin city (e.g., Vapi) does not have an airport:**
-          - **Leg 1:** Create journey leg for ground transport (e.g. Taxi, Bus) from the origin city to the NEAREST major airport (e.g., from Vapi to Mumbai Airport). Provide 1-2 mock options for this.
-          - **Leg 2:** Create a second journey leg with 2-3 realistic MOCK flight options from that major airport to the final destination. Do NOT use tools for mock flights.
-      - **If the origin city has an airport OR for international travel:** Generate 2-3 realistic MOCK flight options for a single journey leg.
+          - **Leg 1:** Create a journey leg for ground transport (e.g. Taxi, Bus) from the origin city to the NEAREST major airport (e.g., from Vapi to Mumbai Airport). Provide 1-2 mock options for this.
+          - **Leg 2:** Create a second journey leg with 2-3 realistic MOCK flight options from that major airport to the final destination. Do NOT use tools for mock flights. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL.
+      - **If the origin city has an airport OR for international travel:** Generate 2-3 realistic MOCK flight options for a single journey leg, with valid, pre-filled Google Flights URLs as booking links.
   3.  **Format Output:** Structure the results into one or more journey legs as appropriate. Place the options you generate into the 'options' array for the correct leg.
   
-  **IMPORTANT:** Generate plausible-looking data for all fields, including provider, price, duration, and booking links (use example.com or official carrier sites).
+  **IMPORTANT:** Generate plausible-looking data for all fields, including provider, price, duration, and booking links.
   `,
 });
 
