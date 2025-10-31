@@ -94,7 +94,7 @@ export default function ExpenseWorkspacePage({ params }: { params: { tripId: str
         totalContributions[e.paidBy] = (totalContributions[e.paidBy] || 0) + e.amount;
     });
 
-    const sharePerPerson = totalSpent / participants.length;
+    const sharePerPerson = totalSpent > 0 && participants.length > 0 ? totalSpent / participants.length : 0;
 
     return participants.map(p => ({
         name: p,
@@ -237,7 +237,7 @@ export default function ExpenseWorkspacePage({ params }: { params: { tripId: str
                             <div key={b.name} className={`p-4 rounded-lg text-center ${b.amount >= 0 ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
                                 <p className="font-bold">{b.name}</p>
                                 <p className={`text-2xl font-bold ${b.amount >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}`}>
-                                    {b.amount >= 0 ? `+` : ``}${b.amount.toFixed(2)}
+                                    {b.amount >= 0 ? `+` : ``}{b.amount.toFixed(2)}
                                 </p>
                             </div>
                         ))}
@@ -250,4 +250,3 @@ export default function ExpenseWorkspacePage({ params }: { params: { tripId: str
     </main>
   );
 }
-
