@@ -266,7 +266,7 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("text-sm font-medium hover:text-primary focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : linkColorClass)}>
+        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : linkColorClass, isHomePage && !isScrolled && theme==='dark' ? 'hover:text-white hover:bg-white/10' : 'hover:text-primary')}>
           {t('AppLayout.travelTools')}
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
