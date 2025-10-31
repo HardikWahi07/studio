@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef } from "react";
@@ -10,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2, Sparkles, Dices } from "lucide-react";
+import { Loader2, Sparkles, Dices, Search } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
@@ -32,7 +33,7 @@ const randomInterests = [
 
 export default function HiddenGemsPage() {
   const t = useTranslations();
-  const [gems, setGems] = useState<ExploreHiddenGemsOutput['gems']>([]);
+  const [gems, setGems] = useState<ExploreHiddenGemsOutput['gems'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -48,10 +49,16 @@ export default function HiddenGemsPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    setGems([]);
+    setGems(null); // Clear previous results
     try {
       const result = await exploreHiddenGems(values);
       setGems(result.gems);
+       if (!result.gems || result.gems.length === 0) {
+        toast({
+            title: "No Gems Found",
+            description: "Try a different destination or broaden your interests.",
+        });
+      }
     } catch (error) {
       console.error("Failed to explore hidden gems:", error);
       toast({
@@ -169,7 +176,7 @@ export default function HiddenGemsPage() {
         </div>
       )}
 
-      {!isLoading && gems.length > 0 && (
+      {!isLoading && gems && gems.length > 0 && (
         <div ref={resultsRef} className="pt-8">
           <h2 className="font-headline text-2xl font-bold mb-6">{t('HiddenGemsPage.discoveredGemsTitle')}</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -190,6 +197,17 @@ export default function HiddenGemsPage() {
           </div>
         </div>
       )}
+      
+       {!isLoading && gems !== null && gems.length === 0 && (
+        <div className="text-center py-16 border-2 border-dashed rounded-lg">
+            <Search className="mx-auto h-12 w-12 text-muted-foreground" />
+            <h3 className="mt-4 text-lg font-semibold">No Gems Found</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+                We couldn't find any hidden gems for that search. Try being more general.
+            </p>
+        </div>
+       )}
+
     </main>
   );
 }
