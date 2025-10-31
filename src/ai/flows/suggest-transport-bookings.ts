@@ -58,22 +58,12 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     outputSchema: SuggestTransportBookingsOutputSchema,
   },
   async (input) => {
-    // Call the LLM with the defined prompt
-    let llmResponse;
-    try {
-        console.log("[suggestTransportBookingsFlow] Calling prompt with input:", input);
-        llmResponse = await prompt(input);
-    } catch (err) {
-        console.error("❌ LLM prompt in suggestTransportBookingsFlow failed:", err);
-        llmResponse = { output: null, history: [] }; 
-    }
-    
-    const output = llmResponse?.output;
+    const { output } = await prompt(input);
 
     // Ensure the output is not null and conforms to the schema
     if (!output || !Array.isArray(output.journey)) {
-      console.warn("AI returned null or invalid output for transport bookings. Returning empty journey.");
-      return { journey: [] };
+      console.error("AI returned null or invalid output for transport bookings. Input was:", input);
+      throw new Error("The AI model failed to generate valid booking suggestions.");
     }
     
     return output;

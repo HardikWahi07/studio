@@ -79,36 +79,15 @@ const planTripFlow = ai.defineFlow(
     outputSchema: PlanTripOutputSchema,
   },
   async (input) => {
-    let llmResponse;
-    
-    // 🛡️ Safety wrapper for LLM call
-    try {
-      console.log('[/src/ai/flows/plan-trip.ts] Calling prompt with input: ', input);
-      llmResponse = await prompt(input);
-    } catch (err) {
-      console.error("❌ LLM prompt failed:", err);
-      // Ensure we always have an llmResponse object to check
-      llmResponse = { output: null, history: [] }; 
-    }
-
-    let output = llmResponse?.output;
+    const { output } = await prompt(input);
 
     // 🩹 Fallback: handle null or invalid model output
-    if (!output || typeof output !== "object") {
-      console.warn("⚠️ LLM returned null or invalid output, using safe fallback...");
-      output = {
-        tripTitle: `Your Trip to ${input.destination || "Unknown Destination"}`,
-        itinerary: [],
-        bookingOptions: [],
-        hotelOptions: [],
-        localTransportOptions: []
-      };
+    if (!output || typeof output !== "object" || !output.tripTitle) {
+      console.error("AI returned null or invalid output for trip plan. Input was:", input);
+      throw new Error("The AI model failed to generate a valid trip plan.");
     }
 
-    // ✅ Ensure schema-required fields exist
-    if (!output.tripTitle) {
-      output.tripTitle = `Your Trip to ${input.destination || "Unknown Destination"}`;
-    }
+    // ✅ Ensure schema-required arrays exist to prevent UI errors
     if (!Array.isArray(output.itinerary)) output.itinerary = [];
     if (!Array.isArray(output.bookingOptions)) output.bookingOptions = [];
     if (!Array.isArray(output.hotelOptions)) output.hotelOptions = [];
