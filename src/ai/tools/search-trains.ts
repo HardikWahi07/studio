@@ -59,12 +59,12 @@ export const searchRealtimeTrains = ai.defineTool(
         return [];
       }
       
-      const formattedDate = format(new Date(input.date), 'yyyy-MM-dd');
+      const formattedDate = format(new Date(input.date), 'dd-MM-yyyy'); // IRCTC uses DD-MM-YYYY
       const travelClassCode = input.travelClass ? classMap[input.travelClass] : 'SL'; // Default to Sleeper if not provided
 
       // 🔹 Step 1: Fetch trains between stations
       const response = await fetch(
-        `https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${formattedDate}`,
+        `https://irctc1.p.rapidapi.com/api/v3/trainBetweenStations?fromStationCode=${originStationCode}&toStationCode=${destinationStationCode}&dateOfJourney=${input.date}`,
         {
           headers: {
             'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
@@ -101,7 +101,7 @@ export const searchRealtimeTrains = ai.defineTool(
       const availabilityPromises = topTrains.map(async (train: any) => {
         try {
             const availabilityResponse = await fetch(
-                `https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?classType=${travelClassCode}&fromStationCode=${originStationCode}&quota=GN&toStationCode=${destinationStationCode}&trainNo=${train.train_number}&date=${formattedDate}`,
+                `https://irctc1.p.rapidapi.com/api/v2/checkSeatAvailability?classType=${travelClassCode}&fromStationCode=${train.from_station_code}&quota=GN&toStationCode=${train.to_station_code}&trainNo=${train.train_number}&date=${formattedDate}`,
                  {
                     headers: {
                         'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
@@ -115,7 +115,12 @@ export const searchRealtimeTrains = ai.defineTool(
             }
 
             const availabilityData = await availabilityResponse.json();
-            return availabilityData?.data?.[0]?.status || "Not Available";
+            // The API returns a status like "AVAILABLE 10" or "W/L 20"
+            const status = availabilityData?.data?.[0]?.status || "Not Available";
+            if (status.startsWith('AVAILABLE')) return 'Available';
+            if (status.startsWith('W/L')) return 'Waitlist';
+            return status;
+            
         } catch (e) {
             console.error(`[searchRealtimeTrains] Failed to fetch availability for train ${train.train_number}:`, e);
             return "Unknown"; // Return default on any other error
@@ -127,14 +132,20 @@ export const searchRealtimeTrains = ai.defineTool(
       // 🔹 Step 3: Combine data and map results
       const results = topTrains.map((train: any, index: number) => {
         const price = train.fare ?? 'N/A';
-
+        // Construct a more specific search URL for IRCTC
+        const bookingUrl = new URL('https://www.irctc.co.in/nget/train-search');
+        bookingUrl.searchParams.append('fromStation', train.from_station_code);
+        bookingUrl.searchParams.append('toStation', train.to_station_code);
+        bookingUrl.searchParams.append('journeyDate', input.date);
+        bookingUrl.searchParams.append('journeyClass', travelClassCode);
+        
         return {
           type: 'train' as const,
           provider: 'Indian Railways',
           details: `Train ${train.train_number} - ${train.train_name}`,
           duration: train.duration || 'N/A',
           price: price !== 'N/A' ? `${input.currency} ${price}` : `Price not available`,
-          bookingLink: 'https://www.irctc.co.in/',
+          bookingLink: bookingUrl.toString(),
           ecoFriendly: true,
           availability: availabilities[index],
         };

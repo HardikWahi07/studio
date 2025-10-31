@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon, ChevronsRight, Milestone } from 'lucide-react';
+import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon, ChevronsRight, Milestone, AlertTriangle } from 'lucide-react';
 import type { BookingOption, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
 import { suggestTransportBookings } from '@/ai/flows/suggest-transport-bookings';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +20,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/context/settings-context';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 const formSchema = z.object({
@@ -46,7 +48,7 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
     const handleBook = () => {
         toast({
             title: "Demo: Opening Booking Site",
-            description: `In a real app, you would be redirected to ${opt.provider} to complete your booking.`,
+            description: `Redirecting to ${opt.provider} to complete your booking.`,
         });
         window.open(opt.bookingLink, '_blank');
     }
@@ -55,6 +57,14 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
         'Best': <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200"><Sparkles className="w-3 h-3 mr-1"/>Best Option</Badge>,
         'Cheapest': <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200"><BadgeEuro className="w-3 h-3 mr-1"/>Cheapest</Badge>,
         'Eco-Friendly': <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>,
+    }
+
+    const availabilityColors = {
+        'Available': 'bg-green-100 text-green-800 border-green-200',
+        'Waitlist': 'bg-yellow-100 text-yellow-800 border-yellow-200',
+        'Sold Out': 'bg-red-100 text-red-800 border-red-200',
+        'N/A': 'bg-gray-100 text-gray-800 border-gray-200',
+        'Unknown': 'bg-gray-100 text-gray-800 border-gray-200',
     }
 
     return (
@@ -69,7 +79,7 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
                     <p className="font-normal text-muted-foreground text-sm">{opt.details}</p>
                     <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
                         <span className="flex items-center gap-1"><Clock className="w-3 h-3"/>{opt.duration}</span>
-                        {opt.availability && <Badge variant={opt.availability === 'Available' ? 'secondary' : 'outline'} className={opt.availability === 'Available' ? 'bg-green-100 text-green-800 border-green-200' : ''}>{opt.availability}</Badge>}
+                        {opt.availability && <Badge variant={'secondary'} className={cn(availabilityColors[opt.availability as keyof typeof availabilityColors] || availabilityColors.Unknown)}>{opt.availability}</Badge>}
                         {opt.ecoFriendly && !recommendation && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>}
                     </div>
                 </div>
@@ -99,6 +109,8 @@ export default function SuggestBookingsPage() {
             destination: '',
         },
     });
+
+    const hasWaitlistTrains = results?.journey.some(leg => leg.options.some(opt => opt.type === 'train' && opt.availability === 'Waitlist'));
 
     async function handleSearch(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
@@ -211,10 +223,21 @@ export default function SuggestBookingsPage() {
         {results && (
             <div className="pt-6 space-y-6">
                  <h2 className="font-headline text-2xl font-bold">{t('SuggestBookingsPage.resultsTitle')}</h2>
+                 
+                 {hasWaitlistTrains && (
+                    <Alert variant="default" className="bg-yellow-50 border-yellow-200 text-yellow-900">
+                        <AlertTriangle className="h-4 w-4 !text-yellow-600" />
+                        <AlertTitle>Waitlist Information</AlertTitle>
+                        <AlertDescription>
+                           *Wait list does not guarantee a ticket, book at your own risk*
+                        </AlertDescription>
+                    </Alert>
+                 )}
+
                  <div className="space-y-4">
                     {results.journey.length > 0 ? (
                        results.journey.map((leg, legIndex) => (
-                           <React.Fragment key={leg.leg}>
+                           <div key={leg.leg}>
                              <Card className="bg-secondary p-4">
                                 <CardTitle className="text-lg flex items-center gap-2">
                                     <span className="bg-primary text-primary-foreground rounded-full h-6 w-6 flex items-center justify-center text-sm font-sans">{leg.leg}</span>
@@ -229,11 +252,11 @@ export default function SuggestBookingsPage() {
                                 </CardContent>
                              </Card>
                               {legIndex < results.journey.length - 1 && (
-                                <div className="flex justify-center">
+                                <div className="flex justify-center my-4">
                                     <ChevronsRight className="w-8 h-8 text-muted-foreground/50" />
                                 </div>
                             )}
-                           </React.Fragment>
+                           </div>
                        ))
                     ) : (
                         <p className="text-muted-foreground text-center py-8">{t('SuggestBookingsPage.noResults')}</p>
