@@ -12,8 +12,6 @@ export const pa = {
     travelTools: "ਯਾਤਰਾ ਦੇ ਸਾਧਨ",
     expenseSplitter: "ਖਰਚਾ ਵੰਡਣ ਵਾਲਾ",
     localSupporters: "ਸਥਾਨਕ ਸਮਰਥਕ",
-    smartTransport: "ਸਮਾਰਟ ਟਰਾਂਸਪੋਰਟ",
-    aiItineraryGenerator: "AI ਯਾਤਰਾ-ਪੱਥ ਜਨਰੇਟਰ",
     safety: "ਸੁਰੱਖਿਆ ਸਾਥੀ",
     toggleNavigation: "ਨੇਵੀਗੇਸ਼ਨ ਮੀਨੂ ਨੂੰ ਟੌਗਲ ਕਰੋ",
     footerDescription: "ਦੁਨੀਆ ਦੀ ਪੜਚੋਲ ਕਰਨ ਦਾ ਸਭ ਤੋਂ ਹੁਸ਼ਿਆਰ, ਸਭ ਤੋਂ ਆਸਾਨ ਤਰੀਕਾ। ਇੱਕ ਚੇਤੰਨ ਯਾਤਰੀ ਬਣਨ ਲਈ ਤੁਹਾਡਾ AI-ਸੰਚਾਲਿਤ ਯਾਤਰਾ ਯੋਜਨਾਕਾਰ।",
@@ -242,7 +240,7 @@ export const pa = {
     toastSpontaneityTitle: "ਮੰਜ਼ਿਲ ਦੀ ਲੋੜ ਹੈ",
     toastSpontaneityDescription: "ਸਵੈ-ਇੱਛੁਕ ਹੋਣ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਮੰਜ਼ਿਲ ਦਰਜ ਕਰੋ!",
     discoveredGemsTitle: "ਤੁਹਾਡੇ ਖੋਜੇ ਗਏ ਰਤਨ",
-    whyAuthentic: "ਇਹ ਪ੍ਰਮਾਣਿਕ ਕਿਉਂ ਹੈ:"
+    whyAuthentic: "ਇਹ ਪ੍ਰਮਾణਿਕ ਕਿਉਂ ਹੈ:"
   },
   ItineraryPlannerPage: {
     title: "AI ਯਾਤਰਾ-ਪੱਥ ਜਨਰੇਟਰ",
@@ -265,7 +263,7 @@ export const pa = {
   },
   LocalArtisansPage: {
     title: "ਸਥਾਨਕ ਕਨੈਕਟ",
-    description: "ਪ੍ਰਤਿਭਾਸ਼ਾਲੀ ਕਾਰੀਗਰਾਂ ਅਤੇ ਪ੍ਰਮਾਣਿਕ ਤਜ਼ਰਬਿਆਂ ਨਾਲ ਜੁੜ ਕੇ ਸਥਾਨਕ ਭਾਈਚਾਰਿਆਂ ਦਾ ਸਮਰਥਨ ਕਰੋ। ਹਰ ਪਰਸਪਰ ਕ੍ਰਿਆ ਇੱਕ ਕਹਾਣੀ ਦੱਸਦੀ ਹੈ।",
+    description: "ਪ੍ਰਤਿਭਾਸ਼ਾਲੀ ਕਾਰੀਗਰਾਂ ਅਤੇ ਪ੍ਰਮਾణਿਕ ਤਜ਼ਰਬਿਆਂ ਨਾਲ ਜੁੜ ਕੇ ਸਥਾਨਕ ਭਾਈਚਾਰਿਆਂ ਦਾ ਸਮਰਥਨ ਕਰੋ। ਹਰ ਪਰਸਪਰ ਕ੍ਰਿਆ ਇੱਕ ਕਹਾਣੀ ਦੱਸਦੀ ਹੈ।",
     connectButton: "ਜੁੜੋ"
   },
   LocalSupportersPage: {
@@ -323,13 +321,15 @@ export const pa = {
     successTitle: "ਪੋਸਟ ਪ੍ਰਕਾਸ਼ਿਤ!",
     successDescription: "ਤੁਹਾਡੀ ਕਹਾਣੀ ਹੁਣ ਭਾਈਚਾਰੇ ਲਈ ਦੇਖਣ ਲਈ ਲਾਈਵ ਹੈ।",
     errorTitle: "ਪ੍ਰਕਾਸ਼ਨ ਅਸਫਲ",
-    errorDescription: "ਅਸੀਂ ਤੁਹਾਡੀ ਪੋਸਟ ਪ੍ਰਕਾਸ਼ਿਤ ਨਹੀਂ ਕਰ ਸਕੇ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
+    errorDescription: "ਅਸੀਂ ਤੁਹਾਡੀ ਪੋਸਟ ਪ੍ਰਕਾਸ਼ਿਤ नहीं ਕਰ ਸਕੇ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
   },
   BlogPage: {
     title: "ਯਾਤਰਾ ਕਹਾਣੀਆਂ ਅਤੇ ਬਲੌਗ",
-    description: "ਟ੍ਰਿਪਮਾਈਂਡ ਭਾਈਚਾਰੇ ਦੇ ਅਸਲ ਸਾਹਸ ਤੋਂ ਪ੍ਰੇਰਿਤ ਹੋਵੋ।",
+    description: "ਟ੍ਰਿਪਮਾਈਂਡ ਭਾਈਚारे ਦੇ ਅਸਲ ਸਾਹਸ ਤੋਂ ਪ੍ਰੇਰਿਤ ਹੋਵੋ।",
     searchPlaceholder: "ਕਹਾਣੀਆਂ ਜਾਂ ਮੰਜ਼ਿਲਾਂ ਦੀ ਖੋਜ ਕਰੋ...",
     createButton: "ਇੱਕ ਕਹਾਣੀ ਲਿਖੋ",
     noPosts: "ਕੋਈ ਬਲੌਗ ਪੋਸਟ ਨਹੀਂ ਮਿਲਿਆ। ਕਿਉਂ ਨਾ ਇੱਕ ਕਹਾਣੀ ਸਾਂਝੀ ਕਰਨ ਵਾਲੇ ਪਹਿਲੇ ਬਣੋ?"
   }
 };
+
+    

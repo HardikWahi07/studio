@@ -253,7 +253,6 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('AppLayout.expenseSplitter') },
     { href: "/local-supporters", icon: Users, label: t('AppLayout.localSupporters') },
-    { href: "/itinerary-planner", icon: Wand2, label: t('AppLayout.aiItineraryGenerator') },
     { href: "/safety", icon: LifeBuoy, label: t('AppLayout.safety') },
   ];
   const supportLinks = [
@@ -265,7 +264,7 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : '', linkColorClass)}>
+        <Button variant="ghost" className={cn("text-sm font-medium focus:ring-0 focus-visible:ring-0", isActive ? "text-primary font-semibold" : '', linkColorClass,  isHomePage && !isScrolled && theme === 'dark' ? 'hover:bg-white/10' : '')}>
           {t('AppLayout.travelTools')}
           <ChevronDown className="w-4 h-4 ml-1"/>
         </Button>
@@ -422,7 +421,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const allNavItems = user ? [...loggedInNavItems, ...[
       { href: "/expenses", label: t('AppLayout.expenseSplitter') },
       { href: "/local-supporters", label: t('AppLayout.localSupporters') },
-      { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
       { href: "/safety", label: t('AppLayout.safety') },
       { key: 'help', onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
       { key: 'contact', href: 'mailto:support@tripmind.com', label: t('AppLayout.contactUs') },
@@ -585,3 +583,5 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+
+    

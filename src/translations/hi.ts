@@ -12,8 +12,6 @@ export const hi = {
       travelTools: "यात्रा उपकरण",
       expenseSplitter: "खर्च विभाजक",
       localSupporters: "स्थानीय सहायता",
-      smartTransport: "स्मार्ट ट्रांसपोर्ट",
-      aiItineraryGenerator: "एआई यात्रा जनरेटर",
       safety: "सुरक्षा साथी",
       toggleNavigation: "नेविगेशन मेनू टॉगल करें",
       footerDescription: "दुनिया घूमने का सबसे स्मार्ट, आसान तरीका। आपका एआई-संचालित ट्रैवल प्लानर जो आपको जागरूक यात्री बनाता है।",
@@ -211,3 +209,5 @@ export const hi = {
       noPosts: "कोई ब्लॉग पोस्ट नहीं मिला। क्यों न आप पहली कहानी साझा करें?"
     }
 };
+
+    

@@ -12,8 +12,6 @@ export const es = {
       travelTools: "Herramientas de Viaje",
       expenseSplitter: "Divisor de Gastos",
       localSupporters: "Asistentes Locales",
-      smartTransport: "Transporte Inteligente",
-      aiItineraryGenerator: "Generador de Itinerarios IA",
       safety: "Compañero de Seguridad",
       toggleNavigation: "Alternar menú de navegación",
       footerDescription: "La forma más inteligente y fácil de explorar el mundo. Tu planificador de viajes con IA para convertirte en un viajero consciente.",
@@ -320,3 +318,5 @@ export const es = {
         noPosts: "No se encontraron publicaciones de blog. ¿Por qué no ser el primero en compartir una historia?"
     }
 };
+
+    

@@ -12,8 +12,6 @@ export const de = {
       travelTools: "Reisewerkzeuge",
       expenseSplitter: "Kostenteiler",
       localSupporters: "Lokale Unterstützer",
-      smartTransport: "Smarter Transport",
-      aiItineraryGenerator: "KI-Routengenerator",
       safety: "Sicherheitsbegleiter",
       toggleNavigation: "Navigationsmenü umschalten",
       footerDescription: "Der intelligenteste und einfachste Weg, die Welt zu erkunden. Ihr KI-gestützter Reiseplaner, um ein bewusster Reisender zu werden.",
@@ -53,3 +51,5 @@ export const de = {
         noPosts: "Keine Blogbeiträge gefunden. Warum nicht der Erste sein, der eine Geschichte teilt?"
     }
 };
+
+    

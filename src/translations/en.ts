@@ -12,8 +12,6 @@ export const en = {
     travelTools: "Travel Tools",
     expenseSplitter: "Expense Splitter",
     localSupporters: "Local Supporters",
-    smartTransport: "Smart Transport",
-    aiItineraryGenerator: "AI Itinerary Generator",
     safety: "Safety Companion",
     toggleNavigation: "Toggle navigation menu",
     footerDescription: "The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.",
@@ -333,3 +331,5 @@ export const en = {
     noPosts: "No blog posts found. Why not be the first to share a story?"
   }
 };
+
+    

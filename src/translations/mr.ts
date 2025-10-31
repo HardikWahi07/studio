@@ -12,8 +12,6 @@ export const mr = {
     travelTools: "प्रवासाची साधने",
     expenseSplitter: "खर्च विभाजक",
     localSupporters: "स्थानिक समर्थक",
-    smartTransport: "स्मार्ट वाहतूक",
-    aiItineraryGenerator: "AI प्रवास योजना जनरेटर",
     safety: "सुरक्षितता साथी",
     toggleNavigation: "नेव्हिगेशन मेनू टॉगल करा",
     footerDescription: "जग शोधण्याचा सर्वात हुशार, सर्वात सोपा मार्ग. एक जागरूक प्रवासी होण्यासाठी तुमचा AI-चालित प्रवास योजनाकार.",
@@ -333,3 +331,5 @@ export const mr = {
     noPosts: "कोणतेही ब्लॉग पोस्ट आढळले नाहीत. एक कथा शेअर करणारे पहिले का बनू नये?"
   }
 };
+
+    
