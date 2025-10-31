@@ -243,5 +243,24 @@ service cloud.firestore {
       allow update: if false;
       allow delete: if false;
     }
+
+    /**
+     * @description Controls access to user-submitted blog posts.
+     * @path /blogs/{blogId}
+     * @allow (get, list) Any user can read blog posts.
+     * @allow (create) An authenticated user can create a blog post if they are the author.
+     * @allow (update, delete) The author of a post can update or delete it.
+     * @principle Publicly readable content that is owned and managed by individual users.
+     */
+    match /blogs/{blogId} {
+        function isAuthor(userId) {
+            return request.auth.uid == userId;
+        }
+
+        allow get: if true;
+        allow list: if true;
+        allow create: if request.auth != null && isAuthor(request.resource.data.authorId);
+        allow update, delete: if request.auth != null && isAuthor(resource.data.authorId);
+    }
   }
 }
