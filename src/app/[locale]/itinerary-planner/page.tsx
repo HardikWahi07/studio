@@ -56,11 +56,19 @@ export default function ItineraryGeneratorPage() {
     setIsLoading(true);
     setItinerary(null);
 
+    if (typeof window.ai === 'undefined' || typeof window.ai.canCreateTextSession === 'undefined') {
+        setShowAiError(true);
+        setIsLoading(false);
+        return;
+    }
+
     try {
-      const canCreate = await window.ai?.canCreateTextSession();
+      const canCreate = await window.ai.canCreateTextSession();
       
-      if (canCreate === 'no' || canCreate === undefined) {
-          throw new Error("On-device AI not supported by this browser.");
+      if (canCreate === 'no') {
+          setShowAiError(true);
+          setIsLoading(false);
+          return;
       }
 
       const session = await window.ai.createTextSession();
@@ -82,9 +90,8 @@ export default function ItineraryGeneratorPage() {
       let fullResponse = "";
       for await (const chunk of stream) {
           fullResponse += chunk;
+          setItinerary(fullResponse); // Update state incrementally for streaming effect
       }
-
-      setItinerary(fullResponse);
 
     } catch (error) {
       console.error("Failed to generate itinerary with on-device AI:", error);
@@ -198,7 +205,7 @@ export default function ItineraryGeneratorPage() {
                 <CardDescription>{t('ItineraryPlannerPage.resultDescription')}</CardDescription>
               </CardHeader>
               <CardContent className={cn("fade-in-up", { 'visible': resultsVisible })}>
-                {isLoading && (
+                {isLoading && !itinerary && (
                   <div className="flex flex-col items-center justify-center pt-10 text-center">
                       <Loader2 className="w-12 h-12 animate-spin text-primary" />
                       <p className="mt-4 text-lg font-semibold text-muted-foreground">Crafting your itinerary with on-device AI...</p>
