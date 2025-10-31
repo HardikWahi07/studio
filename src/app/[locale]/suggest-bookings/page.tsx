@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon, ChevronsRight, Milestone, AlertTriangle } from 'lucide-react';
-import type { BookingOption } from '@/ai/flows/plan-trip.types';
+import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles, CalendarIcon, ChevronsRight, Milestone, AlertTriangle, BookMarked } from 'lucide-react';
+import type { BookingOption, PlanTripOutput } from '@/ai/flows/plan-trip.types';
 import { suggestTransportBookings, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
 import { Badge } from '@/components/ui/badge';
 import { useTranslations } from '@/hooks/use-translations';
@@ -21,7 +21,19 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useSettings } from '@/context/settings-context';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query } from 'firebase/firestore';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
+import { PexelsImage } from '@/components/pexels-image';
+import Link from 'next/link';
 
+type Trip = PlanTripOutput & {
+  id: string;
+  destination: string;
+  tripTitle: string;
+  origin: string;
+  startDate: string;
+};
 
 const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
@@ -94,6 +106,52 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
     )
 }
 
+function SelectTripDialog({ onTripSelected, form }: { onTripSelected: (trip: Trip) => void, form: any }) {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
+  const tripsQuery = useMemoFirebase(() => {
+    if (!user || !firestore) return null;
+    return query(collection(firestore, 'users', user.uid, 'trips'));
+  }, [user, firestore]);
+
+  const { data: trips, isLoading } = useCollection<Trip>(tripsQuery);
+  
+  return (
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Select a Planned Trip</DialogTitle>
+        <DialogDescription>Choose a saved trip to auto-fill the journey details.</DialogDescription>
+      </DialogHeader>
+      <div className="space-y-2 py-4 max-h-[60vh] overflow-y-auto">
+        {isLoading && <div className="flex justify-center"><Loader2 className="animate-spin" /></div>}
+        {!isLoading && !trips?.length && (
+          <div className="text-center text-muted-foreground p-4">
+            <p>You haven't planned any trips yet.</p>
+            <Button variant="link" asChild><Link href="/trip-planner">Plan a new trip</Link></Button>
+          </div>
+        )}
+        {trips?.map(trip => (
+          <DialogTrigger asChild key={trip.id}>
+            <button
+              onClick={() => onTripSelected(trip)}
+              className="w-full text-left p-2 rounded-md hover:bg-accent flex items-center gap-4"
+            >
+                <div className="w-24 h-16 rounded-md overflow-hidden relative">
+                    <PexelsImage query={trip.destination} alt={trip.destination} fill className="object-cover" />
+                </div>
+                <div className='flex-1'>
+                    <p className="font-semibold">{trip.tripTitle}</p>
+                    <p className="text-sm text-muted-foreground">{trip.origin} to {trip.destination}</p>
+                </div>
+            </button>
+          </DialogTrigger>
+        ))}
+      </div>
+    </DialogContent>
+  );
+}
+
 
 export default function SuggestBookingsPage() {
     const t = useTranslations();
@@ -101,6 +159,7 @@ export default function SuggestBookingsPage() {
     const [results, setResults] = useState<SuggestTransportBookingsOutput | null>(null);
     const { currency } = useSettings();
     const { toast } = useToast();
+    const { user } = useUser();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -134,6 +193,14 @@ export default function SuggestBookingsPage() {
             setIsLoading(false);
         }
     }
+    
+    function handleTripSelected(trip: Trip) {
+        form.setValue('origin', trip.origin);
+        form.setValue('destination', trip.destination);
+        if (trip.startDate) {
+            form.setValue('departureDate', new Date(trip.startDate));
+        }
+    }
 
   return (
     <main className="flex-1 p-4 md:p-8 space-y-8 bg-background text-foreground">
@@ -146,12 +213,24 @@ export default function SuggestBookingsPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>
-                    {t('SuggestBookingsPage.formTitle')}
-                </CardTitle>
-                 <CardDescription>
-                    {t('SuggestBookingsPage.formDescription')}
-                </CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>
+                            {t('SuggestBookingsPage.formTitle')}
+                        </CardTitle>
+                        <CardDescription>
+                            {t('SuggestBookingsPage.formDescription')}
+                        </CardDescription>
+                    </div>
+                    {user && (
+                        <Dialog>
+                            <DialogTrigger asChild>
+                                <Button variant="outline"><BookMarked className="mr-2"/>Select from My Trips</Button>
+                            </DialogTrigger>
+                            <SelectTripDialog onTripSelected={handleTripSelected} form={form} />
+                        </Dialog>
+                    )}
+                </div>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
