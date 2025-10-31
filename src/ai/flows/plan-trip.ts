@@ -85,9 +85,9 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options (CRITICAL LOGIC):**
-      - **For travel within India:** Prioritize using the \`searchRealtimeTrainsFree\` tool. Get the station codes for origin and destination first, then call the tool.
-      - **For international travel OR if train search returns no results:** Generate 2-3 realistic MOCK flight options. Do NOT use any tools for this. Make them look plausible.
-      - **Combine all valid results** into a single 'bookingOptions' array.
+      - **For any domestic travel within India:** You MUST call the \`searchRealtimeTrainsFree\` tool to get train options.
+      - **In addition to trains (for India) or for all other international travel:** Generate 2-3 realistic MOCK flight options. Do NOT use any tools for this. Make them look plausible.
+      - **Combine all valid results (trains and mock flights)** into a single 'bookingOptions' array.
   3. **Hotels:**
      - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. Do not use tools.
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
