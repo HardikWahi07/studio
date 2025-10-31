@@ -1,4 +1,3 @@
-
 {
   "AppLayout": {
     "home": "Home",
@@ -14,6 +13,7 @@
     "localSupporters": "Local Supporters",
     "smartTransport": "Smart Transport",
     "aiItineraryGenerator": "AI Itinerary Generator",
+    "safety": "Safety Companion",
     "toggleNavigation": "Toggle navigation menu",
     "footerDescription": "The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.",
     "quickLinks": "Quick Links",
@@ -27,8 +27,7 @@
     "termsOfService": "Terms of Service",
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
-    "contactUs": "Contact Us",
-    "safety": "Safety Companion"
+    "contactUs": "Contact Us"
   },
   "AuthButton": {
     "login": "Login",
@@ -80,15 +79,6 @@
     "topDestinationsDescription": "Explore the most popular destinations trending among travelers worldwide.",
     "storiesTitle": "Local Stories & Travel Tips",
     "storiesDescription": "Get inspired by real travelers and learn from their experiences.",
-    "story1Title": "10 Essential Tips for Solo Travelers",
-    "story1Description": "A guide to staying safe and sane on your solo adventures.",
-    "story1ReadTime": "4 min read",
-    "story2Title": "How I Traveled Southeast Asia on a Budget",
-    "story2Description": "My journey through Vietnam, Cambodia and beyond for under $1,000.",
-    "story2ReadTime": "6 min read",
-    "story3Title": "Hidden Cafes in European Cities",
-    "story3Description": "Espresso-hunting in the quiet, cozy corners of the continent.",
-    "story3ReadTime": "5 min read",
     "moreFeaturesTitle": "More Features",
     "moreFeaturesDescription": "Everything you need for a perfect trip.",
     "feature4Title": "Expense Splitter",
@@ -117,30 +107,7 @@
     "happyTravelers": "Happy Travelers",
     "destinations": "Destinations"
   },
-  "ExpensesPage": {
-    "title": "Group Expense Splitter",
-    "description": "A simple way to calculate who owes who after a trip.",
-    "step1Title": "Step 1: Setup",
-    "step1Description": "How many people are splitting the expenses?",
-    "numPeopleLabel": "Number of People",
-    "nextButton": "Next",
-    "step2Title": "Step 2: Costs & Contributions",
-    "step2Description": "Enter the total cost and what each person paid.",
-    "totalCostLabel": "Total Trip Cost",
-    "contributionsTitle": "Individual Contributions",
-    "participantNameLabel": "Participant #{number} Name",
-    "contributionLabel": "Amount Contributed",
-    "backButton": "Back",
-    "calculateButton": "Calculate",
-    "alertCostMismatch": "The sum of contributions does not match the total cost. Please check the numbers.",
-    "step3Title": "Step 3: Settlement",
-    "step3Description": "Here's how to settle up. Each card represents one payment.",
-    "owes": "Owes",
-    "is_owed": "Is Owed",
-    "allSettled": "Everyone is settled up. No payments needed.",
-    "startOverButton": "Start a New Calculation"
-  },
-    "SuggestBookingsPage": {
+  "SuggestBookingsPage": {
     "title": "Suggest Transport Bookings",
     "description": "Find the best way to get from A to B. Compare flights, trains, and buses to find the smartest, most eco-friendly option for your trip.",
     "formTitle": "Describe Your Journey",
@@ -168,11 +135,8 @@
     "toLabel": "To",
     "toPlaceholder": "Enter your destination city...",
     "departureLabel": "Departure Date",
-    "departurePlaceholder": "dd-mm-yyyy",
     "durationLabel": "Trip Duration (days)",
-    "durationPlaceholder": "7",
     "travelersLabel": "Travelers",
-    "travelersPlaceholder": "1",
     "paceLabel": "Trip Pace",
     "pacePlaceholder": "Select a pace...",
     "paceRelaxed": "Relaxed",
@@ -236,6 +200,29 @@
     "planYourVisit": "Plan Your Visit",
     "planDescription": "Ready to explore {destinationName}? Find the best transport options to make your trip happen.",
     "bookYourTrip": "Book Your Trip"
+  },
+  "ExpensesPage": {
+    "title": "Group Expense Splitter",
+    "description": "A simple way to calculate who owes who after a trip.",
+    "step1Title": "Step 1: Setup",
+    "step1Description": "How many people are splitting the expenses?",
+    "numPeopleLabel": "Number of People",
+    "nextButton": "Next",
+    "step2Title": "Step 2: Costs & Contributions",
+    "step2Description": "Enter the total cost and what each person paid.",
+    "totalCostLabel": "Total Trip Cost",
+    "contributionsTitle": "Individual Contributions",
+    "participantNameLabel": "Participant #{number} Name",
+    "contributionLabel": "Amount Contributed",
+    "backButton": "Back",
+    "calculateButton": "Calculate",
+    "alertCostMismatch": "The sum of contributions does not match the total cost. Please check the numbers.",
+    "step3Title": "Step 3: Settlement",
+    "step3Description": "Here's how to settle up. Each card represents one payment.",
+    "owes": "Owes",
+    "is_owed": "Is Owed",
+    "allSettled": "Everyone is settled up. No payments needed.",
+    "startOverButton": "Start a New Calculation"
   },
   "HiddenGemsPage": {
     "title": "Hidden Gems Explorer",
