@@ -79,7 +79,7 @@ const prompt = ai.definePrompt({
   2.  **Fallback to Nearby Hubs (Crucial):** If the direct search (both train and flight) returns NO results, you MUST identify the nearest major airport or train station hub for BOTH the origin and destination. For example, for a journey from "Vapi, India" to "Pune, India", you should recognize that Vapi doesn't have an airport and identify "Mumbai, India" or "Surat, India" as the nearest major airport hubs. Then, you MUST perform a new search using 'searchRealtimeFlights' between these identified hubs (e.g., Mumbai to Pune).
   
   3.  **Complex Multi-Leg Journeys:** If no direct options are found but a path through a hub is possible, construct a multi-leg journey.
-      a.  Search for the first leg of the journey (e.g., "Vapi to Mumbai").
+      a.  Search for the first leg of the journey (e.g., "Vapi to Mumbai"). You can use the 'searchRealtimeTrains' tool for this.
       b.  If needed, use the 'getJourneyToHub' tool to find options for traveling *within* the hub city (e.g., from an arrival station to a departure station).
       c.  Search for the second leg of the journey (e.g., "Mumbai to Pune").
       d.  Combine these steps into a multi-leg journey array.
