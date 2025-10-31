@@ -1,4 +1,4 @@
-import { Leaf } from 'lucide-react';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 export function Logo({ className }: { className?: string }) {
@@ -9,8 +9,8 @@ export function Logo({ className }: { className?: string }) {
         className
       )}
     >
-      <div className="flex items-center justify-center rounded-md bg-primary p-1.5 text-primary-foreground">
-        <Leaf className="h-5 w-5" />
+      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white p-1.5">
+        <Image src="/logo.png" alt="TripMind Logo" width={24} height={24} />
       </div>
       <span className="font-headline text-2xl font-bold text-current">
         TripMind
