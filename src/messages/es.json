@@ -1,3 +1,4 @@
+
 {
   "AppLayout": {
     "home": "Inicio",
@@ -10,8 +11,6 @@
     "hiddenGems": "Joyas Ocultas",
     "travelTools": "Herramientas de Viaje",
     "expenseSplitter": "Divisor de Gastos",
-    "localSupporters": "Asistentes Locales",
-    "aiItineraryGenerator": "Generador de Itinerarios IA",
     "toggleNavigation": "Alternar menú de navegación",
     "footerDescription": "La forma más inteligente y fácil de explorar el mundo. Tu planificador de viajes con IA para convertirte en un viajero consciente.",
     "quickLinks": "Enlaces Rápidos",
@@ -26,7 +25,8 @@
     "copyright": "© 2024 TripMind. Todos los derechos reservados. Planifica Inteligentemente. Viaja Verde.",
     "helpCenter": "Centro de Ayuda",
     "contactUs": "Contáctanos",
-    "safety": "Compañero de Seguridad"
+    "safety": "Compañero de Seguridad",
+    "aiItineraryGenerator": "Generador de Itinerarios IA"
   },
   "AuthButton": {
     "login": "Iniciar Sesión",
@@ -352,3 +352,5 @@
     "on": "el"
   }
 }
+
+    

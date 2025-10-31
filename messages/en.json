@@ -25,7 +25,8 @@
     "termsOfService": "Terms of Service",
     "copyright": "© 2024 TripMind. All rights reserved. Plan Smart. Travel Green.",
     "helpCenter": "Help Center",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "aiItineraryGenerator": "Itinerary Generator"
   },
   "AuthButton": {
     "login": "Login",
