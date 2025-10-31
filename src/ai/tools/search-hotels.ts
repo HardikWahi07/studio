@@ -5,7 +5,53 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
-import { format, add } from 'date-fns';
+
+// In-memory cache for destination IDs to avoid repeated API calls.
+const destIdCache = new Map<string, { dest_id: string; dest_type: string }>();
+
+async function getBookingComDestinationId(cityName: string): Promise<{ dest_id: string; dest_type: string } | null> {
+    const query = cityName.split(',')[0].trim().toLowerCase();
+    if (destIdCache.has(query)) {
+        console.log(`[getBookingComDestinationId] Cache hit for ${query}`);
+        return destIdCache.get(query)!;
+    }
+
+    if (!process.env.RAPIDAPI_KEY) {
+        console.warn("[getBookingComDestinationId] RAPIDAPI_KEY is not set. Skipping destination ID lookup.");
+        return null;
+    }
+    
+    try {
+        console.log(`[getBookingComDestinationId] Cache miss for ${query}. Fetching from booking-com15 API...`);
+        const response = await fetch(`https://booking-com15.p.rapidapi.com/api/v1/hotels/searchDestination?query=${encodeURIComponent(query)}`, {
+            headers: {
+                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
+                'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com'
+            }
+        });
+        if (!response.ok) {
+            console.error(`[getBookingComDestinationId] API error fetching dest ID for ${query}: ${response.statusText}`);
+            return null;
+        }
+        const data = await response.json();
+        
+        if (data.data && data.data.length > 0) {
+            const result = {
+                dest_id: data.data[0].dest_id,
+                dest_type: data.data[0].dest_type
+            };
+            console.log(`[getBookingComDestinationId] Found destination for ${query}:`, result);
+            destIdCache.set(query, result);
+            return result;
+        }
+    } catch (error) {
+        console.error(`[getBookingComDestinationId] Failed to get destination ID for ${query}:`, error);
+    }
+    
+    console.warn(`[getBookingComDestinationId] No destination ID found for ${query}.`);
+    return null;
+}
+
 
 export const searchRealtimeHotels = ai.defineTool(
   {
@@ -36,58 +82,39 @@ export const searchRealtimeHotels = ai.defineTool(
     }
     
     try {
-        // 1. Get destination ID from Booking.com
-        const destResponse = await fetch(`https://booking-com.p.rapidapi.com/v1/hotels/locations?name=${encodeURIComponent(input.destination)}&locale=en-gb`, {
-            headers: {
-                'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'booking-com.p.rapidapi.com'
-            }
-        });
-
-        if (!destResponse.ok) {
-            console.error(`[searchRealtimeHotels Tool] API error getting dest ID: ${destResponse.statusText}`);
+        // 1. Get destination ID from Booking.com using the new endpoint
+        const destInfo = await getBookingComDestinationId(input.destination);
+        if (!destInfo) {
+             console.error(`[searchRealtimeHotels Tool] No destination ID found for ${input.destination}`);
             return [];
         }
         
-        const destData = await destResponse.json();
-        if (!destData || destData.length === 0) {
-            console.error(`[searchRealtimeHotels Tool] No destination ID found for ${input.destination}`);
-            return [];
-        }
-        const destinationId = destData[0].dest_id;
-        const destType = destData[0].dest_type;
-
         // 2. Search for hotels with the destination ID
         const searchParams = new URLSearchParams({
-            dest_id: destinationId,
-            dest_type: destType,
-            checkin_date: input.checkinDate,
-            checkout_date: input.checkoutDate,
-            adults_number: input.travelers.toString(),
-            order_by: 'popularity',
-            units: 'metric',
-            room_number: '1',
-            filter_by_currency: input.currency,
-            locale: 'en-gb',
-            page_number: '0',
-            include_adjacency: 'true',
+            dest_id: destInfo.dest_id,
+            dest_type: destInfo.dest_type,
+            arrival_date: input.checkinDate,
+            departure_date: input.checkoutDate,
+            adults: input.travelers.toString(),
+            currency_code: input.currency,
+            page_number: '1',
         });
         
-        // Map budget to star rating
+        // Map budget to star rating if provided
         const starMap = {
-          budget: 'class::2,class::3', // 2 & 3 stars
-          moderate: 'class::3,class::4', // 3 & 4 stars
-          luxury: 'class::5', // 5 stars
+          budget: '2,3',
+          moderate: '3,4',
+          luxury: '5',
         };
         if (input.accommodationBudget) {
-          searchParams.append('categories_filter_ids', starMap[input.accommodationBudget]);
+          searchParams.append('star_rating', starMap[input.accommodationBudget]);
         }
 
 
-        const hotelsResponse = await fetch(`https://booking-com.p.rapidapi.com/v1/hotels/search?${searchParams.toString()}`, {
+        const hotelsResponse = await fetch(`https://booking-com15.p.rapidapi.com/api/v1/hotels/searchHotels?${searchParams.toString()}`, {
              headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'booking-com.p.rapidapi.com'
+                'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com'
             }
         });
 
@@ -99,18 +126,18 @@ export const searchRealtimeHotels = ai.defineTool(
         
         const hotelsData = await hotelsResponse.json();
         
-        if (!hotelsData || !hotelsData.result) {
+        if (!hotelsData || !hotelsData.data?.hotels) {
+             console.log("[searchRealtimeHotels Tool] No hotels found in API response.");
              return [];
         }
 
-        const hotels = hotelsData.result.slice(0, 3).map((hotel: any) => {
-            const price = hotel.composite_price_breakdown?.gross_amount_per_night?.value || hotel.min_total_price;
+        const hotels = hotelsData.data.hotels.slice(0, 3).map((hotel: any) => {
             return {
                 name: hotel.hotel_name,
-                style: hotel.accommodation_type_name,
-                pricePerNight: `${hotel.currency_code} ${Math.round(price)}`,
+                style: hotel.property_type,
+                pricePerNight: hotel.price, // The new API provides a formatted string like "US$123"
                 rating: hotel.review_score ? parseFloat(hotel.review_score.toFixed(1)) : 0.0,
-                bookingLink: hotel.url,
+                bookingLink: `https://www.booking.com${hotel.url}`,
             };
         });
 
