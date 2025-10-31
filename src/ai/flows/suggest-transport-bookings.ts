@@ -1,7 +1,7 @@
 
 'use server';
 /**
- * @fileOverview An AI agent for suggesting transport bookings.
+ * @fileOverview An AI agent for suggesting transport bookings using smart deep links.
  *
  * - suggestTransportBookings - A function that returns a list of booking options.
  */
@@ -29,7 +29,7 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey.
+  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey by creating smart, pre-filled URLs to real booking websites.
 
   **User's Request:**
   - **From:** {{{origin}}}
@@ -40,7 +40,7 @@ const prompt = ai.definePrompt({
   **Your Task:**
 
   1.  **Analyze the Route:** First, determine if the route is domestic within India or international.
-  2.  **Generate Options:**
+  2.  **Generate Mock Options with Smart Links:**
       - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The date format for ixigo is DD-MM-YYYY.
       - **For ALL routes:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+ORIGIN+to+DESTINATION+on+YYYY-MM-DD\`
   3.  **Format Output:** Structure the results into a single journey leg. Combine both the mock train and flight options into the 'options' array for that leg. If the journey is not in India, only provide flight options.

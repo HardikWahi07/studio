@@ -57,7 +57,7 @@ const prompt = ai.definePrompt({
       - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. Example format: \`https://www.ixigo.com/trains/mumbai-central-bct/to/new-delhi-ndls?date=25-12-2024\`
       - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Example format: \`https://www.google.com/flights?q=flights+from+Mumbai+to+Delhi+on+2024-12-25\`
   3. **Hotels:**
-     - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid Google Hotels search link.
+     - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid, pre-filled Booking.com search URL. Example format: \`https://www.booking.com/searchresults.html?ss=New%20Delhi&checkin={{{departureDate}}}&checkout={{{checkoutDate}}}\`
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
   5. **Day-by-Day Itinerary:**
      - Each day = title + summary.
