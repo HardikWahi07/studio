@@ -11,7 +11,6 @@ export const zh = {
     hiddenGems: "隐藏的瑰宝",
     travelTools: "旅行工具",
     expenseSplitter: "费用分摊器",
-    localSupporters: "本地支持者",
     safety: "安全伴侣",
     toggleNavigation: "切换导航菜单",
     footerDescription: "探索世界最智能、最简单的方式。您的AI驱动的旅行规划师，助您成为有意识的旅行者。",
@@ -331,5 +330,4 @@ export const zh = {
     noPosts: "未找到博客文章。为什么不成为第一个分享故事的人呢？"
   }
 };
-
     

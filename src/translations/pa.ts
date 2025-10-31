@@ -11,7 +11,6 @@ export const pa = {
     hiddenGems: "ਲੁਕੇ ਹੋਏ ਰਤਨ",
     travelTools: "ਯਾਤਰਾ ਦੇ ਸਾਧਨ",
     expenseSplitter: "ਖਰਚਾ ਵੰਡਣ ਵਾਲਾ",
-    localSupporters: "ਸਥਾਨਕ ਸਮਰਥਕ",
     safety: "ਸੁਰੱਖਿਆ ਸਾਥੀ",
     toggleNavigation: "ਨੇਵੀਗੇਸ਼ਨ ਮੀਨੂ ਨੂੰ ਟੌਗਲ ਕਰੋ",
     footerDescription: "ਦੁਨੀਆ ਦੀ ਪੜਚੋਲ ਕਰਨ ਦਾ ਸਭ ਤੋਂ ਹੁਸ਼ਿਆਰ, ਸਭ ਤੋਂ ਆਸਾਨ ਤਰੀਕਾ। ਇੱਕ ਚੇਤੰਨ ਯਾਤਰੀ ਬਣਨ ਲਈ ਤੁਹਾਡਾ AI-ਸੰਚਾਲਿਤ ਯਾਤਰਾ ਯੋਜਨਾਕਾਰ।",
@@ -108,7 +107,7 @@ export const pa = {
   },
   SuggestBookingsPage: {
     title: "ਟਰਾਂਸਪੋਰਟ ਬੁਕਿੰਗਾਂ ਦਾ ਸੁਝਾਅ ਦਿਓ",
-    description: "A ਤੋਂ B ਤੱਕ ਜਾਣ ਦਾ ਸਭ ਤੋਂ ਵਧੀਆ ਤਰੀਕਾ ਲੱਭੋ। ਆਪਣੀ ਯਾਤਰਾ ਲਈ ਸਭ ਤੋਂ ਚੁਸਤ, ਸਭ ਤੋਂ ਵਾਤਾਵਰਣ-ਅਨੁਕੂਲ ਵਿਕਲਪ ਲੱਭਣ ਲਈ ਉਡਾਣਾਂ, ਰੇਲਗੱਡੀਆਂ ਅਤੇ ਬੱਸਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ।",
+    description: "A ਤੋਂ B ਤੱਕ ਜਾਣ ਦਾ ਸਭ ਤੋਂ ਵਧੀਆ ਤਰੀਕਾ ਲੱਭੋ। ਆਪਣੀ ਯਾਤRA ਲਈ ਸਭ ਤੋਂ ਚੁਸਤ, ਸਭ ਤੋਂ ਵਾਤਾਵਰਣ-ਅਨੁਕੂਲ ਵਿਕਲਪ ਲੱਭਣ ਲਈ ਉਡਾਣਾਂ, ਰੇਲਗੱਡੀਆਂ ਅਤੇ ਬੱਸਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ।",
     formTitle: "ਆਪਣੀ ਯਾਤਰਾ ਦਾ ਵਰਣਨ ਕਰੋ",
     formDescription: "ਸਾਨੂੰ ਦੱਸੋ ਕਿ ਤੁਸੀਂ ਕਿੱਥੇ ਜਾ ਰਹੇ ਹੋ ਅਤੇ ਅਸੀਂ ਤੁਹਾਡੇ ਲਈ ਸਭ ਤੋਂ ਵਧੀਆ ਵਿਕਲਪ ਲੱਭਾਂਗੇ।",
     fromLabel: "ਤੋਂ",
@@ -225,7 +224,7 @@ export const pa = {
   },
   HiddenGemsPage: {
     title: "ਲੁਕੇ ਹੋਏ ਰਤਨ ਖੋਜੀ",
-    description: "ਪੁਰਾਣੇ ਰਸਤਿਆਂ ਤੋਂ ਹਟ ਕੇ ਉੱਦਮ ਕਰੋ। ਪ੍ਰਮਾਣਿਕ ਸਥਾਨਕ ਸਥਾਨਾਂ ਅਤੇ ਤਜ਼ਰਬਿਆਂ ਦੀ ਖੋਜ ਕਰੋ ਜੋ ਗਾਈਡਬੁੱਕ ਤੁਹਾਨੂੰ ਨਹੀਂ ਦਿਖਾਉਣਗੀਆਂ।",
+    description: "ਪੁਰਾਣੇ ਰਸਤਿਆਂ ਤੋਂ ਹਟ ਕੇ ਉੱਦਮ करो। ਪ੍ਰਮਾਣਿਕ ਸਥਾਨਕ ਸਥਾਨਾਂ ਅਤੇ ਤਜ਼ਰਬਿਆਂ ਦੀ ਖੋਜ ਕਰੋ ਜੋ ਗਾਈਡਬੁੱਕ ਤੁਹਾਨੂੰ नहीं ਦਿਖਾਉਣਗੀਆਂ।",
     formTitle: "ਆਪਣਾ ਅਗਲਾ ਸਾਹਸ ਲੱਭੋ",
     formDescription: "ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਇੱਕ ਮੰਜ਼ਿਲ ਅਤੇ ਆਪਣੀਆਂ ਰੁਚੀਆਂ ਦਰਜ ਕਰੋ।",
     destinationLabel: "ਮੰਜ਼ਿਲ",
@@ -240,7 +239,7 @@ export const pa = {
     toastSpontaneityTitle: "ਮੰਜ਼ਿਲ ਦੀ ਲੋੜ ਹੈ",
     toastSpontaneityDescription: "ਸਵੈ-ਇੱਛੁਕ ਹੋਣ ਲਈ ਕਿਰਪਾ ਕਰਕੇ ਇੱਕ ਮੰਜ਼ਿਲ ਦਰਜ ਕਰੋ!",
     discoveredGemsTitle: "ਤੁਹਾਡੇ ਖੋਜੇ ਗਏ ਰਤਨ",
-    whyAuthentic: "ਇਹ ਪ੍ਰਮਾణਿਕ ਕਿਉਂ ਹੈ:"
+    whyAuthentic: "ਇਹ ਪ੍ਰਮਾਣਿਕ ਕਿਉਂ ਹੈ:"
   },
   ItineraryPlannerPage: {
     title: "AI ਯਾਤਰਾ-ਪੱਥ ਜਨਰੇਟਰ",
@@ -274,7 +273,7 @@ export const pa = {
     searchPlaceholder: "ਜਿਵੇਂ ਕਿ, ਮੈਡ੍ਰਿਡ, ਸਪੇਨ",
     searchButton: "ਖੋਜ",
     locationErrorTitle: "ਸਥਾਨ ਗਲਤੀ",
-    noSupportersTitle: "{city} ਵਿੱਚ ਕੋਈ ਸਮਰਥਕ ਨਹੀਂ ਮਿਲਿਆ",
+    noSupportersTitle: "{city} ਵਿੱਚ ਕੋਈ ਸਮਰਥਕ نہیں ਮਿਲਿਆ",
     noSupportersDescription: "ਅਸੀਂ ਅਜੇ ਵੀ ਆਪਣਾ ਨੈੱਟਵਰਕ ਬਣਾ ਰਹੇ ਹਾਂ। ਕਿਸੇ ਹੋਰ ਸ਼ਹਿਰ ਦੀ ਖੋਜ ਕਰਨ ਦੀ ਕੋਸ਼ਿਸ਼ ਕਰੋ, ਜਾਂ ਜਲਦੀ ਹੀ ਵਾਪਸ ਜਾਂਚ ਕਰੋ!",
     findSupportersPromptTitle: "ਸਥਾਨਕ ਸਮਰਥਕ ਲੱਭੋ",
     findSupportersPromptDescription: "ਉਸ ਖੇਤਰ ਵਿੱਚ ਸਥਾਨਕ ਸਮਰਥਕਾਂ ਨੂੰ ਲੱਭਣ ਲਈ ਉੱਪਰ ਇੱਕ ਸਥਾਨ ਦਰਜ ਕਰੋ।",
@@ -298,7 +297,7 @@ export const pa = {
     locationPlaceholder: "ਜਿਵੇਂ ਕਿ, ਮੈਡ੍ਰਿਡ, ਸਪੇਨ",
     situationLabel: "ਸਥਿਤੀ ਕੀ ਹੈ?",
     situationPlaceholder: "ਜਿਵੇਂ ਕਿ, ਮੈਂ ਰੇਲਵੇ ਸਟੇਸ਼ਨ ਦੇ ਨੇੜੇ ਗੁੰਮ ਹੋ ਗਿਆ ਹਾਂ",
-    getHelpButton: "ਮਦਦ ਲਵੋ",
+    getHelpButton: "ਮਦद ਲਵੋ",
     gettingHelpButton: "ਮਦਦ ਪ੍ਰਾਪਤ ਕਰ ਰਿਹਾ ਹੈ...",
     toastErrorTitle: "ਗਲਤੀ",
     toastErrorDescription: "ਸਹਾਇਤਾ ਪ੍ਰਾਪਤ ਕਰਨ ਵਿੱਚ ਅਸਫਲ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
@@ -319,7 +318,7 @@ export const pa = {
     publishButton: "ਕਹਾਣੀ ਪ੍ਰਕਾਸ਼ਿਤ ਕਰੋ",
     publishingButton: "ਪ੍ਰਕਾਸ਼ਿਤ ਕਰ ਰਿਹਾ ਹੈ...",
     successTitle: "ਪੋਸਟ ਪ੍ਰਕਾਸ਼ਿਤ!",
-    successDescription: "ਤੁਹਾਡੀ ਕਹਾਣੀ ਹੁਣ ਭਾਈਚਾਰੇ ਲਈ ਦੇਖਣ ਲਈ ਲਾਈਵ ਹੈ।",
+    successDescription: "ਤੁਹਾਡੀ ਕਹਾਣੀ ਹੁਣ ਭਾਈਚारे ਲਈ ਦੇਖਣ ਲਈ ਲਾਈਵ ਹੈ।",
     errorTitle: "ਪ੍ਰਕਾਸ਼ਨ ਅਸਫਲ",
     errorDescription: "ਅਸੀਂ ਤੁਹਾਡੀ ਪੋਸਟ ਪ੍ਰਕਾਸ਼ਿਤ नहीं ਕਰ ਸਕੇ। ਕਿਰਪਾ ਕਰਕੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।"
   },
@@ -331,5 +330,4 @@ export const pa = {
     noPosts: "ਕੋਈ ਬਲੌਗ ਪੋਸਟ ਨਹੀਂ ਮਿਲਿਆ। ਕਿਉਂ ਨਾ ਇੱਕ ਕਹਾਣੀ ਸਾਂਝੀ ਕਰਨ ਵਾਲੇ ਪਹਿਲੇ ਬਣੋ?"
   }
 };
-
     

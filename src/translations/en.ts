@@ -11,7 +11,6 @@ export const en = {
     hiddenGems: "Hidden Gems",
     travelTools: "Travel Tools",
     expenseSplitter: "Expense Splitter",
-    localSupporters: "Local Supporters",
     safety: "Safety Companion",
     toggleNavigation: "Toggle navigation menu",
     footerDescription: "The smartest, easiest way to explore the world. Your AI-powered travel planner to become a conscious traveler.",
@@ -331,5 +330,3 @@ export const en = {
     noPosts: "No blog posts found. Why not be the first to share a story?"
   }
 };
-
-    

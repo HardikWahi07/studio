@@ -252,7 +252,6 @@ function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
 
   const travelTools = [
     { href: "/expenses", icon: Users, label: t('AppLayout.expenseSplitter') },
-    { href: "/local-supporters", icon: Users, label: t('AppLayout.localSupporters') },
     { href: "/safety", icon: LifeBuoy, label: t('AppLayout.safety') },
   ];
   const supportLinks = [

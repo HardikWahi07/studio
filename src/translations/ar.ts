@@ -11,7 +11,6 @@ export const ar = {
     hiddenGems: "الجواهر الخفية",
     travelTools: "أدوات السفر",
     expenseSplitter: "تقسيم النفقات",
-    localSupporters: "الداعمون المحليون",
     safety: "رفيق السلامة",
     toggleNavigation: "تبديل قائمة التنقل",
     footerDescription: "أذكى وأسهل طريقة لاستكشاف العالم. مخطط سفرك المدعوم بالذكاء الاصطناعي لتصبح مسافرًا واعيًا.",
@@ -331,5 +330,4 @@ export const ar = {
     noPosts: "لم يتم العثور على منشورات مدونة. لماذا لا تكون أول من يشارك قصة؟"
   }
 };
-
     
