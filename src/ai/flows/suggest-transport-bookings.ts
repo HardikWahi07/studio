@@ -39,12 +39,16 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
 
-  1.  **Analyze the Route:** First, determine if the route is domestic within India or international. Most importantly, check if a direct flight is plausible. For example, there are no direct commercial flights from Mumbai to Shimla.
+  1.  **Analyze the Route (CRITICAL LOGIC):**
+      - **Flights:** First, determine if a direct flight is plausible between the origin and destination cities. For example, there are no direct commercial flights from Mumbai to Shimla.
+      - **Trains:** Similarly, for trains, identify the nearest major railway stations for the origin and destination. For example, for a query from "Vapi to Lohegaon", the correct train route is Vapi (VAPI) to Pune Junction (PUNE), as Lohegaon is an area in Pune without a major station.
+      - **If a direct route is not possible, you MUST create a multi-leg journey.** For example, Leg 1 could be a flight to the nearest major airport, and Leg 2 could be ground transport (taxi, bus) to the final destination.
+
   2.  **Generate Mock Options with Smart Links:**
-      - **If a direct flight is not possible (e.g., Mumbai to Shimla):** You MUST create a multi-leg journey. Leg 1 should be a flight to the nearest major airport (e.g., Chandigarh - IXC), and Leg 2 should be ground transport (taxi, bus) to the final destination (Shimla).
-      - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The correct format is \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`. For example: \`https://www.ixigo.com/trains/search/BCT/NDLS/25122024\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or even 'Sold Out'.
-      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled, and properly URL-encoded Google Flights URL using the user's input.
-      - **URL ENCODING (CRITICAL):** The generated \`bookingLink\` URLs MUST be properly encoded. There must be NO spaces in the URL. Replace all spaces in parameters with a '+' or '%20'. For example, 'lucknow, uttar pradesh' must become 'lucknow,+uttar+pradesh'.
+      - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL in the format \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or even 'Sold Out'.
+      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so use 'Available' or 'N/A'. For peak seasons, add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled, and properly URL-encoded Google Flights URL using the user's input.
+      - **URL ENCODING (CRITICAL):** The generated \`bookingLink\` URLs MUST be properly encoded. There must be NO spaces in the URL. Replace all spaces in parameters with a '+' or '%20'.
+
   3.  **Format Output:** Structure the results into journey legs. If it's a direct trip, there will be one leg. If it's multi-step, there will be multiple legs.
   
   Return a valid JSON object that strictly follows the output schema.

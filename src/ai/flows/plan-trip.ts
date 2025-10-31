@@ -52,11 +52,13 @@ const prompt = ai.definePrompt({
   - **Check-out Date for Hotels:** {{{checkoutDate}}}
 
   **Your Task:**
-  1.  **Analyze the Route:** First, determine if the route is domestic within India or international. More importantly, check if a direct flight is plausible. For example, there are no direct commercial flights to Shimla; a user would need to fly to Chandigarh (IXC) and take a taxi.
-  2.  **Generate Main Booking Options (CRITICAL LOGIC):**
-      - **If a direct flight is not possible (e.g., Mumbai to Shimla):** You MUST create a multi-leg journey. Leg 1 should be a flight to the nearest major airport, and Leg 2 should be ground transport (taxi, bus) to the final destination.
-      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The correct format is \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`. For example: \`https://www.ixigo.com/trains/search/BCT/NDLS/25122024\`. **CRUCIAL:** To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
-      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so do NOT use 'Sold Out'. Instead, for peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled, and properly URL-encoded Google Flights URL using the user's input. There must be no spaces in the URL.
+  1.  **Analyze the Route (CRITICAL LOGIC):**
+      - **Flights:** First, determine if a direct flight is plausible. For example, there are no direct commercial flights to Shimla; a user would need to fly to Chandigarh (IXC) and take a taxi.
+      - **Trains:** Similarly, for trains, identify the nearest major railway stations for the origin and destination. For example, for "Vapi to Lohegaon", the correct route is Vapi (VAPI) to Pune Junction (PUNE), not Lohegaon.
+      - If a direct route is not possible, you MUST create a multi-leg journey (e.g., Flight + Taxi, or Train + Bus).
+  2.  **Generate Main Booking Options:**
+      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL in the format \`https://www.ixigo.com/trains/search/{FROM_STATION_CODE}/{TO_STATION_CODE}/{DDMMYYYY}\`. To make the data realistic, the 'availability' field for these trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'.
+      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. Flights are almost always available, so use 'Available' or 'N/A'. For peak seasons, you can set availability to 'N/A' and add a note to the 'details' field like "Prices higher than usual". The \`bookingLink\` for these mock flights MUST be a valid, pre-filled, and properly URL-encoded Google Flights URL using the user's input. There must be no spaces in the URL.
   3.  **Hotels:**
       - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid, pre-filled Booking.com search URL. Example format: \`https://www.booking.com/searchresults.html?ss={{{destination}}}&checkin={{{departureDate}}}&checkout={{{checkoutDate}}}\`
   4.  **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
