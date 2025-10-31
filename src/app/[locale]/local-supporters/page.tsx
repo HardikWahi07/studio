@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, where, orderBy, doc, writeBatch, serverTimestamp } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -46,7 +47,61 @@ type LocalSupporter = {
     availability: AvailabilitySlot[];
 };
 
-type GeoState = 'idle' | 'getting_location' | 'fetching_supporters' | 'error' | 'success';
+// Mock data for hackathon stability
+const mockSupporters: LocalSupporter[] = [
+    {
+        id: "supporter-maria",
+        name: "Maria G.",
+        bio: "Born and raised in Madrid! I'm a foodie and history buff. Happy to share the best tapas spots or help you navigate the metro. I work near the Prado Museum.",
+        location: "Madrid, Spain",
+        languages: ["Spanish", "English"],
+        avatarUrl: "https://i.pravatar.cc/150?u=maria",
+        services: [
+            { name: 'Welcome Walk & Chat', description: 'A 1-hour introductory walk.', icon: 'Coffee' },
+            { name: 'Airport Welcome Ride', description: 'Pickup from MAD airport.', icon: 'Car' }
+        ],
+        availability: [
+            { day: 'Monday', time: '10:00 AM', booked: false },
+            { day: 'Monday', time: '2:00 PM', booked: false },
+            { day: 'Wednesday', time: '5:00 PM', booked: false },
+            { day: 'Friday', time: '11:00 AM', booked: true },
+        ]
+    },
+    {
+        id: "supporter-kenji",
+        name: "Kenji Tanaka",
+        bio: "I'm a university student in Tokyo. I love photography and exploring quiet neighborhoods. I can help you find cool vintage stores or the best ramen.",
+        location: "Tokyo, Japan",
+        languages: ["Japanese", "English"],
+        avatarUrl: "https://i.pravatar.cc/150?u=kenji",
+        services: [
+            { name: 'Shibuya Crossing Tour', description: 'A guided tour of the famous crossing.', icon: 'Coffee' },
+        ],
+        availability: [
+            { day: 'Tuesday', time: '6:00 PM', booked: false },
+            { day: 'Thursday', time: '7:00 PM', booked: false },
+            { day: 'Saturday', time: '2:00 PM', booked: false },
+        ]
+    },
+    {
+        id: "supporter-aisha",
+        name: "Aisha Khan",
+        bio: "I'm a designer living in Mumbai. I can give you tips on the best street food, fabric markets, and how to get around the city like a local.",
+        location: "Mumbai, India",
+        languages: ["Hindi", "English", "Marathi"],
+        avatarUrl: "https://i.pravatar.cc/150?u=aisha",
+         services: [
+            { name: 'Welcome Ride', description: 'Pickup from your hotel.', icon: 'Car' }
+        ],
+        availability: [
+            { day: 'Monday', time: '1:00 PM', booked: false },
+            { day: 'Tuesday', time: '1:00 PM', booked: false },
+            { day: 'Wednesday', time: '1:00 PM', booked: false },
+            { day: 'Thursday', time: '1:00 PM', booked: false },
+            { day: 'Friday', time: '1:00 PM', booked: false },
+        ]
+    },
+];
 
 const serviceIcons = {
     Car: <Car className="w-4 h-4" />,
@@ -60,9 +115,8 @@ export default function LocalSupportersPage() {
     const { toast } = useToast();
 
     const [searchLocation, setSearchLocation] = useState('');
-    const [searchedCity, setSearchedCity] = useState('');
-    const [geoState, setGeoState] = useState<GeoState>('idle');
-    const [errorMessage, setErrorMessage] = useState('');
+    const [supporters, setSupporters] = useState<LocalSupporter[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
     
     const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
     const [selectedSupporter, setSelectedSupporter] = useState<LocalSupporter | null>(null);
@@ -71,65 +125,26 @@ export default function LocalSupportersPage() {
     const [isProcessingBooking, setIsProcessingBooking] = useState(false);
     const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
 
-
+    // Initial load of mock data
     useEffect(() => {
-        if ('geolocation' in navigator) {
-            setGeoState('getting_location');
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const { latitude, longitude } = position.coords;
-                    try {
-                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-                        const data = await response.json();
-                        const city = data.address.city || data.address.town || data.address.village;
-                        if (city) {
-                            setSearchedCity(city);
-                            setSearchLocation(city);
-                            setGeoState('fetching_supporters');
-                        } else {
-                            throw new Error("Could not determine city from your location.");
-                        }
-                    } catch (error) {
-                        setErrorMessage('Could not find your city. Please search manually.');
-                        setGeoState('error');
-                    }
-                },
-                (error) => {
-                    setErrorMessage('Location access was denied. Please enable it in your browser settings or search for a city manually.');
-                    setGeoState('error');
-                }
-            );
-        } else {
-             setErrorMessage('Geolocation is not supported by your browser. Please search for a city manually.');
-             setGeoState('error');
-        }
+        setSupporters(mockSupporters);
     }, []);
-
-    const supportersQuery = useMemoFirebase(() => {
-        if (!firestore || !searchedCity) return null;
-        return query(
-            collection(firestore, 'supporters'), 
-            where('location', '>=', searchedCity),
-            where('location', '<=', searchedCity + '\uf8ff'),
-            orderBy('location'),
-            orderBy('name')
-        );
-    }, [firestore, searchedCity]);
-
-    const { data: supporters, isLoading: isLoadingSupporters, forceRefetch } = useCollection<LocalSupporter>(supportersQuery);
-    
-    useEffect(() => {
-        if (!isLoadingSupporters && searchedCity) {
-            setGeoState('success');
-        }
-    }, [isLoadingSupporters, searchedCity]);
-
-    const isLoading = geoState === 'getting_location' || geoState === 'fetching_supporters' || (searchedCity && isLoadingSupporters);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        setSearchedCity(searchLocation);
-        setGeoState('fetching_supporters');
+        setIsLoading(true);
+        // Simulate network delay
+        setTimeout(() => {
+            if (searchLocation.trim() === '') {
+                setSupporters(mockSupporters);
+            } else {
+                const filtered = mockSupporters.filter(s => 
+                    s.location.toLowerCase().includes(searchLocation.toLowerCase())
+                );
+                setSupporters(filtered);
+            }
+            setIsLoading(false);
+        }, 1000);
     }
 
     const openBookingModal = (supporter: LocalSupporter, service: SupporterService, slot: AvailabilitySlot) => {
@@ -151,38 +166,27 @@ export default function LocalSupportersPage() {
         setIsProcessingBooking(true);
 
         try {
-            const batch = writeBatch(firestore);
-
-            const bookingRef = doc(collection(firestore, 'bookings'));
-            batch.set(bookingRef, {
-                id: bookingRef.id,
-                userId: user.uid,
-                userName: user.displayName,
-                supporterId: selectedSupporter.id,
-                supporterName: selectedSupporter.name,
-                experience: selectedService.name,
-                day: selectedSlot.day,
-                time: selectedSlot.time,
-                bookedAt: serverTimestamp(),
+            // In a real app, this would commit to Firestore. For the demo, we'll just show a success message.
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // OPTIONAL: To make the demo feel more real, we can update the local state
+            const updatedSupporters = supporters.map(sup => {
+                if (sup.id === selectedSupporter.id) {
+                    const updatedAvailability = sup.availability.map(s => 
+                        s.day === selectedSlot.day && s.time === selectedSlot.time ? { ...s, booked: true } : s
+                    );
+                    return { ...sup, availability: updatedAvailability };
+                }
+                return sup;
             });
+            setSupporters(updatedSupporters);
 
-            const supporterRef = doc(firestore, 'supporters', selectedSupporter.id);
-            const updatedAvailability = selectedSupporter.availability.map(slot => 
-                (slot.day === selectedSlot.day && slot.time === selectedSlot.time)
-                ? { ...slot, booked: true }
-                : slot
-            );
-            batch.update(supporterRef, { availability: updatedAvailability });
-
-            await batch.commit();
 
             toast({
                 title: 'Booking Confirmed!',
                 description: `Your ${selectedService.name} with ${selectedSupporter.name} is set.`,
             });
             
-            if (forceRefetch) forceRefetch();
-
         } catch (error) {
             console.error("Booking failed:", error);
             toast({
@@ -228,23 +232,11 @@ export default function LocalSupportersPage() {
             );
         }
 
-        if (geoState === 'error' && !searchedCity) {
-            return (
-                 <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
-                    <MapPin className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">{t('locationErrorTitle')}</h3>
-                    <p className="mt-2 text-muted-foreground max-w-sm">
-                       {errorMessage}
-                    </p>
-                </Card>
-            );
-        }
-
-        if (searchedCity && !supporters?.length) {
+        if (!supporters?.length) {
             return (
                  <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
                     <Users className="h-16 w-16 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-bold text-lg">{t('noSupportersTitle', {city: searchedCity})}</h3>
+                    <h3 className="mt-4 font-bold text-lg">{t('noSupportersTitle', {city: searchLocation})}</h3>
                     <p className="mt-2 text-muted-foreground max-w-sm">
                        {t('noSupportersDescription')}
                     </p>
@@ -252,89 +244,77 @@ export default function LocalSupportersPage() {
             );
         }
 
-        if (supporters && supporters.length > 0) {
-            return (
-                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {supporters.map(supporter => (
-                        <Card key={supporter.id} className="flex flex-col">
-                            <CardHeader className="flex flex-col items-center text-center pt-6">
-                                <Avatar className="h-24 w-24 border-4 border-primary/20">
-                                    <AvatarImage src={supporter.avatarUrl} alt={supporter.name} />
-                                    <AvatarFallback>{supporter.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                                <CardTitle className="font-headline text-xl mt-4">{supporter.name}</CardTitle>
-                                <CardDescription className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {supporter.location}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-center text-sm text-muted-foreground flex-grow">
-                                <p>{supporter.bio}</p>
-                                
-                                <div className="flex flex-wrap gap-2 justify-center pt-4">
-                                    {supporter.languages.map(lang => (
-                                        <Badge key={lang} variant="secondary">{lang}</Badge>
-                                    ))}
-                                </div>
-                                
-                            </CardContent>
-                            <CardFooter className="flex-col gap-4 items-start">
-                                 <div className="w-full">
-                                     <h4 className="font-bold text-sm mb-2">Book a Service</h4>
-                                      {supporter.services?.map((service) => (
-                                        <div key={service.name} className="p-3 rounded-md bg-secondary mb-2">
-                                            <div className="flex justify-between items-center">
-                                                <div>
-                                                    <p className='font-semibold text-foreground flex items-center gap-2'>
-                                                        {serviceIcons[service.icon]}
-                                                        {service.name}
-                                                    </p>
-                                                    <p className='text-xs text-muted-foreground mt-1'>{service.description}</p>
-                                                </div>
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                         <Button size="sm">Book</Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent>
-                                                        <DialogHeader>
-                                                            <DialogTitle>Book "{service.name}" with {supporter.name}</DialogTitle>
-                                                            <DialogDescription>Select an available time slot below.</DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4">
-                                                            {supporter.availability?.map((slot, index) => (
-                                                                <Button 
-                                                                    key={index}
-                                                                    variant={slot.booked ? "secondary" : "outline"}
-                                                                    disabled={slot.booked}
-                                                                    onClick={() => openBookingModal(supporter, service, slot)}
-                                                                    className="text-xs"
-                                                                >
-                                                                    {slot.day.substring(0,3)}, {slot.time}
-                                                                </Button>
-                                                            ))}
-                                                        </div>
-                                                    </DialogContent>
-                                                </Dialog>
-                                            </div>
-                                        </div>
-                                     ))}
-                                 </div>
-                                <Button className="w-full" variant="outline">
-                                    <MessageSquare className="mr-2 h-4 w-4" />
-                                    {t('messageButton')}
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    ))}
-                </div>
-            );
-        }
-
         return (
-            <Card className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full min-h-[400px]">
-                <MapPin className="h-16 w-16 text-muted-foreground/50" />
-                <h3 className="mt-4 font-bold text-lg">{t('findSupportersPromptTitle')}</h3>
-                <p className="mt-2 text-muted-foreground max-w-sm">
-                   {t('findSupportersPromptDescription')}
-                </p>
-            </Card>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {supporters.map(supporter => (
+                    <Card key={supporter.id} className="flex flex-col">
+                        <CardHeader className="flex flex-col items-center text-center pt-6">
+                            <Avatar className="h-24 w-24 border-4 border-primary/20">
+                                <AvatarImage src={supporter.avatarUrl} alt={supporter.name} />
+                                <AvatarFallback>{supporter.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <CardTitle className="font-headline text-xl mt-4">{supporter.name}</CardTitle>
+                            <CardDescription className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {supporter.location}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="text-center text-sm text-muted-foreground flex-grow">
+                            <p>{supporter.bio}</p>
+                            
+                            <div className="flex flex-wrap gap-2 justify-center pt-4">
+                                {supporter.languages.map(lang => (
+                                    <Badge key={lang} variant="secondary">{lang}</Badge>
+                                ))}
+                            </div>
+                            
+                        </CardContent>
+                        <CardFooter className="flex-col gap-4 items-start">
+                             <div className="w-full">
+                                 <h4 className="font-bold text-sm mb-2">Book a Service</h4>
+                                  {supporter.services?.map((service) => (
+                                    <div key={service.name} className="p-3 rounded-md bg-secondary mb-2">
+                                        <div className="flex justify-between items-center">
+                                            <div>
+                                                <p className='font-semibold text-foreground flex items-center gap-2'>
+                                                    {serviceIcons[service.icon]}
+                                                    {service.name}
+                                                </p>
+                                                <p className='text-xs text-muted-foreground mt-1'>{service.description}</p>
+                                            </div>
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                     <Button size="sm">Book</Button>
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>Book "{service.name}" with {supporter.name}</DialogTitle>
+                                                        <DialogDescription>Select an available time slot below.</DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 py-4">
+                                                        {supporter.availability?.map((slot, index) => (
+                                                            <Button 
+                                                                key={index}
+                                                                variant={slot.booked ? "secondary" : "outline"}
+                                                                disabled={slot.booked}
+                                                                onClick={() => openBookingModal(supporter, service, slot)}
+                                                                className="text-xs"
+                                                            >
+                                                                {slot.day.substring(0,3)}, {slot.time}
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        </div>
+                                    </div>
+                                 ))}
+                             </div>
+                            <Button className="w-full" variant="outline">
+                                <MessageSquare className="mr-2 h-4 w-4" />
+                                {t('messageButton')}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                ))}
+            </div>
         );
     };
 

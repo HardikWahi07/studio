@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -32,13 +32,47 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     driving: <CarFront className="h-6 w-6 text-gray-500" />,
 };
 
+// Mock data as a quick fix for the hackathon demo
+const mockBookingOptions: BookingOption[] = [
+    {
+        type: 'flight',
+        provider: 'IndiGo',
+        details: 'Flight 6E 237, Airbus A320',
+        duration: '2h 15m',
+        price: '₹ 4,500',
+        bookingLink: '#',
+        ecoFriendly: false,
+        availability: 'Available'
+    },
+    {
+        type: 'train',
+        provider: 'Indian Railways',
+        details: 'Train 12951, TEJAS EXPRESS',
+        duration: '6h 30m',
+        price: '₹ 1,800',
+        bookingLink: '#',
+        ecoFriendly: true,
+        availability: 'Available'
+    },
+    {
+        type: 'bus',
+        provider: 'RedBus',
+        details: 'Volvo A/C Sleeper (2+1)',
+        duration: '8h 00m',
+        price: '₹ 950',
+        bookingLink: '#',
+        ecoFriendly: false,
+        availability: 'Available'
+    }
+];
+
 function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recommendation?: 'Best' | 'Cheapest' | 'Eco-Friendly' }) {
     const { toast } = useToast();
     
     const handleBook = () => {
         toast({
-            title: "Opening Booking Site",
-            description: `Redirecting to ${opt.provider} to complete your booking.`,
+            title: "Demo: Opening Booking Site",
+            description: `In a real app, you would be redirected to ${opt.provider} to complete your booking.`,
         });
     }
 
@@ -67,8 +101,8 @@ function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recomm
             </div>
             <div className="flex items-center gap-4 w-full sm:w-auto ml-auto sm:ml-0">
                 <p className="font-bold text-lg">{opt.price}</p>
-                <Button asChild className="w-full sm:w-auto" onClick={handleBook}>
-                    <Link href={opt.bookingLink} target="_blank">Book</Link>
+                <Button className="w-full sm:w-auto" onClick={handleBook}>
+                    Book
                 </Button>
             </div>
         </Card>
@@ -96,18 +130,14 @@ export default function SuggestBookingsPage() {
     async function handleSearch(values: z.infer<typeof formSchema>) {
         setIsLoading(true);
         setResults(null);
-        try {
-            const response = await suggestTransportBookings({
-                ...values,
-                currency,
-            });
-            setResults(response);
-        } catch (error) {
-            console.error('Failed to suggest bookings:', error);
-            toast({ title: t('toastErrorTitle'), description: t('toastErrorDescription'), variant: 'destructive' });
-        } finally {
-            setIsLoading(false);
-        }
+        
+        // Simulate a network delay for a more realistic demo
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Use mock data instead of calling the AI flow
+        setResults({ bookingOptions: mockBookingOptions });
+
+        setIsLoading(false);
     }
 
   return (
