@@ -11,12 +11,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { Input } from '@/components/ui/input';
 import { CityCombobox } from '@/components/city-combobox';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront } from 'lucide-react';
+import { Loader2, Search, Plane, Train, Bus, Leaf, CarFront, Clock, BadgeEuro, Sparkles } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { suggestTransportBookings, SuggestTransportBookingsOutput } from '@/ai/flows/suggest-transport-bookings';
 import { useSettings } from '@/context/settings-context';
 import type { BookingOption } from '@/ai/flows/plan-trip.types';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 const formSchema = z.object({
     origin: z.string().min(1, 'Origin is required.'),
@@ -31,7 +32,7 @@ const transportIcons: { [key: string]: React.ReactNode } = {
     driving: <CarFront className="h-6 w-6 text-gray-500" />,
 };
 
-function BookingOptionCard({ opt }: { opt: BookingOption }) {
+function BookingOptionCard({ opt, recommendation }: { opt: BookingOption, recommendation?: 'Best' | 'Cheapest' | 'Eco-Friendly' }) {
     const { toast } = useToast();
     
     const handleBook = () => {
@@ -41,20 +42,30 @@ function BookingOptionCard({ opt }: { opt: BookingOption }) {
         });
     }
 
+    const recommendationBadges = {
+        'Best': <Badge variant="secondary" className="bg-amber-100 text-amber-800 border-amber-200"><Sparkles className="w-3 h-3 mr-1"/>Best Option</Badge>,
+        'Cheapest': <Badge variant="secondary" className="bg-blue-100 text-blue-800 border-blue-200"><BadgeEuro className="w-3 h-3 mr-1"/>Cheapest</Badge>,
+        'Eco-Friendly': <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>,
+    }
+
     return (
         <Card className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 gap-4 transition-shadow hover:shadow-md">
             <div className="flex items-center gap-4">
                 {transportIcons[opt.type]}
                 <div>
-                    <p className="font-bold">{opt.provider}</p>
+                    <div className="flex items-center gap-2">
+                        <p className="font-bold">{opt.provider}</p>
+                         {recommendation && recommendationBadges[recommendation]}
+                    </div>
                     <p className="font-normal text-muted-foreground text-sm">{opt.details}</p>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                        <span>{opt.duration}</span>
-                        {opt.ecoFriendly && <Leaf className="w-4 h-4 text-green-500" title="Eco-Friendly"/>}
+                    <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground mt-1">
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3"/>{opt.duration}</span>
+                        {opt.availability && <Badge variant={opt.availability === 'Available' ? 'secondary' : 'outline'} className={opt.availability === 'Available' ? 'bg-green-100 text-green-800 border-green-200' : ''}>{opt.availability}</Badge>}
+                        {opt.ecoFriendly && !recommendation && <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200"><Leaf className="w-3 h-3 mr-1"/>Eco-Friendly</Badge>}
                     </div>
                 </div>
             </div>
-            <div className="flex items-center gap-4 w-full sm:w-auto">
+            <div className="flex items-center gap-4 w-full sm:w-auto ml-auto sm:ml-0">
                 <p className="font-bold text-lg">{opt.price}</p>
                 <Button asChild className="w-full sm:w-auto" onClick={handleBook}>
                     <Link href={opt.bookingLink} target="_blank">Book</Link>
@@ -132,7 +143,7 @@ export default function SuggestBookingsPage() {
                             )} />
                         </div>
                         <Button type="submit" disabled={isLoading} className="w-full sm:w-auto">
-                            {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('findButton')}</span></>}
+                            {isLoading ? <><Loader2 className="animate-spin mr-2" /> {t('searchingButton')}</> : <><Search className="mr-2" /> {t('findButton')}</>}
                         </Button>
                     </form>
                 </Form>
@@ -150,11 +161,12 @@ export default function SuggestBookingsPage() {
             <div className="pt-6 space-y-6">
                  <h2 className="font-headline text-2xl font-bold">{t('resultsTitle')}</h2>
                  <div className="space-y-4">
-                    {results.bookingOptions.map((opt, index) => <BookingOptionCard key={index} opt={opt} />)}
+                    {results.bookingOptions.length > 0 ? (
+                        results.bookingOptions.map((opt, index) => <BookingOptionCard key={index} opt={opt} />)
+                    ) : (
+                        <p className="text-muted-foreground text-center py-8">{t('noResults')}</p>
+                    )}
                  </div>
-                 {results.bookingOptions.length === 0 && (
-                     <p className="text-muted-foreground text-center py-8">{t('noResults')}</p>
-                 )}
             </div>
         )}
     </main>

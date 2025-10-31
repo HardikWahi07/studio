@@ -96,17 +96,14 @@
       "fromPlaceholder": "प्रस्थान शहर दर्ज करें...",
       "toLabel": "तक",
       "toPlaceholder": "गंतव्य शहर दर्ज करें...",
-      "dateLabel": "तारीख",
-      "preferencesLabel": "प्राथमिकताएँ",
-      "preferencesPlaceholder": "जैसे तेज़, सस्ता, या सबसे पर्यावरण-अनुकूल",
+      "departureLabel": "तारीख",
       "findButton": "विकल्प खोजें",
       "searchingButton": "खोज जारी है...",
       "resultsTitle": "उपलब्ध यात्रा विकल्प",
-      "noResultsTitle": "कोई विकल्प नहीं मिला",
-      "noResultsDescription": "कृपया अपनी खोज या प्राथमिकताएँ बदलें।",
-      "localTransportTitle": "स्थानीय परिवहन विकल्प",
-      "localTransportDescription": "अपने गंतव्य शहर में घूमने के सर्वोत्तम तरीके।",
-      "departureLabel": "तारीख"
+      "noResults": "कोई विकल्प नहीं मिला। कृपया अपनी खोज बदलें।",
+      "loadingMessage": "आपके लिए सर्वोत्तम विकल्प खोज रहा हूँ...",
+      "toastErrorTitle": "त्रुटि",
+      "toastErrorDescription": "बुकिंग सुझाव प्राप्त करने में विफल। कृपया पुन: प्रयास करें।"
     },
     "CityCombobox": {
       "selectPlaceholder": "शहर चुनें...",
@@ -180,7 +177,7 @@
       "interestsLabel": "आपकी रुचियाँ",
       "interestsPlaceholder": "जैसे, कला संग्रहालय, स्ट्रीट फूड, लंबी पैदल यात्रा, स्थानीय बाजार...",
       "searchButton": "मेरी यात्रा उत्पन्न करें",
-      "searchingButton": "उत्पन्न हो रहा ہے...",
+      "searchingButton": "उत्पन्न हो रहा है...",
       "toastErrorTitle": "त्रुटि",
       "toastErrorDescription": "यात्रा योजना बनाने में विफल। कृपया पुन: प्रयास करें।",
       "loginToPlan": "यात्रा की योजना बनाने के लिए कृपया लॉग इन करें।",
@@ -198,4 +195,3 @@
       "trainClassChairCar": "एसी चेयर कार"
     }
 }
-  
