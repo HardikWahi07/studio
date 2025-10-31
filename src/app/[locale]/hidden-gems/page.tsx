@@ -49,11 +49,11 @@ export default function HiddenGemsPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    setGems(null);
+    setGems(null); // Clear previous results
     try {
       const result = await exploreHiddenGems(values);
-      setGems(result.gems);
-       if (!result.gems || result.gems.length === 0) {
+      setGems(result.gems); // This will be an array, empty or with items
+      if (!result.gems || result.gems.length === 0) {
         toast({
             title: "No Gems Found",
             description: "Try a different destination or broaden your interests.",
@@ -159,55 +159,59 @@ export default function HiddenGemsPage() {
         </CardContent>
       </Card>
 
-      {isLoading && (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 pt-8">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="h-6 w-3/4 bg-muted animate-pulse rounded-md" />
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-                <div className="h-4 w-5/6 bg-muted animate-pulse rounded-md" />
-                <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-
-      {gems && gems.length > 0 && (
-        <div ref={resultsRef} className="pt-8">
-          <h2 className="font-headline text-2xl font-bold mb-6">{t('HiddenGemsPage.discoveredGemsTitle')}</h2>
+      {/* Results Section */}
+      <div ref={resultsRef} className="pt-8">
+        {isLoading && (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {gems.map((gem, index) => (
-              <Card key={index} className={cn("flex flex-col fade-in-up", { 'visible': resultsVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
+            {[...Array(3)].map((_, i) => (
+              <Card key={i}>
                 <CardHeader>
-                  <CardTitle className="font-headline text-xl">{gem.name}</CardTitle>
+                  <div className="h-6 w-3/4 bg-muted animate-pulse rounded-md" />
                 </CardHeader>
-                <CardContent className="flex-grow flex flex-col justify-between space-y-4">
-                  <p className="text-muted-foreground">{gem.description}</p>
-                  <div>
-                    <h4 className="font-bold text-sm mb-2 text-primary">{t('HiddenGemsPage.whyAuthentic')}</h4>
-                    <p className="text-sm border-l-2 border-primary pl-3">{gem.whyAuthentic}</p>
-                  </div>
+                <CardContent className="space-y-3">
+                  <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
+                  <div className="h-4 w-5/6 bg-muted animate-pulse rounded-md" />
+                  <div className="h-4 w-full bg-muted animate-pulse rounded-md" />
                 </CardContent>
               </Card>
             ))}
           </div>
-        </div>
-      )}
-      
-       {!isLoading && gems !== null && gems.length === 0 && (
-        <div className="text-center py-16 border-2 border-dashed rounded-lg">
-            <Search className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-semibold">No Gems Found</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-                We couldn't find any hidden gems for that search. Try being more general.
-            </p>
-        </div>
-       )}
+        )}
 
+        {!isLoading && gems && gems.length > 0 && (
+          <div>
+            <h2 className="font-headline text-2xl font-bold mb-6">{t('HiddenGemsPage.discoveredGemsTitle')}</h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {gems.map((gem, index) => (
+                <Card key={index} className={cn("flex flex-col fade-in-up", { 'visible': resultsVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
+                  <CardHeader>
+                    <CardTitle className="font-headline text-xl">{gem.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="flex-grow flex flex-col justify-between space-y-4">
+                    <p className="text-muted-foreground">{gem.description}</p>
+                    <div>
+                      <h4 className="font-bold text-sm mb-2 text-primary">{t('HiddenGemsPage.whyAuthentic')}</h4>
+                      <p className="text-sm border-l-2 border-primary pl-3">{gem.whyAuthentic}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        {!isLoading && gems && gems.length === 0 && (
+          <div className="text-center py-16 border-2 border-dashed rounded-lg">
+              <Search className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-semibold">No Gems Found</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                  We couldn't find any hidden gems for that search. Try being more general.
+              </p>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
+
+    

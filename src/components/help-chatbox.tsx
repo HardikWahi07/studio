@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,20 +22,21 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
     ]);
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const scrollViewportRef = useRef<HTMLDivElement>(null);
 
-    const handleSend = async (e: React.FormEvent) => {
+    const handleSend = async (e: FormEvent) => {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
         const userMessage: Message = { role: 'user', content: input };
-        setMessages(prev => [...prev, userMessage]);
+        const newMessages = [...messages, userMessage];
+        setMessages(newMessages);
         setInput('');
         setIsLoading(true);
 
         try {
             const response = await getHelpChatResponse({
-                history: messages,
+                history: messages, // Send previous history
                 query: input,
             });
             const modelMessage: Message = { role: 'model', content: response };
@@ -51,11 +52,8 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
     
     useEffect(() => {
       // Auto-scroll to the bottom when new messages are added
-      if (scrollAreaRef.current) {
-        const viewport = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
-        if (viewport) {
-          viewport.scrollTop = viewport.scrollHeight;
-        }
+      if (scrollViewportRef.current) {
+        scrollViewportRef.current.scrollTop = scrollViewportRef.current.scrollHeight;
       }
     }, [messages]);
 
@@ -66,7 +64,7 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
 
     return (
         <div className="fixed bottom-4 right-4 z-50">
-            <Card className="w-80 h-96 flex flex-col shadow-2xl">
+            <Card className="w-80 h-[28rem] flex flex-col shadow-2xl">
                 <CardHeader className="flex flex-row items-center justify-between bg-primary text-primary-foreground p-4">
                     <CardTitle className="text-lg flex items-center gap-2">
                         <Bot /> Help Center
@@ -75,39 +73,39 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
                         <X />
                     </Button>
                 </CardHeader>
-                <CardContent className="flex-1 p-2 overflow-hidden">
-                    <ScrollArea className="h-full" ref={scrollAreaRef}>
-                        <div className="p-2 space-y-4">
-                        {messages.map((message, index) => (
-                            <div key={index} className={cn("flex items-start gap-2", message.role === 'user' ? 'justify-end' : '')}>
-                                {message.role === 'model' && (
+                <CardContent className="flex-1 p-0 overflow-hidden">
+                    <ScrollArea className="h-full">
+                        <div className="p-4 space-y-4" ref={scrollViewportRef}>
+                            {messages.map((message, index) => (
+                                <div key={index} className={cn("flex items-start gap-2.5", message.role === 'user' ? 'justify-end' : '')}>
+                                    {message.role === 'model' && (
+                                        <Avatar className="w-7 h-7 bg-primary text-primary-foreground">
+                                            <AvatarFallback><Bot className="w-4 h-4"/></AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                    <div className={cn(
+                                        "p-2.5 rounded-lg max-w-[85%] text-sm shadow-sm",
+                                        message.role === 'user' ? 'bg-secondary text-secondary-foreground rounded-br-none' : 'bg-card text-card-foreground border rounded-bl-none'
+                                    )}>
+                                        <p>{message.content}</p>
+                                    </div>
+                                    {message.role === 'user' && (
+                                        <Avatar className="w-7 h-7">
+                                            <AvatarFallback><User className="w-4 h-4"/></AvatarFallback>
+                                        </Avatar>
+                                    )}
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="flex items-start gap-2.5">
                                     <Avatar className="w-7 h-7 bg-primary text-primary-foreground">
                                         <AvatarFallback><Bot className="w-4 h-4"/></AvatarFallback>
                                     </Avatar>
-                                )}
-                                <div className={cn(
-                                    "p-2 rounded-lg max-w-[80%] text-sm",
-                                    message.role === 'user' ? 'bg-secondary text-secondary-foreground' : 'bg-muted text-muted-foreground'
-                                )}>
-                                    {message.content}
+                                    <div className="p-2.5 rounded-lg bg-card border">
+                                        <Loader2 className="w-5 h-5 animate-spin text-muted-foreground"/>
+                                    </div>
                                 </div>
-                                 {message.role === 'user' && (
-                                    <Avatar className="w-7 h-7">
-                                        <AvatarFallback><User className="w-4 h-4"/></AvatarFallback>
-                                    </Avatar>
-                                )}
-                            </div>
-                        ))}
-                        {isLoading && (
-                             <div className="flex items-start gap-2">
-                                <Avatar className="w-7 h-7 bg-primary text-primary-foreground">
-                                    <AvatarFallback><Bot className="w-4 h-4"/></AvatarFallback>
-                                </Avatar>
-                                <div className="p-2 rounded-lg bg-muted text-muted-foreground">
-                                    <Loader2 className="w-5 h-5 animate-spin"/>
-                                </div>
-                            </div>
-                        )}
+                            )}
                         </div>
                     </ScrollArea>
                 </CardContent>
