@@ -44,12 +44,12 @@ const prompt = ai.definePrompt({
       - If a direct flight or train is not plausible (e.g., Vapi to Shimla), you MUST create a multi-leg journey. For example, Leg 1 could be a flight to the nearest major airport, and Leg 2 could be ground transport (taxi, bus) to the final destination.
 
   2.  **Generate Mock Options with Smart Links:**
-      - **For ALL routes:** Generate 2-3 realistic MOCK flight options using Google Flights.
-      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options.
-      - **URL ENCODING (CRITICAL):** The generated \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters in the final URL. For example, replace spaces with '%20' or '+'.
-      - **Realism:** The 'availability' for trains should sometimes be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'. Flight availability can be 'Available' or 'N/A', with notes like "Prices higher than usual" for peak seasons.
+      - **CRITICAL URL FORMATTING:** All \`bookingLink\` URLs MUST be properly URL-encoded. There must be NO spaces or invalid characters. Replace all spaces with a '+' plus sign.
+      - **Flights:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` MUST be a valid, pre-filled Google Flights search URL. Example: \`https://www.google.com/flights?q=flights+from+BOM+to+DEL+on+2024-12-25\`
+      - **Trains:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` MUST also be a valid, pre-filled Google search URL for that train route. Example: \`https://www.google.com/search?q=VAPI+to+PUNE+train+booking\`
+      - **Train Availability:** For Indian trains, 'availability' should realistically be 'Available', 'Waitlist' (e.g., 'GNWL28/WL15'), or 'Sold Out'. Flight availability can be 'Available' or 'N/A'.
 
-  3.  **Format Output:** Structure the results into journey legs. A direct trip will have one leg.
+  3.  **Format Output:** Structure the results into journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs.
   
   Return a valid JSON object that strictly follows the output schema.
   `,
