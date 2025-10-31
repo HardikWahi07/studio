@@ -223,7 +223,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
   const fullHref = `/${locale}${href === '/' ? '' : href}`;
   
   // More robust active check: handles home page and sub-pages
-  const isActive = (pathname === fullHref) || (href === '/' && pathname === `/${locale}`);
+  const isActive = (pathname === fullHref) || (href !== '/' && pathname.startsWith(fullHref));
 
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
@@ -329,7 +329,7 @@ function LanguageSelector() {
     const handleLanguageChange = (langCode: string) => {
       const pathSegments = pathname.split('/');
       // Pathname might be /en/about or just /about, we want to replace the locale part
-      const newPath = pathSegments.length > 2 ? `/${langCode}/${pathSegments.slice(2).join('/')}` : `/${langCode}`;
+      const newPath = pathSegments.length > 2 && locales.includes(pathSegments[1]) ? `/${langCode}/${pathSegments.slice(2).join('/')}` : `/${langCode}`;
       router.push(newPath);
     }
 
@@ -407,8 +407,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/blog", label: t('AppLayout.blog') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
-    { href: "#", label: t('AppLayout.helpCenter') },
-    { href: "#", label: t('AppLayout.contactUs') },
   ];
 
   const navItems = user ? loggedInNavItems : loggedOutNavItems;
@@ -420,7 +418,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       { href: "/safety", label: t('AppLayout.safety') },
       { href: '#', label: t('AppLayout.helpCenter') },
       { href: '#', label: t('AppLayout.contactUs') },
-    ]] : loggedOutNavItems;
+    ]] : [...loggedOutNavItems, ...[
+      { href: "#", label: t('AppLayout.helpCenter') },
+      { href: "#", label: t('AppLayout.contactUs') },
+    ]];
 
   const footerQuickLinks = [
     { key: "plan", href: "/trip-planner", label: t('AppLayout.planTrip') },
@@ -441,7 +442,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { key: "tos", href: "#", label: t('AppLayout.termsOfService') },
   ];
 
-  const logoColor = isHomePage && !isScrolled && theme === 'dark' ? 'text-white' : 'text-primary';
+  const logoColor = isHomePage && !isScrolled && isMounted && theme === 'dark' ? 'text-white' : 'text-primary';
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -451,7 +452,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           isScrolled ? "bg-background/80 shadow-md backdrop-blur-sm border-b" : "bg-transparent"
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
-           {/* This block is simplified to remove the isMounted check which causes hydration issues */}
             <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
               <Logo className={logoColor} />
             </Link>
