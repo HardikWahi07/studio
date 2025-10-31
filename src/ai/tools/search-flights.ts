@@ -22,11 +22,12 @@ async function getIataCode(cityName: string): Promise<string> {
         return query; // Fallback to city name/code
     }
     try {
-        console.log(`[getIataCode] Cache miss for ${query}. Fetching from flight-data API...`);
-        const response = await fetch(`https://flight-data.p.rapidapi.com/search/airport?query=${encodeURIComponent(query)}&limit=1`, {
+        console.log(`[getIataCode] Cache miss for ${query}. Fetching from booking-com15 API...`);
+        // Using the new booking-com15 API to find location IDs
+        const response = await fetch(`https://booking-com15.p.rapidapi.com/api/v1/flights/searchDestination?query=${encodeURIComponent(query)}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'flight-data.p.rapidapi.com'
+                'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com'
             }
         });
         if (!response.ok) {
@@ -34,10 +35,12 @@ async function getIataCode(cityName: string): Promise<string> {
             return query;
         }
         const data = await response.json();
-        if (data && data.length > 0 && data[0].iata) {
-            console.log(`[getIataCode] Found IATA code for ${query}: ${data[0].iata}`);
-            iataCache.set(query, data[0].iata);
-            return data[0].iata;
+        // The new API returns an object with a 'data' array.
+        if (data.data && data.data.length > 0 && data.data[0].id) {
+             const iata = data.data[0].id.replace('.AIRPORT', ''); // The ID is what we need, e.g. "BOM.AIRPORT"
+            console.log(`[getIataCode] Found IATA code for ${query}: ${iata}`);
+            iataCache.set(query, iata);
+            return iata;
         }
     } catch (error) {
         console.error(`[getIataCode] Failed to get IATA code for ${query}:`, error);
@@ -81,10 +84,12 @@ export const searchRealtimeFlights = ai.defineTool(
         const originIata = await getIataCode(input.origin);
         const destinationIata = await getIataCode(input.destination);
 
-        const response = await fetch(`https://flight-data.p.rapidapi.com/search/flights?from_code=${originIata}&to_code=${destinationIata}&date=${input.date}&adults=1&class=${input.travelClass || 'economy'}&currency=${input.currency}`, {
+        const travelClass = (input.travelClass || 'economy').toUpperCase();
+
+        const response = await fetch(`https://booking-com15.p.rapidapi.com/api/v1/flights/searchFlights?fromId=${originIata}.AIRPORT&toId=${destinationIata}.AIRPORT&departDate=${input.date}&adults=1&cabinClass=${travelClass}&currency_code=${input.currency}`, {
             headers: {
                 'X-RapidAPI-Key': process.env.RAPIDAPI_KEY,
-                'X-RapidAPI-Host': 'flight-data.p.rapidapi.com'
+                'X-RapidAPI-Host': 'booking-com15.p.rapidapi.com'
             }
         });
 
@@ -96,20 +101,22 @@ export const searchRealtimeFlights = ai.defineTool(
 
         const data = await response.json();
         
-        if (!data || !data.results) {
+        if (!data || !data.data?.flights) {
+             console.log("[searchRealtimeFlights Tool] No flights found in API response.");
              return [];
         }
-
-        const flights = data.results.slice(0, 3).map((itinerary: any) => {
-            const leg = itinerary.itineraries[0].segments[0];
-            const price = itinerary.fare.totalFare;
+        
+        // The API response structure is different. We need to adapt.
+        const flights = data.data.flights.slice(0, 3).map((flight: any) => {
+            const leg = flight.legs[0];
+            const price = flight.price.formatted;
             return {
                 type: 'flight' as const,
-                provider: leg.airline.name,
-                details: `Flight ${leg.airline.code} ${leg.flightNumber}`,
-                duration: `${Math.floor(itinerary.itineraries[0].duration/60)}h ${itinerary.itineraries[0].duration % 60}m`,
-                price: `${itinerary.fare.currency} ${price.toLocaleString()}`,
-                bookingLink: itinerary.fare.url || 'https://www.example.com/book',
+                provider: leg.carriers.marketing[0].name,
+                details: `Flight ${leg.carriers.marketing[0].name} ${leg.flightNumber}`,
+                duration: leg.duration,
+                price: price,
+                bookingLink: 'https://www.booking.com/flights', // The API doesn't provide a direct link
                 ecoFriendly: false, // Flight data API doesn't provide this
                 availability: 'Available'
             };

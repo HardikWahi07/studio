@@ -10,16 +10,10 @@ This application uses real-time data for travel bookings, which requires subscri
 
 ### Required APIs on RapidAPI:
 
-1.  **Flight Data API**:
-    *   **Purpose**: Provides real-time flight search functionality.
-    *   **API Host**: `flight-data.p.rapidapi.com`
+1.  **Booking.com API**:
+    *   **Purpose**: Powers the flight and hotel search and suggestion features.
+    *   **API Host**: `booking-com15.p.rapidapi.com`
 
 2.  **IRCTC One API**:
     *   **Purpose**: Used for Indian Railway train searches and finding station codes.
     *   **API Host**: `irctc1.p.rapidapi.com`
-
-3.  **Booking.com API**:
-    *   **Purpose**: Powers the hotel search and suggestion features.
-    *   **API Host**: `booking-com.p.rapidapi.com`
-
-Ensure you have subscribed to at least the free tier for each of these APIs on the RapidAPI marketplace for the application's travel planning features to function correctly.
