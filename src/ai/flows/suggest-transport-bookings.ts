@@ -43,11 +43,14 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
 
-  1.  **Analyze the Route:** Determine if this is a domestic Indian journey or an international one.
+  1.  **Analyze the Route:** First, determine if the origin city has a major airport. If it does not, you MUST create a multi-leg journey.
   2.  **Generate Options:**
-      - **For travel within India:** First, try to use the \`searchRealtimeTrainsFree\` tool. Call the tool with the user's provided origin and destination city names.
-      - **If no trains are found OR for international travel:** Generate 2-3 realistic MOCK flight options. Do NOT use any tools for this. Make them look plausible, with providers like 'IndiGo', 'Vistara', 'Air India' for domestic, and major international carriers for other routes.
-  3.  **Format Output:** Structure the results as one or more journey legs. A direct trip will have one leg. A multi-step trip (e.g., taxi to station, then train) will have multiple legs. Place the options you generate into the 'options' array for the appropriate leg.
+      - **For travel within India:** Always try to use the \`searchRealtimeTrainsFree\` tool. Call the tool with the user's provided origin and destination city names.
+      - **If the origin city (e.g., Vapi) does not have an airport:**
+          - **Leg 1:** Create journey leg for ground transport (e.g. Taxi, Bus) from the origin city to the NEAREST major airport (e.g., from Vapi to Mumbai Airport). Provide 1-2 mock options for this.
+          - **Leg 2:** Create a second journey leg with 2-3 realistic MOCK flight options from that major airport to the final destination. Do NOT use tools for mock flights.
+      - **If the origin city has an airport OR for international travel:** Generate 2-3 realistic MOCK flight options for a single journey leg.
+  3.  **Format Output:** Structure the results into one or more journey legs as appropriate. Place the options you generate into the 'options' array for the correct leg.
   
   **IMPORTANT:** Generate plausible-looking data for all fields, including provider, price, duration, and booking links (use example.com or official carrier sites).
   `,
