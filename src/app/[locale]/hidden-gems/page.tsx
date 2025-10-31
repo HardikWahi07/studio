@@ -49,7 +49,7 @@ export default function HiddenGemsPage() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    setGems(null); // Clear previous results
+    setGems(null);
     try {
       const result = await exploreHiddenGems(values);
       setGems(result.gems);
