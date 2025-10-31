@@ -74,15 +74,16 @@ const prompt = ai.definePrompt({
   - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
-  1.  **Direct Route First:** First, try to find direct transport options (flights or trains) between the origin and destination using the appropriate tools ('searchRealtimeTrains' for Indian travel, 'searchRealtimeFlights' for others).
-  2.  **If Direct Route Exists:** If you find direct options, return them as a single journey leg.
-  3.  **If No Direct Route:** If no direct options are found, you must attempt to find a multi-leg journey. To do this:
-      a.  Identify a major transport hub city between the origin and destination (e.g., for "Lohegaon to Vapi", the hub is "Mumbai").
-      b.  Search for the first leg of the journey (e.g., "Lohegaon to Mumbai").
-      c.  Use the 'getJourneyToHub' tool to find options for traveling *within* the hub city (e.g., from the arrival station to the departure station for the next leg).
-      d.  Search for the second leg of the journey (e.g., "Mumbai to Vapi").
-      e.  Combine these steps into a multi-leg journey array. Each leg must have a description and a list of options.
+  1.  **Direct Route First:** First, try to find direct transport options. Prioritize 'searchRealtimeTrains' for Indian travel, and 'searchRealtimeFlights' for all other destinations.
   
+  2.  **Fallback to Nearby Hubs (Crucial):** If the direct search (both train and flight) returns NO results, you MUST identify the nearest major airport or train station hub for BOTH the origin and destination. For example, for a journey from "Vapi, India" to "Pune, India", you should recognize that Vapi doesn't have an airport and identify "Mumbai, India" or "Surat, India" as the nearest major airport hubs. Then, you MUST perform a new search using 'searchRealtimeFlights' between these identified hubs (e.g., Mumbai to Pune).
+  
+  3.  **Complex Multi-Leg Journeys:** If no direct options are found but a path through a hub is possible, construct a multi-leg journey.
+      a.  Search for the first leg of the journey (e.g., "Vapi to Mumbai").
+      b.  If needed, use the 'getJourneyToHub' tool to find options for traveling *within* the hub city (e.g., from an arrival station to a departure station).
+      c.  Search for the second leg of the journey (e.g., "Mumbai to Pune").
+      d.  Combine these steps into a multi-leg journey array.
+
   **IMPORTANT:** For the final output, structure it as a 'journey' array, where each element is a 'leg' of the trip. A direct trip will have one leg. A complex trip will have multiple legs. Be very precise with the output schema.
   `,
 });
