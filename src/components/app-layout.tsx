@@ -398,8 +398,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const loggedInNavItems = [
     { href: "/", label: t('AppLayout.home') },
-    { href: "/my-trips", label: t('AppLayout.myTrips') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
+    { href: "/my-trips", label: t('AppLayout.myTrips') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
     { href: "/booking", label: t('AppLayout.booking') },
     { href: "/blog", label: t('AppLayout.blog') },
@@ -442,7 +442,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const footerSupportLinks = [
     { key: "help", onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
     { key: "faq", href: "#", label: t('AppLayout.faq') },
-    { key: "contact", href: "mailto:support@tripmind.com", label: t('AppLayout.contactUs') },
     { key: "tos", href: "#", label: t('AppLayout.termsOfService') },
   ];
 
@@ -576,9 +575,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                 ))}
               </ul>
             </div>
-          </div>
-          <div className="mt-10 border-t border-gray-700 pt-8 text-center text-sm text-gray-400">
-            {t('AppLayout.copyright')}
           </div>
         </div>
       </footer>
