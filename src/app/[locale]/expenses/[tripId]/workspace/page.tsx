@@ -83,6 +83,10 @@ export default function ExpenseWorkspacePage() {
     setPaidBy("");
   };
 
+  const handleRemoveExpense = (expenseId: number) => {
+    setExpenses(expenses.filter(e => e.id !== expenseId));
+  };
+
   const totalSpent = useMemo(() => {
     return expenses.reduce((acc, expense) => acc + expense.amount, 0);
   }, [expenses]);
@@ -205,6 +209,7 @@ export default function ExpenseWorkspacePage() {
                     <TableHead>Description</TableHead>
                     <TableHead>Paid By</TableHead>
                     <TableHead className="text-right">Amount</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -213,10 +218,15 @@ export default function ExpenseWorkspacePage() {
                       <TableCell className="font-medium">{expense.description}</TableCell>
                       <TableCell>{expense.paidBy}</TableCell>
                       <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveExpense(expense.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive"/>
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   )) : (
                     <TableRow>
-                      <TableCell colSpan={3} className="text-center text-muted-foreground">No expenses added yet.</TableCell>
+                      <TableCell colSpan={4} className="text-center text-muted-foreground">No expenses added yet.</TableCell>
                     </TableRow>
                   )}
                 </TableBody>
