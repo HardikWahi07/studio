@@ -39,6 +39,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
 import { AuthDialog } from "./auth-dialog"
 import { ScrollArea } from "./ui/scroll-area"
+import { HelpChatbox } from "./help-chatbox"
 
 
 const languages = [
@@ -240,7 +241,7 @@ function NavLink({ href, children, className }: { href: string, children: React.
   )
 }
 
-function TravelToolsDropdown() {
+function TravelToolsDropdown({ onHelpClick }: { onHelpClick: () => void }) {
   const t = useTranslations();
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
@@ -257,8 +258,8 @@ function TravelToolsDropdown() {
     { href: "/safety", icon: LifeBuoy, label: t('AppLayout.safety') },
   ];
   const supportLinks = [
-      { href: "#", icon: HelpCircle, label: t('AppLayout.helpCenter') },
-      { href: "#", icon: Mail, label: t('AppLayout.contactUs') },
+      { key: 'help', onClick: onHelpClick, icon: HelpCircle, label: t('AppLayout.helpCenter') },
+      { key: 'contact', href: "mailto:support@tripmind.com", icon: Mail, label: t('AppLayout.contactUs') },
   ]
   const isActive = travelTools.some(tool => pathname.endsWith(tool.href));
   
@@ -281,11 +282,18 @@ function TravelToolsDropdown() {
         ))}
          <DropdownMenuSeparator />
           {supportLinks.map(link => (
-            <DropdownMenuItem key={link.label} asChild>
-              <Link href={link.href} className="flex items-center gap-2">
-                <link.icon className="w-4 h-4"/>
-                {link.label}
-              </Link>
+            <DropdownMenuItem key={link.key} asChild>
+                {link.href ? (
+                    <Link href={link.href} className="flex items-center gap-2 cursor-pointer">
+                        <link.icon className="w-4 h-4"/>
+                        {link.label}
+                    </Link>
+                ) : (
+                    <div onClick={link.onClick} className="flex items-center gap-2 cursor-pointer">
+                        <link.icon className="w-4 h-4"/>
+                        {link.label}
+                    </div>
+                )}
             </DropdownMenuItem>
           ))}
       </DropdownMenuContent>
@@ -382,6 +390,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   const { isScrolled, isHomePage } = useScrollState();
   const { theme } = useTheme();
   const [isAuthDialogOpen, setIsAuthDialogOpen] = React.useState(false);
+  const [isHelpChatOpen, setIsHelpChatOpen] = React.useState(false);
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
 
@@ -417,11 +426,11 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       { href: "/suggest-bookings", label: t('AppLayout.smartTransport') },
       { href: "/itinerary-planner", label: t('AppLayout.aiItineraryGenerator') },
       { href: "/safety", label: t('AppLayout.safety') },
-      { href: '#', label: t('AppLayout.helpCenter') },
-      { href: '#', label: t('AppLayout.contactUs') },
+      { key: 'help', onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
+      { key: 'contact', href: 'mailto:support@tripmind.com', label: t('AppLayout.contactUs') },
     ]] : [...loggedOutNavItems, ...[
-      { href: "#", label: t('AppLayout.helpCenter') },
-      { href: "#", label: t('AppLayout.contactUs') },
+      { key: 'help', onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
+      { key: 'contact', href: 'mailto:support@tripmind.com', label: t('AppLayout.contactUs') },
     ]];
 
   const footerQuickLinks = [
@@ -437,9 +446,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   ];
 
   const footerSupportLinks = [
-    { key: "help", href: "#", label: t('AppLayout.helpCenter') },
+    { key: "help", onClick: () => setIsHelpChatOpen(true), label: t('AppLayout.helpCenter') },
     { key: "faq", href: "#", label: t('AppLayout.faq') },
-    { key: "contact", href: "#", label: t('AppLayout.contactUs') },
+    { key: "contact", href: "mailto:support@tripmind.com", label: t('AppLayout.contactUs') },
     { key: "tos", href: "#", label: t('AppLayout.termsOfService') },
   ];
 
@@ -461,7 +470,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               {navItems.map((item) => (
                 <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
               ))}
-              {user && <TravelToolsDropdown />}
+              {user && <TravelToolsDropdown onHelpClick={() => setIsHelpChatOpen(true)} />}
             </nav>
           )}
           <div className="ml-auto flex items-center gap-1">
@@ -509,6 +518,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                           key={item.label}
                           href={item.href === '#' ? '#' : `/${locale}${item.href}`}
                           className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
+                          onClick={item.onClick}
                         >
                           {item.label}
                         </Link>
@@ -551,7 +561,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               <h4 className="font-bold tracking-wider uppercase text-gray-400 text-sm">{t('AppLayout.support')}</h4>
               <ul className="space-y-2 mt-4 text-sm text-gray-300">
                 {footerSupportLinks.map(link => (
-                    <li key={link.key}><Link href={link.href} className="hover:text-white transition-colors">{link.label}</Link></li>
+                    <li key={link.key}>
+                        <a onClick={link.onClick} href={link.href} className="hover:text-white transition-colors cursor-pointer">{link.label}</a>
+                    </li>
                 ))}
               </ul>
             </div>
@@ -561,6 +573,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </footer>
+      <HelpChatbox isOpen={isHelpChatOpen} onOpenChange={setIsHelpChatOpen} />
     </div>
   )
 }
+
+    

@@ -16,7 +16,7 @@ export function HeroVideo() {
   const progressBarRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
   const locale = pathname.split('/')[1] || 'en';
-  const isHomePage = pathname === `/${locale}`;
+  const isHomePage = pathname === `/${locale}` || pathname === '/';
 
   useEffect(() => {
     if (!isHomePage) {
@@ -114,7 +114,8 @@ export function HeroVideo() {
         videoEl.play().catch(e => console.log("Autoplay is waiting for user interaction."));
     };
     
-    videoEl.addEventListener('loadeddata', handleVideoLoaded);
+    // Use 'canplaythrough' to ensure video is fully buffered
+    videoEl.addEventListener('canplaythrough', handleVideoLoaded);
     loadRandomVideoFast();
     
     const handleDocumentClick = () => {
@@ -127,11 +128,12 @@ export function HeroVideo() {
     return () => {
       clearInterval(progressInterval);
       if (videoEl) {
-        videoEl.removeEventListener('loadeddata', handleVideoLoaded);
+        // Remove the correct event listener
+        videoEl.removeEventListener('canplaythrough', handleVideoLoaded);
       }
       document.removeEventListener('click', handleDocumentClick);
     };
-  }, [isHomePage]);
+  }, [isHomePage, pathname, locale]);
 
 
   return (
@@ -142,6 +144,7 @@ export function HeroVideo() {
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-0 transition-opacity duration-1000"
         muted
         loop
+        autoPlay
         playsInline
         preload="auto"
       ></video>
