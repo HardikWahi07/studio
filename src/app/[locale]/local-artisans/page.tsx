@@ -1,12 +1,14 @@
+
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { PexelsImage } from "@/components/pexels-image";
 import { useOnVisible } from '@/hooks/use-on-visible';
 import { cn } from '@/lib/utils';
+import { ArtisanChatDialog } from '@/components/artisan-chat-dialog';
 
 const artisans = [
   {
@@ -53,48 +55,70 @@ const artisans = [
   },
 ];
 
+export type Artisan = typeof artisans[0];
+
 export default function LocalArtisansPage() {
   const containerRef = useRef<HTMLDivElement>(null);
   const isVisible = useOnVisible(containerRef, false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [selectedArtisan, setSelectedArtisan] = useState<Artisan | null>(null);
+
+  const handleConnectClick = (artisan: Artisan) => {
+    setSelectedArtisan(artisan);
+    setIsChatOpen(true);
+  };
 
   return (
-    <main className="flex-1 p-4 md:p-8 space-y-8">
-      <div className="space-y-2">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Connect</h1>
-        <p className="text-muted-foreground max-w-2xl">
-          Support local communities by connecting with talented artisans and authentic experiences. Every interaction tells a story.
-        </p>
-      </div>
+    <>
+      <main className="flex-1 p-4 md:p-8 space-y-8">
+        <div className="space-y-2">
+          <h1 className="font-headline text-3xl md:text-4xl font-bold">Local Connect</h1>
+          <p className="text-muted-foreground max-w-2xl">
+            Support local communities by connecting with talented artisans and authentic experiences. Every interaction tells a story.
+          </p>
+        </div>
 
-      <div ref={containerRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {artisans.map((artisan, index) => {
-          return (
-            <Card key={artisan.id} className={cn("flex flex-col group overflow-hidden fade-in-up", { 'visible': isVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
-              <CardHeader>
-                  <div className="aspect-video w-full overflow-hidden rounded-lg -mt-2 -mx-2">
-                    <PexelsImage
-                      query={artisan.imageHint}
-                      alt={artisan.name}
-                      width={400}
-                      height={300}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                 <CardTitle className="font-headline text-xl pt-4">{artisan.name}</CardTitle>
-                 <CardDescription className="text-accent-foreground/80 font-semibold">{artisan.category}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow">
-                <p className="text-muted-foreground">{artisan.description}</p>
-              </CardContent>
-              <CardFooter>
-                 <Button variant="outline" className="w-full bg-transparent border-accent text-accent hover:bg-accent/10">
-                    Connect <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </CardFooter>
-            </Card>
-          );
-        })}
-      </div>
-    </main>
+        <div ref={containerRef} className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {artisans.map((artisan, index) => {
+            return (
+              <Card key={artisan.id} className={cn("flex flex-col group overflow-hidden fade-in-up", { 'visible': isVisible })} style={{ transitionDelay: `${index * 100}ms` }}>
+                <CardHeader>
+                    <div className="aspect-video w-full overflow-hidden rounded-lg -mt-2 -mx-2">
+                      <PexelsImage
+                        query={artisan.imageHint}
+                        alt={artisan.name}
+                        width={400}
+                        height={300}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                  <CardTitle className="font-headline text-xl pt-4">{artisan.name}</CardTitle>
+                  <CardDescription className="text-accent-foreground/80 font-semibold">{artisan.category}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                  <p className="text-muted-foreground">{artisan.description}</p>
+                </CardContent>
+                <CardFooter>
+                  <Button 
+                    variant="outline" 
+                    className="w-full bg-transparent border-accent text-accent hover:bg-accent/10"
+                    onClick={() => handleConnectClick(artisan)}
+                  >
+                      Connect <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              </Card>
+            );
+          })}
+        </div>
+      </main>
+      {selectedArtisan && (
+        <ArtisanChatDialog 
+          isOpen={isChatOpen} 
+          onOpenChange={setIsChatOpen}
+          artisan={selectedArtisan}
+        />
+      )}
+    </>
   );
 }
