@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect, type FormEvent } from 'react';
@@ -36,7 +35,7 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
 
         try {
             const response = await getHelpChatResponse({
-                history: messages, // Send previous history
+                history: newMessages.slice(0, -1), // Pass the history *before* the user's latest message
                 query: input,
             });
             const modelMessage: Message = { role: 'model', content: response };
@@ -126,5 +125,3 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
         </div>
     );
 }
-
-    
