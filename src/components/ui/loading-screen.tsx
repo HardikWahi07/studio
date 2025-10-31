@@ -3,6 +3,7 @@
 
 import { Leaf } from 'lucide-react';
 import React from 'react';
+import Image from 'next/image';
 
 interface LoadingScreenProps {
   progressBarRef: React.Ref<HTMLDivElement>;
@@ -12,8 +13,8 @@ export const LoadingScreen = React.forwardRef<HTMLDivElement, LoadingScreenProps
   return (
     <div ref={ref} id="loadingScreen" className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-[#001a14] to-[#00382e] flex flex-col items-center justify-center z-[100] transition-opacity duration-1000 ease-out">
       <div className="flex items-center gap-3 mb-8 loading-logo">
-        <div className="p-2 bg-primary rounded-md">
-            <Leaf className="w-8 h-8 text-background animate-pulse" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-2">
+            <Image src="/logo.png" alt="TripMind Logo" width={32} height={32} />
         </div>
         <h1 className="text-4xl font-black text-primary">TripMind</h1>
       </div>
