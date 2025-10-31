@@ -1,8 +1,9 @@
+
 'use server';
 /**
- * @fileOverview An AI agent for suggesting transport bookings, capable of multi-leg journeys.
+ * @fileOverview An AI agent for suggesting flight bookings.
  *
- * - suggestTransportBookings - A function that returns a list of booking options.
+ * - suggestTransportBookings - A function that returns a list of flight booking options.
  * - SuggestTransportBookingsInput - The input type for the function.
  * - SuggestTransportBookingsOutput - The return type for the function.
  */
@@ -10,8 +11,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { searchRealtimeFlights } from '../tools/search-flights';
-import { searchRealtimeTrains } from '../tools/search-trains';
-import { getJourneyToHub } from '../tools/get-journey-to-hub';
 
 // Define Zod schemas for input and output
 const SuggestTransportBookingsInputSchema = z.object({
@@ -62,8 +61,8 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  tools: [searchRealtimeFlights, searchRealtimeTrains, getJourneyToHub],
-  prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey.
+  tools: [searchRealtimeFlights],
+  prompt: `You are an intelligent travel booking assistant. Your task is to find the best flight options for a user's journey using the available tools.
 
   **User's Request:**
   - **From:** {{{origin}}}
@@ -71,28 +70,13 @@ const prompt = ai.definePrompt({
   - **On:** {{{departureDate}}}
   - **Currency:** {{{currency}}}
   - **Plane Class:** {{{planeClass}}}
-  - **Train Class:** {{{trainClass}}}
 
   **Your Task:**
 
-  1.  **Direct Route First:** First, attempt to find direct transport options from the exact 'origin' to the exact 'destination'. 
-      - If the journey is within India, prioritize using the 'searchRealtimeTrains' tool.
-      - For all other destinations, prioritize using the 'searchRealtimeFlights' tool.
-
-  2.  **MANDATORY FALLBACK TO HUBS:** If the direct searches from step 1 (for both trains and flights) return NO available options or an empty array, YOU MUST proceed to this step. This is not optional.
-      a.  **Identify Hubs:** Identify the nearest major transport hub (e.g., a large international airport or central train station) for BOTH the 'origin' and the 'destination'. For example, for a journey from "Vapi, India" to "Pune, India", you should recognize that Vapi doesn't have an airport and identify "Mumbai, India" or "Surat, India" as the nearest major airport hubs.
-      b.  **Construct Multi-Leg Journey:**
-          i.  **First Leg:** Find options for the journey from the original 'origin' to the origin hub. You can use 'searchRealtimeTrains' or 'getJourneyToHub' for this (e.g., Vapi to Mumbai). This will be Leg 1.
-          ii. **Main Leg:** Find flight or train options from the origin hub to the destination hub (e.g., Mumbai to Pune). This will be Leg 2.
-          iii. **Final Leg (if needed):** Find options from the destination hub to the original 'destination'. This will be Leg 3.
-      c.  **Combine Results:** Structure the final output as a 'journey' array containing multiple 'leg' objects.
-
-  3.  **Output Structure:**
-      - The final output MUST be a 'journey' array.
-      - A direct trip will have one leg. A trip requiring travel via a hub will have multiple legs.
-      - Each leg must have a description (e.g., "Train from Vapi to Mumbai") and a list of booking options.
-
-  **IMPORTANT:** Do not give up if a direct search fails. The multi-leg hub search is a required fallback step.
+  1.  **Find Flights:** Use the 'searchRealtimeFlights' tool to find flights from the 'origin' to the 'destination'.
+  2.  **Format Output:** Structure the results as a single journey leg. The 'leg' number should be 1, and the 'description' should be "Flights from {{{origin}}} to {{{destination}}}". Place all the flight options you find into the 'options' array for this leg.
+  
+  **IMPORTANT:** Only search for flights. Do not use any other transport types or attempt to create multi-leg journeys.
   `,
 });
 
