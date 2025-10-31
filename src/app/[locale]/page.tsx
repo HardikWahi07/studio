@@ -177,8 +177,8 @@ export default function DashboardPage({ blogs }: { blogs: Blog[] }) {
                 {t('topDestinationsDescription')}
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
-              {destinations.map((dest, index) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mt-12">
+              {destinations.slice(0, 3).map((dest, index) => (
                   <div key={dest.id} className={cn("fade-in-up", { 'visible': destinationsVisible })} style={{ transitionDelay: `${index * 150}ms` }}>
                     <DestinationCard destination={dest} />
                   </div>
