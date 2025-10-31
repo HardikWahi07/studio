@@ -13,7 +13,6 @@ import {
   type PlanTripInput, 
   type PlanTripOutput 
 } from './plan-trip.types';
-import { searchTrains } from '../tools/search-trains';
 import { add } from 'date-fns';
 import { z } from 'zod';
 
@@ -34,7 +33,6 @@ const prompt = ai.definePrompt({
   name: 'planTripPrompt',
   input: { schema: z.intersection(PlanTripInputSchema, z.object({ checkoutDate: z.string() })) },
   output: { schema: PlanTripOutputSchema },
-  tools: [searchTrains],
   prompt: `You are a world-class AI trip planner. Your task is to create a detailed, day-by-day itinerary that is both inspiring and practical.
 
   **User's Trip Preferences:**
@@ -56,9 +54,8 @@ const prompt = ai.definePrompt({
   **Your Task:**
   1. **Create a Trip Title:** A creative name for the trip.
   2. **Generate Main Booking Options (CRITICAL LOGIC):**
-      - **For any domestic travel within India:** You MUST call the \`searchTrains\` tool to get real-time train options.
-      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. Do NOT use tools for this.
-        - **IMPORTANT:** The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Example format: \`https://www.google.com/flights?q=flights+from+Mumbai+to+Delhi+on+2024-12-25\`
+      - **For ALL domestic travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. Example format: \`https://www.ixigo.com/trains/mumbai-central-bct/to/new-delhi-ndls?date=25-12-2024\`
+      - **For ALL routes (including India):** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Example format: \`https://www.google.com/flights?q=flights+from+Mumbai+to+Delhi+on+2024-12-25\`
   3. **Hotels:**
      - Generate 2-3 realistic MOCK hotel options unless 'accommodationType' is 'none'. The \`bookingLink\` should be a valid Google Hotels search link.
   4. **Local Transport:** Suggest common modes like metro, bus, rideshare, walking, etc.
@@ -119,5 +116,3 @@ const planTripFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

@@ -13,7 +13,6 @@ import {
     type SuggestTransportBookingsInput,
     type SuggestTransportBookingsOutput
 } from './suggest-transport-bookings.types';
-import { searchTrains } from '../tools/search-trains';
 
 
 /**
@@ -30,7 +29,6 @@ const prompt = ai.definePrompt({
   name: 'suggestTransportBookingsPrompt',
   input: { schema: SuggestTransportBookingsInputSchema },
   output: { schema: SuggestTransportBookingsOutputSchema },
-  tools: [searchTrains],
   prompt: `You are an intelligent travel booking assistant. Your task is to find the best transport options for a user's journey.
 
   **User's Request:**
@@ -41,13 +39,17 @@ const prompt = ai.definePrompt({
 
   **Your Task:**
 
-  1.  **Analyze the Route:** First, determine if the origin and destination cities are within India.
+  1.  **Analyze the Route:** First, determine if the route is domestic within India or international.
   2.  **Generate Options:**
-      - **For travel within India:** You MUST call the \`searchTrains\` tool with the user's provided origin and destination city names to get real train data.
-      - **For ALL routes:** Also generate 2-3 realistic MOCK flight options. Do NOT use tools for mock flights. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+ORIGIN+to+DESTINATION+on+YYYY-MM-DD\`
-  3.  **Format Output:** Structure the results into a single journey leg. Combine both the real train options and the mock flight options into the 'options' array for that leg.
+      - **For travel within India:** Generate 2-3 realistic MOCK train options. The \`bookingLink\` for these mock trains MUST be a valid, pre-filled ixigo.com search URL. The date format for ixigo is DD-MM-YYYY.
+      - **For ALL routes:** Generate 2-3 realistic MOCK flight options. The \`bookingLink\` for these mock flights MUST be a valid, pre-filled Google Flights URL. Format: \`https://www.google.com/flights?q=flights+from+ORIGIN+to+DESTINATION+on+YYYY-MM-DD\`
+  3.  **Format Output:** Structure the results into a single journey leg. Combine both the mock train and flight options into the 'options' array for that leg. If the journey is not in India, only provide flight options.
   
-  **IMPORTANT:** If the \`searchTrains\` tool returns no results, proceed with generating only the mock flight options. Do not return an empty journey unless both fail.
+  **IMPORTANT:** If the origin city does not have an airport (e.g., 'Vapi'), you must create a multi-leg journey.
+   - **Leg 1:** Ground transport (taxi, bus) from the origin to the nearest major airport.
+   - **Leg 2:** Flight options from that airport to the destination.
+  
+  Return a valid JSON object that strictly follows the output schema.
   `,
 });
 
@@ -59,7 +61,7 @@ const suggestTransportBookingsFlow = ai.defineFlow(
     outputSchema: SuggestTransportBookingsOutputSchema,
   },
   async (input) => {
-    // Call the LLM with the defined prompt and tools
+    // Call the LLM with the defined prompt
     let llmResponse;
     try {
         console.log("[suggestTransportBookingsFlow] Calling prompt with input:", input);
