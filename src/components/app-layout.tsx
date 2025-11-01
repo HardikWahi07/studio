@@ -23,7 +23,6 @@ import {
   User,
   LogIn,
 } from "lucide-react"
-import { Logo } from "@/components/logo"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from "@/components/ui/sheet"
 import {
@@ -402,7 +401,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
     { href: "/my-trips", label: t('AppLayout.myTrips') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
-    { href: "/booking", label: t('AppLayout.booking') },
     { href: "/blog", label: t('AppLayout.blog') },
     { href: "/local-artisans", label: t('AppLayout.localConnect') },
     { href: "/hidden-gems", label: t('AppLayout.hiddenGems') },
@@ -464,7 +462,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         )}>
         <div className="container mx-auto flex h-16 items-center px-4">
             <Link href={`/${locale}`} className="mr-6 flex items-center gap-2">
-              <Logo />
+              <span className="font-headline text-2xl font-bold">
+                TripMind
+              </span>
             </Link>
           {isMounted && !isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
@@ -545,7 +545,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="container mx-auto px-4 py-12">
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div className="md:col-span-2 lg:col-span-1">
-              <Logo className="text-white" />
+              <span className="font-headline text-2xl font-bold">
+                TripMind
+              </span>
               <p className="text-sm text-gray-400 mt-4">
                 {t('AppLayout.footerDescription')}
               </p>
