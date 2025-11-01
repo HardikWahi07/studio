@@ -326,3 +326,5 @@ export default function BookTripPage({ params }: { params: { tripId: string } })
         </main>
     );
 }
+
+    
