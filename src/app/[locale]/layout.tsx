@@ -36,13 +36,13 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <SettingsProvider>
-              <FirebaseClientProvider>
-                <I18nProvider locale={locale}>
+              <I18nProvider locale={locale}>
+                <FirebaseClientProvider>
                   <AppLayout>
                     {children}
                   </AppLayout>
-                </I18nProvider>
-              </FirebaseClientProvider>
+                </FirebaseClientProvider>
+              </I18nProvider>
             </SettingsProvider>
           </ThemeProvider>
         <Toaster />

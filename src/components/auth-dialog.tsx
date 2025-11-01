@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -28,7 +29,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Leaf, Loader2 } from 'lucide-react';
-import { handleGoogleSignIn, handleEmailSignUp, handleEmailSignIn, handleRedirectResult } from '@/firebase/auth/google';
+import { handleGoogleSignIn, handleEmailSignUp, handleEmailSignIn } from '@/firebase/auth/google';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations } from '@/hooks/use-translations';
 
@@ -51,27 +52,8 @@ const signInSchema = z.object({
 
 export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const t = useTranslations();
-  const [isLoading, setIsLoading] = useState<null | 'google' | 'email' | 'redirect'>(null);
+  const [isLoading, setIsLoading] = useState<null | 'google' | 'email'>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    const checkRedirect = async () => {
-        setIsLoading('redirect');
-        try {
-            const user = await handleRedirectResult();
-            if (user) {
-                onOpenChange(false);
-                toast({ title: t('AuthDialog.welcomeToast') });
-            }
-        } catch (error: any) {
-            toast({ title: t('AuthDialog.signInError'), description: error.message, variant: "destructive" });
-        } finally {
-            setIsLoading(null);
-        }
-    };
-    checkRedirect();
-  }, [onOpenChange, t, toast]);
-
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
@@ -131,11 +113,6 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
             {t('AuthDialog.description')}
           </DialogDescription>
         </DialogHeader>
-        {isLoading === 'redirect' ? (
-             <div className="flex justify-center items-center h-48">
-                <Loader2 className="animate-spin text-primary" size={32} />
-             </div>
-        ) : (
         <Tabs defaultValue="sign-in" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="sign-in">{t('AuthDialog.signIn')}</TabsTrigger>
@@ -243,7 +220,6 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
             </div>
           </TabsContent>
         </Tabs>
-        )}
       </DialogContent>
     </Dialog>
   );
