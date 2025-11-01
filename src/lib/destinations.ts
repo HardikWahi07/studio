@@ -41,3 +41,4 @@ export const destinations = [
     description: "Valsad, historically known as Bulsar, is a city and a municipality in the Valsad district of the Indian state of Gujarat. It is famous for its handloom textile industry and its serene Tithal Beach."
   }
 ];
+// final commit

@@ -12,3 +12,4 @@ import { exec } from 'child_process';
 const seed = exec('npm run db:seed');
 seed.stdout?.pipe(process.stdout);
 seed.stderr?.pipe(process.stderr);
+// final commit

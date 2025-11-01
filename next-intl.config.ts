@@ -1,3 +1,4 @@
+
 {
   "name": "nextn",
   "version": "0.1.0",
@@ -73,3 +74,4 @@
     "typescript": "^5"
   }
 }
+// final commit

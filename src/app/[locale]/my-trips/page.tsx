@@ -192,3 +192,4 @@ export default function MyTripsPage() {
 function isValid(date: Date) {
     return date instanceof Date && !isNaN(date.getTime());
 }
+// final commit

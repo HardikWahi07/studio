@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
-import { handleSignOut } from '@/firebase/auth/google';
+import { handleEmailSignUp, handleEmailSignIn, handleSignOut } from '@/firebase/auth/google';
+import { onAuthStateChanged, User, getAuth } from 'firebase/auth';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,6 +18,7 @@ import { LogIn, User as UserIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AuthDialog } from './auth-dialog';
 import { useTheme } from 'next-themes';
+import { getApp } from 'firebase/app';
 
 interface AuthButtonProps {
   isHomePage: boolean;
@@ -31,7 +32,9 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
   const { theme } = useTheme();
   
   useEffect(() => {
-    const auth = getAuth();
+    // Ensure Firebase app is initialized before getting auth
+    const app = getApp();
+    const auth = getAuth(app);
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setIsUserLoading(false);
@@ -87,3 +90,4 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
     </>
   );
 }
+// final commit

@@ -52,3 +52,4 @@ export function initializeFirebase(): FirebaseServerServices {
 
   return { app, auth, firestore };
 }
+// final commit

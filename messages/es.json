@@ -1,5 +1,6 @@
 
 {
+  "_comment": "final commit",
   "AppLayout": {
     "home": "Inicio",
     "myTrips": "Mis Viajes",
@@ -351,5 +352,3 @@
     "on": "el"
   }
 }
-
-    

@@ -175,7 +175,7 @@ export default function LocalSupportersPage() {
                         <CardDescription>
                             {currentTripDestination 
                                 ? `Automatically showing results for your upcoming trip to ${currentTripDestination}. You can search for a different city below.`
-                                : "Enter a city to find AI locals who can help."
+                                : "Enter a city to AI locals who can help."
                             }
                         </CardDescription>
                     </CardHeader>
@@ -199,3 +199,4 @@ export default function LocalSupportersPage() {
         </>
     );
 }
+// final commit

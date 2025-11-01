@@ -35,3 +35,4 @@ export const SuggestTransportBookingsOutputSchema = z.object({
   journey: z.array(JourneyLegSchema).describe("An array of journey legs. A direct trip will have one leg. A multi-step trip will have multiple legs."),
 });
 export type SuggestTransportBookingsOutput = z.infer<typeof SuggestTransportBookingsOutputSchema>;
+// final commit

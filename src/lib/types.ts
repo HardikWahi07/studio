@@ -9,5 +9,5 @@ export type Blog = {
     createdAt: any;
     imageHint: string;
 }
-
+// final commit
     

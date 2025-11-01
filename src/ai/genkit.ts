@@ -9,3 +9,4 @@ export const ai = genkit({
   // Set a default model for all generate calls.
   model: 'googleai/gemini-2.5-flash-lite',
 });
+// final commit

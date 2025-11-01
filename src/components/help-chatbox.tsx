@@ -125,3 +125,4 @@ export function HelpChatbox({ isOpen, onOpenChange }: { isOpen: boolean; onOpenC
         </div>
     );
 }
+// final commit

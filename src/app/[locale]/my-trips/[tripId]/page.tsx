@@ -97,3 +97,4 @@ export default function TripDetailsPage({ params }: { params: { tripId: string }
         </main>
     );
 }
+// final commit

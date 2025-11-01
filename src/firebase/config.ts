@@ -6,3 +6,4 @@ export const firebaseConfig = {
   "measurementId": "",
   "messagingSenderId": "651206512593"
 };
+// final commit

@@ -468,7 +468,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </Link>
           {isMounted && !isUserLoading && (
             <nav id="navLinks" className="hidden items-center gap-4 lg:flex">
-              {navItems.map((item) => (
+              <NavLink href="/">{t('AppLayout.home')}</NavLink>
+              <NavLink href="/about">{t('AppLayout.about')}</NavLink>
+              {navItems.filter(item => item.href !== "/" && item.href !== "/about").map((item) => (
                 <NavLink key={item.label} href={item.href}>{item.label}</NavLink>
               ))}
               {user && <TravelToolsDropdown onHelpClick={() => setIsHelpChatOpen(true)} />}
@@ -591,3 +593,4 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     </div>
   )
 }
+// final commit

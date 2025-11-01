@@ -44,3 +44,4 @@ export const getTranslations = async (locale: string) => {
         return result;
     };
 };
+// final commit

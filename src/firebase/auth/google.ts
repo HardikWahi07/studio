@@ -67,3 +67,4 @@ export function handleSignOut(): void {
     console.error('Error during sign-out:', error);
   });
 }
+// final commit

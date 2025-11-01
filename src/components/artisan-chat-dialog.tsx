@@ -139,3 +139,4 @@ export function ArtisanChatDialog({ isOpen, onOpenChange, artisan }: ArtisanChat
         </Dialog>
     );
 }
+// final commit

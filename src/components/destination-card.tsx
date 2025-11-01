@@ -48,3 +48,4 @@ export function DestinationCard({ destination }: { destination: Destination }) {
         </Link>
     );
 }
+// final commit

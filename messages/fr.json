@@ -1,5 +1,6 @@
 
 {
+    "_comment": "final commit",
     "AppLayout": {
       "home": "Accueil",
       "myTrips": "Mes Voyages",
@@ -25,7 +26,8 @@
       "termsOfService": "Conditions d'utilisation",
       "copyright": "© 2024 TripMind. Tous droits réservés. Planifiez intelligemment. Voyagez vert.",
       "helpCenter": "Centre d'aide",
-      "contactUs": "Contactez-nous"
+      "contactUs": "Contactez-nous",
+      "aiItineraryGenerator": "Générateur d'itinéraires IA"
     },
     "CreateBlogPage": {
         "title": "Créer un nouvel article de blog",
@@ -50,5 +52,3 @@
         "noPosts": "Aucun article de blog trouvé. Pourquoi ne pas être le premier à partager une histoire ?"
     }
 }
-
-    

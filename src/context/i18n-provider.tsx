@@ -70,3 +70,4 @@ export function I18nProvider({ children, locale }: { children: ReactNode; locale
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
+// final commit

@@ -22,5 +22,5 @@ export const LoadingScreen = React.forwardRef<HTMLDivElement, LoadingScreenProps
     </div>
   );
 });
-
 LoadingScreen.displayName = "LoadingScreen";
+// final commit

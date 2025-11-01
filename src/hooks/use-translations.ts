@@ -10,3 +10,4 @@ export const useTranslations = () => {
   }
   return context.t;
 };
+// final commit
