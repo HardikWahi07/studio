@@ -29,7 +29,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Leaf, Loader2 } from 'lucide-react';
-import { handleGoogleSignIn, handleEmailSignUp, handleEmailSignIn } from '@/firebase/auth/google';
+import { handleEmailSignUp, handleEmailSignIn } from '@/firebase/auth/google';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslations } from '@/hooks/use-translations';
 
@@ -52,7 +52,7 @@ const signInSchema = z.object({
 
 export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const t = useTranslations();
-  const [isLoading, setIsLoading] = useState<null | 'google' | 'email'>(null);
+  const [isLoading, setIsLoading] = useState<null | 'email'>(null);
   const { toast } = useToast();
 
   const signUpForm = useForm<z.infer<typeof signUpSchema>>({
@@ -64,18 +64,7 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
     resolver: zodResolver(signInSchema),
     defaultValues: { email: '', password: '' },
   });
-
-  const onGoogleSignIn = async () => {
-    setIsLoading('google');
-    try {
-      await handleGoogleSignIn();
-      // The page will redirect, so no need to close the dialog here.
-    } catch (error: any) {
-      toast({ title: t('AuthDialog.signInError'), description: error.message, variant: "destructive" });
-      setIsLoading(null);
-    }
-  };
-
+  
   const onEmailSignUp = async (values: z.infer<typeof signUpSchema>) => {
     setIsLoading('email');
     try {
@@ -120,18 +109,6 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
           </TabsList>
           <TabsContent value="sign-in">
             <div className="space-y-4 py-4">
-              <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={!!isLoading}>
-                {isLoading === 'google' ? <Loader2 className="animate-spin" /> : <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308.6 106.5 280.2 96 248 96c-88.8 0-160.1 72.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"></path></svg>}
-                {t('AuthDialog.continueWithGoogle')}
-              </Button>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">{t('AuthDialog.orContinueWith')}</span>
-                </div>
-              </div>
               <Form {...signInForm}>
                 <form onSubmit={signInForm.handleSubmit(onEmailSignIn)} className="space-y-4">
                   <FormField control={signInForm.control} name="email" render={({ field }) => (
@@ -158,18 +135,6 @@ export function AuthDialog({ open, onOpenChange }: { open: boolean, onOpenChange
           </TabsContent>
           <TabsContent value="sign-up">
             <div className="space-y-4 py-4">
-               <Button variant="outline" className="w-full" onClick={onGoogleSignIn} disabled={!!isLoading}>
-                {isLoading === 'google' ? <Loader2 className="animate-spin" /> : <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 23.4 172.9 61.9l-76.2 64.5C308.6 106.5 280.2 96 248 96c-88.8 0-160.1 72.1-160.1 160.1s71.3 160.1 160.1 160.1c98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 26.9 3.9 41.4z"></path></svg>}
-                {t('AuthDialog.continueWithGoogle')}
-              </Button>
-               <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">{t('AuthDialog.orContinueWith')}</span>
-                </div>
-              </div>
               <Form {...signUpForm}>
                 <form onSubmit={signUpForm.handleSubmit(onEmailSignUp)} className="space-y-2">
                   <div className="grid grid-cols-2 gap-2">
