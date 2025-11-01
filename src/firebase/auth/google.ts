@@ -1,7 +1,6 @@
-
 'use client';
 
-import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, createUserWithEmailAndPassword, signInWithEmailAndPassword, updateProfile, signInWithRedirect, getRedirectResult } from 'firebase/auth';
 import { FirebaseError } from 'firebase/app';
 
 const provider = new GoogleAuthProvider();
@@ -9,13 +8,30 @@ const provider = new GoogleAuthProvider();
 export async function handleGoogleSignIn() {
   const auth = getAuth();
   try {
-    await signInWithPopup(auth, provider);
+    // Using redirect instead of popup for better compatibility
+    await signInWithRedirect(auth, provider);
   } catch (error: any) {
-    console.error('Error during Google sign-in:', error);
-    // Let the caller handle the error and display a toast message.
+    console.error('Error during Google sign-in redirect:', error);
     throw new Error(error.message || 'An unknown error occurred during sign-in.');
   }
 }
+
+export async function handleRedirectResult() {
+    const auth = getAuth();
+    try {
+        const result = await getRedirectResult(auth);
+        if (result) {
+            // User signed in.
+            return result.user;
+        }
+        return null;
+    } catch (error: any) {
+        // Handle Errors here.
+        console.error('Error handling redirect result:', error);
+        throw new Error(error.message || 'Failed to handle sign-in redirect.');
+    }
+}
+
 
 export async function handleEmailSignUp(email: string, password: string, displayName: string): Promise<void> {
   const auth = getAuth();
