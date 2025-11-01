@@ -398,12 +398,12 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
 
   const loggedInNavItems = [
     { href: "/", label: t('AppLayout.home') },
+    { href: "/about", label: t('AppLayout.about') },
     { href: "/trip-planner", label: t('AppLayout.aiTripPlanner') },
     { href: "/my-trips", label: t('AppLayout.myTrips') },
     { href: "/suggest-bookings", label: t('AppLayout.suggestBookings') },
     { href: "/booking", label: t('AppLayout.booking') },
     { href: "/blog", label: t('AppLayout.blog') },
-    { href: "/about", label: t('AppLayout.about') },
     { href: "/local-artisans", label: t('AppLayout.localConnect') },
     { href: "/hidden-gems", label: t('AppLayout.hiddenGems') },
   ];
