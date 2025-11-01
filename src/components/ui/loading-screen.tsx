@@ -12,8 +12,15 @@ export const LoadingScreen = React.forwardRef<HTMLDivElement, LoadingScreenProps
   return (
     <div ref={ref} id="loadingScreen" className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-[#001a14] to-[#00382e] flex flex-col items-center justify-center z-[100] transition-opacity duration-1000 ease-out">
       <div className="flex items-center gap-3 mb-4 loading-logo">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-1.5 border-2 border-gray-200">
-             <Image src="/logo.png" alt="TripMind Logo" width={48} height={48} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-200 p-1.5 dark:bg-slate-700">
+             <Image 
+                src="/logo.png" 
+                alt="TripMind Logo" 
+                width={48} 
+                height={48}
+                unoptimized
+                priority
+              />
         </div>
         <h1 className="text-4xl font-black text-white font-headline">TripMind</h1>
       </div>
