@@ -1,9 +1,7 @@
 
 "use client";
 
-import { Leaf } from 'lucide-react';
 import React from 'react';
-import Image from 'next/image';
 
 interface LoadingScreenProps {
   progressBarRef: React.Ref<HTMLDivElement>;
@@ -13,31 +11,36 @@ export const LoadingScreen = React.forwardRef<HTMLDivElement, LoadingScreenProps
   return (
     <div ref={ref} id="loadingScreen" className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-[#001a14] to-[#00382e] flex flex-col items-center justify-center z-[100] transition-opacity duration-1000 ease-out">
       <div className="flex items-center gap-3 mb-8 loading-logo">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-2 border-2 border-gray-200">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white p-1.5 border-2 border-gray-200">
              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
+                width="24" 
+                height="24" 
                 viewBox="0 0 24 24" 
                 fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
+                xmlns="http://www.w3.org/2000/svg"
                 className="h-8 w-8 text-primary"
               >
-                <path d="M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8z" />
-                <path d="M12 11a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />
-                <path d="M10 13a4 4 0 0 0-1.5 7.5" />
-                <path d="M14 13a4 4 0 0 1 1.5 7.5" />
+                <defs>
+                  <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity:1}} />
+                    <stop offset="100%" style={{stopColor: 'hsl(var(--accent))', stopOpacity:1}} />
+                  </linearGradient>
+                </defs>
+                <path d="M12 2a10 10 0 1 0 10 10A10.011 10.011 0 0 0 12 2Zm0 18a8 8 0 1 1 8-8 8.009 8.009 0 0 1-8 8Z" fill="url(#grad1)"/>
+                <path d="M12 4a8 8 0 0 1 8 8h-2a6 6 0 0 0-6-6V4Z" fill="currentColor" fillOpacity="0.2"/>
+                <path d="M5.636 6.364a1 1 0 0 1 1.414 0l1.414 1.414a1 1 0 0 1-1.414 1.414L5.636 7.778a1 1 0 0 1 0-1.414Z" fill="hsl(var(--accent))"/>
+                <path d="M14.121 5.636a1 1 0 0 1 0 1.414L7.757 13.414a1 1 0 0 1-1.414 0l-1.414-1.414a1 1 0 1 1 1.414-1.414l.707.707 5.657-5.657a1 1 0 0 1 1.414 0Z" fill="url(#grad1)"/>
+                <path d="m14.121 16.243-2.828-2.829-1.414 1.414 2.828 2.829a1 1 0 0 0 1.414-1.414Z" fill="currentColor" fillOpacity="0.4"/>
               </svg>
         </div>
-        <h1 className="text-4xl font-black text-primary">TripMind</h1>
+        <h1 className="text-4xl font-black text-white">TripMind</h1>
       </div>
       <div className="relative w-32 h-32 mb-8 loading-animation">
         <div className="absolute w-full h-full border-4 rounded-full border-primary/20 border-t-primary animate-spin"></div>
         <div className="absolute w-[80%] h-[80%] top-[10%] left-[10%] border-4 rounded-full border-primary/20 border-t-primary animate-spin-reverse"></div>
         <div className="absolute w-[60%] h-[60%] top-[20%] left-[20%] border-4 rounded-full border-primary/20 border-t-primary animate-spin"></div>
       </div>
-      <div className="mb-4 text-lg font-semibold tracking-wider text-primary loading-text">
+      <div className="mb-4 text-lg font-semibold tracking-wider text-white loading-text">
         LOADING YOUR NEXT ADVENTURE
       </div>
       <div className="w-52 h-1 overflow-hidden rounded-full bg-primary/20 loading-progress">
