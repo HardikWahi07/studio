@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { useUser } from '@/firebase';
+import { useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged, User } from 'firebase/auth';
 import { handleSignOut } from '@/firebase/auth/google';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LogIn, User } from 'lucide-react';
+import { LogIn, User as UserIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { AuthDialog } from './auth-dialog';
 import { useTheme } from 'next-themes';
@@ -25,14 +25,23 @@ interface AuthButtonProps {
 }
 
 export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
-  const { user, isUserLoading } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [isUserLoading, setIsUserLoading] = useState(true);
   const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const { theme } = useTheme();
+  
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      setIsUserLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const buttonColorClass = isHomePage && !isScrolled && theme === 'dark'
     ? 'text-white hover:text-white'
     : 'text-foreground hover:text-primary';
-
 
   if (isUserLoading) {
     return <Skeleton className="h-10 w-24" />;
@@ -46,7 +55,7 @@ export function AuthButton({ isHomePage, isScrolled }: AuthButtonProps) {
             <Avatar className="h-10 w-10">
               <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? 'User'} />
               <AvatarFallback>
-                <User />
+                <UserIcon />
               </AvatarFallback>
             </Avatar>
           </Button>
