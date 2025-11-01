@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -56,6 +57,18 @@ export default function TripPlannerPage() {
     const [simpleItinerary, setSimpleItinerary] = useState<string | null>(null);
     const [isSimpleLoading, setIsSimpleLoading] = useState(false);
     const [showAiError, setShowAiError] = useState(false);
+    const [onDeviceAiSupported, setOnDeviceAiSupported] = useState(false);
+
+    useEffect(() => {
+        // Check for on-device AI support when the component mounts.
+        async function checkOnDeviceSupport() {
+            if (window.ai && window.ai.canCreateTextSession) {
+                const canCreate = await window.ai.canCreateTextSession();
+                setOnDeviceAiSupported(canCreate === 'readily');
+            }
+        }
+        checkOnDeviceSupport();
+    }, []);
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -129,8 +142,7 @@ export default function TripPlannerPage() {
         setTripSaved(false);
 
         try {
-             const canCreate = await window.ai?.canCreateTextSession();
-             if (canCreate !== 'readily') {
+             if (!onDeviceAiSupported || !window.ai) {
                 setShowAiError(true);
                 setIsSimpleLoading(false);
                 return;
@@ -329,9 +341,11 @@ export default function TripPlannerPage() {
                                 <Button type="submit" disabled={isLoading || isSimpleLoading} className="w-full sm:w-auto">
                                     {isLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">{t('TripPlannerPage.searchingButton')}</span></> : <><Search /> <span className="ml-2">{t('TripPlannerPage.searchButton')}</span></>}
                                 </Button>
-                                <Button type="button" onClick={handleGenerateShortItinerary} disabled={isLoading || isSimpleLoading} variant="outline" className="w-full sm:w-auto">
-                                    {isSimpleLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">Generating...</span></> : <><Wand2 /> <span className="ml-2">Generate Short Itinerary</span></>}
-                                </Button>
+                                {onDeviceAiSupported && (
+                                    <Button type="button" onClick={handleGenerateShortItinerary} disabled={isLoading || isSimpleLoading} variant="outline" className="w-full sm:w-auto">
+                                        {isSimpleLoading ? <><Loader2 className="animate-spin" /> <span className="ml-2">Generating...</span></> : <><Wand2 /> <span className="ml-2">Generate Short Itinerary</span></>}
+                                    </Button>
+                                )}
                             </div>
                         </form>
                     </Form>
